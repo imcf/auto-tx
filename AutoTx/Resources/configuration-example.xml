@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XmlConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- HostAlias: friendly name to be used for this machine in mails -->
+	<HostAlias>Confocal Microscope 2</HostAlias>
+	<!-- DestinationAlias: friendly name for the target to be used in mails -->
+	<DestinationAlias>Core Facility Storage</DestinationAlias>
+	<!-- EmailPrefix: prefix label for email subjects -->
+	<EmailPrefix>[Core Facility] </EmailPrefix>
+
+	<!-- enable or disable debug log messages -->
+	<Debug>true</Debug>
+
+	<!-- SourceDrive: base drive including backslash, e.g. "D:\" -->
+	<SourceDrive>XXX</SourceDrive>
+	<!-- IncomingDirectory: directory on SourceDrive to watch for new files -->
+	<IncomingDirectory>AUTOTRANSFER</IncomingDirectory>
+	<!-- [OPTIONAL] MarkerFile: a file to place in each user's incoming
+         directory, the file itself will be ignored for the transfers -->
+	<MarkerFile>_DO_NOT_ACQUIRE_HERE_.txt</MarkerFile>
+	<!-- ManagedDirectory: directory on SourceDrive where files and folders are
+         moved while queueing for their transfer (sub-directory "PROCESSING")
+         and to store them for deferred delection after a grace period after
+         the transfer (sub-directory "DONE"). -->
+	<ManagedDirectory>ProgramData\AUTOTRANSFER</ManagedDirectory>
+	<!-- DestinationDirectory: where files should be transferred to -->
+	<DestinationDirectory>\\fileserver.mydomain.xy\share\</DestinationDirectory>
+	<!-- TmpTransferDir: temporary directory relative to DestinationDirectory
+	     to be used for running transfers -->
+	<TmpTransferDir>AUTOTRANSFER-TMP</TmpTransferDir>
+
+	<!-- ServiceTimer: interval (in ms) for checking files and parameters -->
+	<ServiceTimer>1000</ServiceTimer>
+
+	<!-- MaxCpuUsage: pause transfer if CPU usage is above this value (in %) -->
+	<MaxCpuUsage>25</MaxCpuUsage>
+	<!-- MinAvailableMemory: pause transfer if free RAM is below (in MB) -->
+	<MinAvailableMemory>512</MinAvailableMemory>
+	<!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
+	<InterPacketGap>0</InterPacketGap>
+	
+	<SpaceMonitoring>
+		<DriveToCheck>
+			<DriveName>C:</DriveName>
+			<SpaceThreshold>20000</SpaceThreshold>
+		</DriveToCheck>
+		<DriveToCheck>
+			<DriveName>D:</DriveName>
+			<SpaceThreshold>120000</SpaceThreshold>
+		</DriveToCheck>
+	</SpaceMonitoring>
+	<!-- StorageNotificationDelta: how often to send storage notification mails
+	     in case one of the drives is below the threshold (in minutes) -->
+	<StorageNotificationDelta>5</StorageNotificationDelta>
+
+	<BlacklistedProcesses>
+		<ProcessName>calc</ProcessName>
+		<ProcessName>notepad</ProcessName>
+		<ProcessName>wordpad</ProcessName>
+	</BlacklistedProcesses>
+
+	<SmtpHost>smtp.mydomain.xy</SmtpHost>
+	<!--><SmtpHost /><-->
+	<SmtpPort>25</SmtpPort>
+	<SmtpUserCredential />
+	<SmtpPasswortCredential />
+
+	<!-- SendAdminNotification: send email to user on finished transfers -->
+	<SendTransferNotification>true</SendTransferNotification>
+	<EmailFrom>admin@mydomain.xy</EmailFrom>
+
+	<!-- SendAdminNotification: notify admins via email of certain events -->
+	<SendAdminNotification>true</SendAdminNotification>
+    <!-- AdminNotificationDelta: how long to wait (in minutes) after sending an
+         admin notification before sending the next one -->
+    <AdminNotificationDelta>60</AdminNotificationDelta>
+	<AdminEmailAdress>admin@mydomain.xy</AdminEmailAdress>
+</XmlConfiguration>

@@ -1,0 +1,14 @@
+Dear FACILITY_USER,
+
+this message is to inform you that one of your file transfers
+has finished successfully.
+
+Your data was transferred from "HOST_ALIAS" (HOST_NAME) to the
+DESTINATION_ALIAS.
+
+TRANSFERRED_FILES
+
+Don't hesitate to contact EMAIL_FROM if you have any additional question.
+
+Have a nice day
+The Facility Team

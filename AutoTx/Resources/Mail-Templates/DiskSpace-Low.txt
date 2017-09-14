@@ -1,0 +1,15 @@
+Dear Admin,
+
+the SERVICE_NAME has detected one or more disks on host
+
+"HOST_ALIAS" (HOST_NAME) 
+
+is below the configured free space threshold:
+
+LOW_SPACE_DRIVES
+
+Please investigate the situation and make sure to keep the
+system in an operational state.
+
+Yours sincerily,
+Big Brother
