@@ -27,13 +27,47 @@ namespace AutoTx
     [Serializable]
     public class XmlConfiguration
     {
+        /// <summary>
+        /// A human friendly name for the host, to be used in emails etc.
+        /// </summary>
         public string HostAlias { get; set; }
+
+        /// <summary>
+        /// A human friendly name for the target, to be used in emails etc.
+        /// </summary>
         public string DestinationAlias { get; set; }
+        
+        /// <summary>
+        /// The base drive for the spooling directories (incoming and managed).
+        /// </summary>
         public string SourceDrive { get; set; }
+
+        /// <summary>
+        /// The name of a directory on SourceDrive that is monitored for new files.
+        /// </summary>
         public string IncomingDirectory { get; set; }
+
+        /// <summary>
+        /// The name of a marker file to be placed in all **sub**directories
+        /// inside the IncomingDirectory.
+        /// </summary>
         public string MarkerFile { get; set; }
+
+        /// <summary>
+        /// A directory on SourceDrive to hold the three subdirectories "DONE",
+        /// "PROCESSING" and "UNMATCHED" used during and after transfers.
+        /// </summary>
         public string ManagedDirectory { get; set; }
+        
+        /// <summary>
+        /// Target path to transfer files to. Usually a UNC location.
+        /// </summary>
         public string DestinationDirectory { get; set; }
+
+        /// <summary>
+        /// The name of a subdirectory in the DestinationDirectory to be used
+        /// to keep the temporary data of running transfers.
+        /// </summary>
         public string TmpTransferDir { get; set; }
         public string SmtpHost { get; set; }
         public string SmtpUserCredential { get; set; }
