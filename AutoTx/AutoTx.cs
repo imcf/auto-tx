@@ -21,9 +21,15 @@ namespace AutoTx
         private string _statusPath;
         private string _incomingPath;
         private string _managedPath;
+
+        private string[] _remoteUserDirs;
+        private string[] _localUserDirs;
+
         private List<string> _transferredFiles = new List<string>();
 
         private int _txProgress;
+
+        private DateTime _lastUserDirCheck = DateTime.Now;
 
         // the transfer state:
         private enum TxState
@@ -60,6 +66,7 @@ namespace AutoTx
             InitializeComponent();
             CreateEventLog();
             LoadSettings();
+            CreateIncomingDirectories();
         }
 
         /// <summary>
@@ -409,6 +416,10 @@ namespace AutoTx
             CheckLogSize();
             CheckFreeDiskSpace();
             UpdateServiceState();
+
+            var delta = DateTime.Now - _lastUserDirCheck;
+            if (delta.Seconds >= 10)
+                CreateIncomingDirectories();
 
             // tasks depending on the service state:
             if (_serviceSuspended) {
@@ -850,6 +861,35 @@ namespace AutoTx
             retval &= CheckForDirectory(Path.Combine(_managedPath, "DONE"));
             retval &= CheckForDirectory(Path.Combine(_managedPath, "UNMATCHED"));
             return retval;
+        }
+
+        /// <summary>
+        /// Helper to create directories for all users that have one in the local
+        /// user directory (C:\Users) AND in the DestinationDirectory.
+        /// </summary>
+        private void CreateIncomingDirectories() {
+            _localUserDirs = new DirectoryInfo(@"C:\Users")
+                .GetDirectories()
+                .Select(d => d.Name)
+                .ToArray();
+            _remoteUserDirs = new DirectoryInfo(_config.DestinationDirectory)
+                .GetDirectories()
+                .Select(d => d.Name)
+                .ToArray();
+
+            foreach (var userDir in _localUserDirs) {
+                // don't create an incoming directory for the same name as the
+                // temporary transfer location:
+                if (_config.TmpTransferDir == userDir)
+                    continue;
+
+                // don't create a directory if it doesn't exist on the target:
+                if (!_remoteUserDirs.Contains(userDir))
+                    continue;
+
+                CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
+            }
+            _lastUserDirCheck = DateTime.Now;
         }
 
         #endregion
