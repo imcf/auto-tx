@@ -19,6 +19,8 @@ namespace AutoTx
         // ending with "Dir" are DirectoryInfo objects
         private string _configPath;
         private string _statusPath;
+        private string _incomingPath;
+        private string _managedPath;
         private List<string> _transferredFiles = new List<string>();
 
         private int _txProgress;
@@ -142,14 +144,18 @@ namespace AutoTx
                              @" and a backslash, e.g. 'D:\'!");
                     configInvalid = true;
                 }
+                // IncomingDirectory
                 if (_config.IncomingDirectory.StartsWith(@"\")) {
                     writeLog("ERROR: IncomingDirectory must not start with a backslash!");
                     configInvalid = true;
                 }
+                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
+                // ManagedDirectory
                 if (_config.ManagedDirectory.StartsWith(@"\")) {
                     writeLog("ERROR: ManagedDirectory must not start with a backslash!");
                     configInvalid = true;
                 }
+                _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
                 if (_config.ServiceTimer < 1000) {
                     writeLog("ERROR: ServiceTimer must not be smaller than 1000 ms!");
                     configInvalid = true;
@@ -535,8 +541,7 @@ namespace AutoTx
                 return;
 
             // select next directory from "processing" for transfer:
-            var processingDir = Path.Combine(_config.SourceDrive,
-                _config.ManagedDirectory, "PROCESSING");
+            var processingDir = Path.Combine(_managedPath, "PROCESSING");
             var queued = new DirectoryInfo(processingDir).GetDirectories();
             if (queued.Length == 0)
                 return;
@@ -555,9 +560,8 @@ namespace AutoTx
         /// Check the incoming directories for files, move them to the processing location.
         /// </summary>
         private void CheckIncomingDirectories() {
-            var incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
             // iterate over all user-subdirectories:
-            foreach (var userDir in new DirectoryInfo(incomingPath).GetDirectories()) {
+            foreach (var userDir in new DirectoryInfo(_incomingPath).GetDirectories()) {
                 if (IncomingDirIsEmpty(userDir))
                     continue;
 
@@ -704,8 +708,8 @@ namespace AutoTx
                 
                 // now everything that is supposed to be transferred is in a folder,
                 // for example: D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
-                var targetDir = Path.Combine(_config.SourceDrive,
-                    _config.ManagedDirectory,
+                var targetDir = Path.Combine(
+                    _managedPath,
                     target,
                     CreateTimestamp(),
                     userDir.Name);
@@ -728,8 +732,8 @@ namespace AutoTx
             string errMsg;
             // CurrentTransferSrc is e.g. D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
             var sourceDirectory = new DirectoryInfo(_status.CurrentTransferSrc);
-            var dstPath = Path.Combine(_config.SourceDrive,
-                _config.ManagedDirectory,
+            var dstPath = Path.Combine(
+                _managedPath,
                 "DONE",
                 sourceDirectory.Name, // the username directory
                 CreateTimestamp());
