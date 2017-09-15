@@ -173,8 +173,13 @@ namespace AutoTx
             }
             _status.CleanShutdown = false;
 
+            StartupSummary();
+        }
 
-            // print a summary of loaded config + status to the log:
+        /// <summary>
+        /// Write a summary of loaded config + status to the log.
+        /// </summary>
+        private void StartupSummary() {
             writeLogDebug("------ RoboSharp ------");
             var roboDll = System.Reflection.Assembly.GetAssembly(typeof(RoboCommand)).Location;
             if (roboDll != null) {
