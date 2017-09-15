@@ -687,19 +687,19 @@ namespace AutoTx
 
                 // the default subdir inside the managed directory, where folders will be
                 // picked up later by the actual transfer method:
-                var managedSubDir = "PROCESSING";
+                var target = "PROCESSING";
 
                 // if the user has no directory on the destination move to UNMATCHED instead:
                 if (string.IsNullOrWhiteSpace(DestinationPath(userDir.Name))) {
                     writeLog("Found unmatched incoming dir: " + userDir.Name, true);
-                    managedSubDir = "UNMATCHED";
+                    target = "UNMATCHED";
                 }
                 
                 // now everything that is supposed to be transferred is in a folder,
                 // for example: D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
                 var targetDir = Path.Combine(_config.SourceDrive,
                     _config.ManagedDirectory,
-                    managedSubDir,
+                    target,
                     CreateTimestamp(),
                     userDir.Name);
                 if (MoveAllSubDirs(userDir, targetDir))
