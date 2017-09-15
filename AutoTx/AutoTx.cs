@@ -144,18 +144,23 @@ namespace AutoTx
                              @" and a backslash, e.g. 'D:\'!");
                     configInvalid = true;
                 }
-                // IncomingDirectory
+
+                // spooling directories: IncomingDirectory + ManagedDirectory
                 if (_config.IncomingDirectory.StartsWith(@"\")) {
                     writeLog("ERROR: IncomingDirectory must not start with a backslash!");
                     configInvalid = true;
                 }
-                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
-                // ManagedDirectory
                 if (_config.ManagedDirectory.StartsWith(@"\")) {
                     writeLog("ERROR: ManagedDirectory must not start with a backslash!");
                     configInvalid = true;
                 }
+                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
                 _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
+                if (CheckSpoolingDirectories() == false) {
+                    writeLog("ERROR checking spooling directories (incoming / managed)!");
+                    configInvalid = true;
+                }
+
                 if (_config.ServiceTimer < 1000) {
                     writeLog("ERROR: ServiceTimer must not be smaller than 1000 ms!");
                     configInvalid = true;
@@ -831,6 +836,19 @@ namespace AutoTx
                 return false;
             }
             return CreateNewDirectory(path, false) == path;
+        }
+
+        /// <summary>
+        /// Ensure the required spooling directories (managed/incoming) exist.
+        /// </summary>
+        /// <returns>True if all dirs exist or were created successfully.</returns>
+        private bool CheckSpoolingDirectories() {
+            var retval = CheckForDirectory(_incomingPath);
+            retval &= CheckForDirectory(_managedPath);
+            retval &= CheckForDirectory(Path.Combine(_managedPath, "PROCESSING"));
+            retval &= CheckForDirectory(Path.Combine(_managedPath, "DONE"));
+            retval &= CheckForDirectory(Path.Combine(_managedPath, "UNMATCHED"));
+            return retval;
         }
 
         #endregion

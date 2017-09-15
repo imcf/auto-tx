@@ -112,13 +112,6 @@ function Uninstall-FileCopyService {
 }
 
 
-function Create-Directories {
-    $foo = New-Item -ItemType Container -Force -Path "$IncomingDir"
-    $foo = New-Item -ItemType Container -Force -Path "$($ManagedDir)\DONE"
-    $foo = New-Item -ItemType Container -Force -Path "$($ManagedDir)\PROCESSING"
-    $foo = New-Item -ItemType Container -Force -Path "$($ManagedDir)\UNMATCHED"
-}
-
 
 $LocalConfiguration = ".\ScriptsConfig.ps1"
 if (Test-Path $LocalConfiguration) {
@@ -136,12 +129,10 @@ try {
     Write-Host "Service $($ServiceName) already installed, updating."
     Stop-MyService
     Copy-ServiceFiles
-    Create-Directories
 }
 catch {
     Copy-ServiceFiles
     Install-Service
-    Create-Directories
 }
 
 Start-MyService
