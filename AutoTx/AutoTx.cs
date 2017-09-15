@@ -161,6 +161,7 @@ namespace AutoTx
                     configInvalid = true;
                 }
 
+                // ServiceTimer
                 if (_config.ServiceTimer < 1000) {
                     writeLog("ERROR: ServiceTimer must not be smaller than 1000 ms!");
                     configInvalid = true;
@@ -816,7 +817,7 @@ namespace AutoTx
                     dirPath = dirPath + "_" + CreateTimestamp();
                 }
                 Directory.CreateDirectory(dirPath);
-                // writeLogDebug("Created new directory: " + dirPath);
+                writeLogDebug("Created directory: " + dirPath);
                 return dirPath;
             }
             catch (Exception ex) {
