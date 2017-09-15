@@ -816,6 +816,19 @@ namespace AutoTx
             return "";
         }
 
+        /// <summary>
+        /// Helper method to check if a directory exists, trying to create it if not.
+        /// </summary>
+        /// <param name="path">The full path of the directory to check / create.</param>
+        /// <returns>True if existing or creation was successful, false otherwise.</returns>
+        private bool CheckForDirectory(string path) {
+            if (string.IsNullOrWhiteSpace(path)) {
+                writeLog("ERROR: CheckForDirectory() parameter must not be empty!");
+                return false;
+            }
+            return CreateNewDirectory(path, false) == path;
+        }
+
         #endregion
 
     }
