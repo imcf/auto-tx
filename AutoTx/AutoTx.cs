@@ -185,6 +185,22 @@ namespace AutoTx
                     configInvalid = true;
                 }
 
+                // CurrentTransferSrc
+                if (_status.CurrentTransferSrc.Length > 0
+                    && !Directory.Exists(_status.CurrentTransferSrc)) {
+                    writeLog("WARNING: status file contains non-existing source path of an " +
+                        "unfinished transfer: " + _status.CurrentTransferSrc);
+                    _status.CurrentTransferSrc = "";
+                }
+
+                // CurrentTargetTmp
+                if (_status.CurrentTargetTmp.Length > 0
+                    && !Directory.Exists(ExpandCurrentTargetTmp())) {
+                    writeLog("WARNING: status file contains non-existing temporary path of an " +
+                        "unfinished transfer: " + _status.CurrentTargetTmp);
+                    _status.CurrentTargetTmp = "";
+                }
+
                 // ServiceTimer
                 if (_config.ServiceTimer < 1000) {
                     writeLog("ERROR: ServiceTimer must not be smaller than 1000 ms!");
