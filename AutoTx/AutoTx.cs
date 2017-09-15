@@ -168,6 +168,23 @@ namespace AutoTx
                     configInvalid = true;
                 }
 
+                // DestinationDirectory
+                if (!_config.DestinationDirectory.StartsWith(@"\\")) {
+                    writeLog("WARNING: DestinationDirectory is no UNC path!");
+                }
+                if (!Directory.Exists(_config.DestinationDirectory)) {
+                    writeLog("ERROR: can't find destination: " + _config.DestinationDirectory);
+                    configInvalid = true;
+                }
+
+                // TmpTransferDir
+                var tmpTransferPath = Path.Combine(_config.DestinationDirectory,
+                    _config.TmpTransferDir);
+                if (!Directory.Exists(tmpTransferPath)) {
+                    writeLog("ERROR: temporary transfer dir doesn't exist: " + tmpTransferPath);
+                    configInvalid = true;
+                }
+
                 // ServiceTimer
                 if (_config.ServiceTimer < 1000) {
                     writeLog("ERROR: ServiceTimer must not be smaller than 1000 ms!");
