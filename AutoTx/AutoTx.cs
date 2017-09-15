@@ -418,7 +418,7 @@ namespace AutoTx
             UpdateServiceState();
 
             var delta = DateTime.Now - _lastUserDirCheck;
-            if (delta.Seconds >= 10)
+            if (delta.Seconds >= 120)
                 CreateIncomingDirectories();
 
             // tasks depending on the service state:
