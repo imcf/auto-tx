@@ -15,6 +15,8 @@ namespace AutoTx
     {
         #region global variables
 
+        // naming convention: variables ending with "Path" are strings, variables
+        // ending with "Dir" are DirectoryInfo objects
         private string _configPath;
         private string _statusPath;
         private List<string> _transferredFiles = new List<string>();
