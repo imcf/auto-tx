@@ -204,8 +204,7 @@ namespace AutoTx
 
         public long CurrentTransferSize {
             get { return _currentTransferSize; }
-            set
-            {
+            set {
                 _currentTransferSize = value;
                 log("CurrentTransferSize was updated (" + value + "), calling Serialize()...");
                 Serialize();
