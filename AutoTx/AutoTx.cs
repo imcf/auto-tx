@@ -419,8 +419,8 @@ namespace AutoTx
             // all parameters within valid ranges, so set the state to "Running":
             if (string.IsNullOrEmpty(limitReason)) {
                 _serviceSuspended = false;
-                if (!string.IsNullOrEmpty(_lastLimitReason)) {
-                    _lastLimitReason = ""; // reset to force a message on next service suspend
+                if (!string.IsNullOrEmpty(_status.LimitReason)) {
+                    _status.LimitReason = ""; // reset to force a message on next service suspend
                     writeLog("Service resuming operation (all parameters in valid ranges).");
                 }
                 return;
@@ -429,8 +429,8 @@ namespace AutoTx
             // set state to "Running" if no-one is logged on:
             if (NoUserIsLoggedOn()) {
                 _serviceSuspended = false;
-                if (!string.IsNullOrEmpty(_lastLimitReason)) {
-                    _lastLimitReason = ""; // reset to force a message on next service suspend
+                if (!string.IsNullOrEmpty(_status.LimitReason)) {
+                    _status.LimitReason = ""; // reset to force a message on next service suspend
                     writeLog("Service resuming operation (no user logged on).");
                 }
                 return;
@@ -438,10 +438,10 @@ namespace AutoTx
 
             // by reaching this point we know the service should be suspended:
             _serviceSuspended = true;
-            if (limitReason == _lastLimitReason)
+            if (limitReason == _status.LimitReason)
                 return;
             writeLog("Service suspended due to limitiations [" + limitReason + "].");
-            _lastLimitReason = limitReason;
+            _status.LimitReason = limitReason;
         }
 
         /// <summary>

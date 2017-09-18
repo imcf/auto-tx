@@ -9,7 +9,6 @@ namespace AutoTx
     {
         #region global variables
 
-        private string _lastLimitReason; // TODO: this should be part of _status!
         private bool _serviceSuspended; // TODO: this should be part of _status!
 
         #endregion

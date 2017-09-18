@@ -122,6 +122,7 @@ namespace AutoTx
         private DateTime _lastStorageNotification;
         private DateTime _lastAdminNotification;
 
+        private string _limitReason;
         string _currentTransferSrc;
         string _currentTargetTmp;
 
@@ -154,6 +155,15 @@ namespace AutoTx
             }
         }
 
+        public string LimitReason {
+            get { return _limitReason; }
+            set {
+                _limitReason = value;
+                log("LimitReason was updated (" + value + "), calling Serialize()...");
+                Serialize();
+            }
+        }
+        
         public string CurrentTransferSrc {
             get { return _currentTransferSrc; }
             set {
