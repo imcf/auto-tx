@@ -127,6 +127,7 @@ namespace AutoTx
         string _currentTargetTmp;
 
         bool _filecopyFinished;
+        private bool _serviceSuspended;
         private bool _cleanShutdown;
 
         private long _currentTransferSize;
@@ -178,6 +179,15 @@ namespace AutoTx
             set {
                 _currentTargetTmp = value;
                 log("CurrentTargetTmp was updated (" + value + "), calling Serialize()...");
+                Serialize();
+            }
+        }
+
+        public bool ServiceSuspended {
+            get { return _serviceSuspended; }
+            set {
+                _serviceSuspended = value;
+                log("ServiceSuspended was updated (" + value + "), calling Serialize()...");
                 Serialize();
             }
         }

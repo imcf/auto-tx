@@ -7,11 +7,6 @@ namespace AutoTx
 {
     public partial class AutoTx
     {
-        #region global variables
-
-        private bool _serviceSuspended; // TODO: this should be part of _status!
-
-        #endregion
 
         /// <summary>
         /// Get the available physical memory in MB.

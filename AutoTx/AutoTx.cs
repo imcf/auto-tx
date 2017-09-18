@@ -418,7 +418,7 @@ namespace AutoTx
             
             // all parameters within valid ranges, so set the state to "Running":
             if (string.IsNullOrEmpty(limitReason)) {
-                _serviceSuspended = false;
+                _status.ServiceSuspended = false;
                 if (!string.IsNullOrEmpty(_status.LimitReason)) {
                     _status.LimitReason = ""; // reset to force a message on next service suspend
                     writeLog("Service resuming operation (all parameters in valid ranges).");
@@ -428,7 +428,7 @@ namespace AutoTx
             
             // set state to "Running" if no-one is logged on:
             if (NoUserIsLoggedOn()) {
-                _serviceSuspended = false;
+                _status.ServiceSuspended = false;
                 if (!string.IsNullOrEmpty(_status.LimitReason)) {
                     _status.LimitReason = ""; // reset to force a message on next service suspend
                     writeLog("Service resuming operation (no user logged on).");
@@ -437,7 +437,7 @@ namespace AutoTx
             }
 
             // by reaching this point we know the service should be suspended:
-            _serviceSuspended = true;
+            _status.ServiceSuspended = true;
             if (limitReason == _status.LimitReason)
                 return;
             writeLog("Service suspended due to limitiations [" + limitReason + "].");
@@ -458,7 +458,7 @@ namespace AutoTx
                 CreateIncomingDirectories();
 
             // tasks depending on the service state:
-            if (_serviceSuspended) {
+            if (_status.ServiceSuspended) {
                 // make sure to pause any running transfer:
                 PauseTransfer();
             } else {
