@@ -342,7 +342,7 @@ namespace AutoTx
                 writeLog("Not all files were transferred - will resume upon next start");
                 writeLogDebug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
                 // should we delete an incompletely transferred file on the target?
-                // TODO: send a notification to the user of the interrupted transfer (#38)
+                SendTransferInterruptedMail();
             }
             // set the shutdown status to clean:
             _status.CleanShutdown = true;

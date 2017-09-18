@@ -153,5 +153,33 @@ namespace AutoTx
                 writeLog("Error loading email template: " + ex.Message, true);
             }
         }
+
+        /// <summary>
+        /// Send a notification email when a transfer has been interrupted before completion.
+        /// Recipient address is derived from the global variable CurrentTransferSrc.
+        /// </summary>
+        public void SendTransferInterruptedMail() {
+            if (_config.SendTransferNotification == false)
+                return;
+
+            var userDir = new DirectoryInfo(_status.CurrentTransferSrc).Name;
+
+            var substitutions = new List<Tuple<string, string>> {
+                Tuple.Create("FACILITY_USER", GetFullUserName(userDir)),
+                Tuple.Create("HOST_ALIAS", _config.HostAlias),
+                Tuple.Create("HOST_NAME", Environment.MachineName),
+                Tuple.Create("EMAIL_FROM", _config.EmailFrom)
+            };
+
+            try {
+                var body = LoadMailTemplate("Transfer-Interrupted.txt", substitutions);
+                SendEmail(GetEmailAddress(userDir),
+                    ServiceName + " - Transfer Interrupted - " + _config.HostAlias,
+                    body);
+            }
+            catch (Exception ex) {
+                writeLog("Error loading email template: " + ex.Message, true);
+            }
+        }
     }
 }

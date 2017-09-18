@@ -1,0 +1,15 @@
+Dear FACILITY_USER,
+
+unfortunately the transfer service on "HOST_ALIAS" (HOST_NAME)
+has been stopped while one of your transfers was still running, probably
+due the computer being shut down.
+
+Your transfer will resume without any additional action required once the
+service is started again, which happens automatically when the computer has
+finished booting up again.
+
+
+Don't hesitate to contact EMAIL_FROM if you have any additional question.
+
+Have a nice day
+The Facility Team
