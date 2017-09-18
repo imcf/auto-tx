@@ -128,6 +128,8 @@ namespace AutoTx
         bool _filecopyFinished;
         private bool _cleanShutdown;
 
+        private long _currentTransferSize;
+
         [XmlElement("LastStatusUpdate", DataType = "dateTime")]
         public DateTime LastStatusUpdate {
             get { return _lastStatusUpdate; }
@@ -186,6 +188,16 @@ namespace AutoTx
             get { return _cleanShutdown; }
             set {
                 _cleanShutdown = value;
+                Serialize();
+            }
+        }
+
+        public long CurrentTransferSize {
+            get { return _currentTransferSize; }
+            set
+            {
+                _currentTransferSize = value;
+                log("CurrentTransferSize was updated (" + value + "), calling Serialize()...");
                 Serialize();
             }
         }

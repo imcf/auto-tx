@@ -69,7 +69,8 @@ namespace AutoTx
                 _roboCommand.RetryOptions.RetryCount = 0;
                 _roboCommand.RetryOptions.RetryWaitTime = 2;
                 _roboCommand.Start();
-                writeLogDebug("Transfer started");
+                writeLogDebug("Transfer started, total size: " + 
+                    _status.CurrentTransferSize / MegaBytes + " MB");
             }
             catch (ManagementException ex) {
                 writeLog("Error in StartTransfer(): " + ex.Message);

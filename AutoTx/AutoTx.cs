@@ -601,6 +601,7 @@ namespace AutoTx
             
             try {
                 _status.CurrentTransferSrc = queued[0].GetDirectories()[0].FullName;
+                _status.CurrentTransferSize = GetDirectorySize(_status.CurrentTransferSrc);
             }
             catch (Exception ex) {
                 writeLog("Error checking for data to be transferred: " + ex.Message);
@@ -651,6 +652,7 @@ namespace AutoTx
                 MoveToGraceLocation();
                 SendTransferCompletedMail();
                 _status.CurrentTransferSrc = ""; // cleanup completed, so reset CurrentTransferSrc
+                _status.CurrentTransferSize = 0;
                 _transferredFiles.Clear(); // empty the list of transferred files
             }
         }
@@ -926,6 +928,17 @@ namespace AutoTx
                 CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
             }
             _lastUserDirCheck = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Recursively sum up size of all files under a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>The total size in bytes.</returns>
+        public static long GetDirectorySize(string path) {
+            return new DirectoryInfo(path)
+                .GetFiles("*", SearchOption.AllDirectories)
+                .Sum(file => file.Length);
         }
 
         #endregion
