@@ -586,7 +586,7 @@ namespace AutoTx
             // next check if there is a transfer that has to be resumed:
             CheckTransfersToResume();
 
-            // check if any of the above calls changed the copystate:
+            // check if any of the above calls changed the transfer state:
             if (_transferState != TxState.Stopped)
                 return;
 
