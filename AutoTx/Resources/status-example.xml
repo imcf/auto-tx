@@ -3,8 +3,11 @@
   <LastStatusUpdate>0001-01-01T00:00:00</LastStatusUpdate>
   <LastStorageNotification>0001-01-01T00:00:00</LastStorageNotification>
   <LastAdminNotification>0001-01-01T00:00:00</LastAdminNotification>
+  <LimitReason />
   <CurrentTransferSrc />
   <CurrentTargetTmp />
+  <ServiceSuspended>false</ServiceSuspended>
   <FilecopyFinished>true</FilecopyFinished>
   <CleanShutdown>true</CleanShutdown>
+  <CurrentTransferSize>0</CurrentTransferSize>
 </XmlStatus>
