@@ -61,7 +61,7 @@ namespace AutoTx
         private long GetFreeDriveSpace(string drive) {
             try {
                 var dInfo = new DriveInfo(drive);
-                return dInfo.TotalFreeSpace / 1048576; // convert bytes to MB
+                return dInfo.TotalFreeSpace / MegaBytes;
             }
             catch (Exception ex) {
                 writeLog("Error in GetFreeDriveSpace(" + drive + "): " + ex.Message);

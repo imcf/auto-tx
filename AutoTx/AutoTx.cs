@@ -29,6 +29,9 @@ namespace AutoTx
 
         private int _txProgress;
 
+        private const int MegaBytes = 1024 * 1024;
+        private const int GigaBytes = 1024 * 1024 * 1024;
+
         private DateTime _lastUserDirCheck = DateTime.Now;
 
         // the transfer state:
