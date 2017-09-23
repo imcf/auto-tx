@@ -1,120 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using System.Configuration;
 
-namespace AutoTx
+namespace AutoTx.XmlWrapper
 {
-    /// <summary>
-    /// Helper class for the nested SpaceMonitoring sections.
-    /// </summary>
-    public class DriveToCheck
-    {
-        [XmlElement("DriveName")]
-        public string DriveName { get; set; }
-
-        // the value is to be compared to System.IO.DriveInfo.TotalFreeSpace
-        // hence we use the same type (long) to avoid unnecessary casts later:
-        [XmlElement("SpaceThreshold")]
-        public long SpaceThreshold { get; set; }
-    }
-
-
-    /// <summary>
-    /// configuration class based on xml
-    /// </summary>
     [Serializable]
-    public class XmlConfiguration
-    {
-        /// <summary>
-        /// A human friendly name for the host, to be used in emails etc.
-        /// </summary>
-        public string HostAlias { get; set; }
-
-        /// <summary>
-        /// A human friendly name for the target, to be used in emails etc.
-        /// </summary>
-        public string DestinationAlias { get; set; }
-        
-        /// <summary>
-        /// The base drive for the spooling directories (incoming and managed).
-        /// </summary>
-        public string SourceDrive { get; set; }
-
-        /// <summary>
-        /// The name of a directory on SourceDrive that is monitored for new files.
-        /// </summary>
-        public string IncomingDirectory { get; set; }
-
-        /// <summary>
-        /// The name of a marker file to be placed in all **sub**directories
-        /// inside the IncomingDirectory.
-        /// </summary>
-        public string MarkerFile { get; set; }
-
-        /// <summary>
-        /// A directory on SourceDrive to hold the three subdirectories "DONE",
-        /// "PROCESSING" and "UNMATCHED" used during and after transfers.
-        /// </summary>
-        public string ManagedDirectory { get; set; }
-        
-        /// <summary>
-        /// Target path to transfer files to. Usually a UNC location.
-        /// </summary>
-        public string DestinationDirectory { get; set; }
-
-        /// <summary>
-        /// The name of a subdirectory in the DestinationDirectory to be used
-        /// to keep the temporary data of running transfers.
-        /// </summary>
-        public string TmpTransferDir { get; set; }
-        public string SmtpHost { get; set; }
-        public string SmtpUserCredential { get; set; }
-        public string SmtpPasswortCredential { get; set; }
-        public string EmailFrom { get; set; }
-        public string AdminEmailAdress { get; set; }
-        public string EmailPrefix { get; set; }
-
-        public int ServiceTimer { get; set; }
-        public int InterPacketGap { get; set; }
-        public int MaxCpuUsage { get; set; }
-        public int MinAvailableMemory { get; set; }
-        public int SmtpPort { get; set; }
-        public int AdminNotificationDelta { get; set; }
-        public int StorageNotificationDelta { get; set; }
-
-        public bool SendAdminNotification { get; set; }
-        public bool SendTransferNotification { get; set; }
-        public bool Debug { get; set; }
-
-
-        [XmlArray]
-        [XmlArrayItem(ElementName = "DriveToCheck")]
-        public List<DriveToCheck> SpaceMonitoring { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem(ElementName = "ProcessName")]
-        public List<string> BlacklistedProcesses { get; set; }
-
-        public static void Serialize(string file, XmlConfiguration c) {
-            // the config is never meant to be written by us, therefore:
-            throw new SettingsPropertyIsReadOnlyException("The config file should not be written by the service!");
-        }
-
-        public static XmlConfiguration Deserialize(string file) {
-            var xs = new XmlSerializer(typeof(XmlConfiguration));
-            var reader = File.OpenText(file);
-            var config = (XmlConfiguration) xs.Deserialize(reader);
-            reader.Close();
-            return config;
-        }
-
-    }
-
-
-    [Serializable]
-    public class XmlStatus
+    public class ServiceStatus
     {
         [NonSerialized] string _storageFile; // remember where we came from
         
@@ -221,7 +112,7 @@ namespace AutoTx
             }
         }
 
-        public XmlStatus() {
+        public ServiceStatus() {
             _currentTransferSrc = "";
             _currentTargetTmp = "";
             _filecopyFinished = true;
@@ -263,18 +154,17 @@ namespace AutoTx
              */
         }
 
-
-        public static XmlStatus Deserialize(string file) {
-            XmlStatus status;
-            var xs = new XmlSerializer(typeof(XmlStatus));
+        public static ServiceStatus Deserialize(string file) {
+            ServiceStatus status;
+            var xs = new XmlSerializer(typeof(ServiceStatus));
             try {
                 var reader = File.OpenText(file);
-                status = (XmlStatus) xs.Deserialize(reader);
+                status = (ServiceStatus) xs.Deserialize(reader);
                 reader.Close();
             }
             catch (Exception) {
                 // if reading the status XML fails, we return an empty (new) one
-                status = new XmlStatus();
+                status = new ServiceStatus();
             }
             // now set the storage filename:
             status._storageFile = file;

@@ -7,6 +7,7 @@ using System.IO;
 using System.Timers;
 using System.DirectoryServices.AccountManagement;
 using System.Management;
+using AutoTx.XmlWrapper;
 using RoboSharp;
 
 namespace AutoTx
@@ -56,8 +57,8 @@ namespace AutoTx
 
         private TxState _transferState;
 
-        XmlConfiguration _config;
-        XmlStatus _status;
+        private ServiceConfig _config;
+        private ServiceStatus _status;
 
         private static Timer _mainTimer;
 
@@ -118,7 +119,7 @@ namespace AutoTx
         /// </summary>
         private void LoadConfigStatusXml() {
             try {
-                _config = XmlConfiguration.Deserialize(_configPath);
+                _config = ServiceConfig.Deserialize(_configPath);
                 writeLogDebug("Loaded config from " + _configPath);
             }
             catch (Exception ex) {
@@ -127,7 +128,7 @@ namespace AutoTx
                 throw new Exception("Error loading config.");
             }
             try {
-                _status = XmlStatus.Deserialize(_statusPath);
+                _status = ServiceStatus.Deserialize(_statusPath);
                 writeLogDebug("Loaded status from " + _statusPath);
             }
             catch (Exception ex) {

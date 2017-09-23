@@ -104,7 +104,9 @@
     <Compile Include="SystemChecks.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="XmlConfiguration.cs" />
+    <Compile Include="XmlWrapper\DriveToCheck.cs" />
+    <Compile Include="XmlWrapper\ServiceConfig.cs" />
+    <Compile Include="XmlWrapper\ServiceStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
