@@ -678,7 +678,7 @@ namespace AutoTx
 
         #endregion
 
-        #region local filesystem tasks
+        #region filesystem tasks (check, move, ...)
 
         /// <summary>
         /// Check if a given directory is empty. If a marker file is set in the config a
@@ -835,6 +835,11 @@ namespace AutoTx
                         target += "_" + CreateTimestamp();
                     writeLogDebug(" - " + subDir.Name + " > " + target);
                     subDir.MoveTo(target);
+                    // force inheritance of ACLs for the moved directories (see
+                    // https://support.microsoft.com/en-us/help/320246 for more details):
+                    var acl = Directory.GetAccessControl(target);
+                    acl.SetAccessRuleProtection(false, false);
+                    Directory.SetAccessControl(target, acl);
                 }
             }
             catch (Exception ex) {
