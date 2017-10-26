@@ -155,6 +155,12 @@ namespace AutoTx
                              @" and a backslash, e.g. 'D:\'!");
                     configInvalid = true;
                 }
+                var driveInfo = new DriveInfo(_config.SourceDrive);
+                if (driveInfo.DriveType != DriveType.Fixed) {
+                    writeLog("ERROR: SourceDrive (" + _config.SourceDrive + ") must be a " +
+                             "local (fixed) drive, OS reports '" + driveInfo.DriveType + "')!");
+                    configInvalid = true;
+                }
 
                 // spooling directories: IncomingDirectory + ManagedDirectory
                 if (_config.IncomingDirectory.StartsWith(@"\")) {
