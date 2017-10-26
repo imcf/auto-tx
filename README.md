@@ -65,10 +65,10 @@ Microsoft RoboCopy tool called [RoboSharp][web_robosharp].
 
 ## Installation
 
-Currently the service has to be installed *manually* using the `InstallUtil.exe`
-tool coming with the .NET framework. A PowerShell script to help with the
-installation is provided with each AutoTx package. To use the script, follow
-these steps:
+Currently the service doesn't have a *conventional* installer but rather has to
+be registered using the `InstallUtil.exe` tool coming with the .NET framework. A
+PowerShell script to help with the installation is provided with each AutoTx
+package. To use the script, follow these steps:
 
 - Log on to the computer using an account with adminstrative privileges.
 - Edit the `ScriptsConfig.ps1` settings file, adjust the values according to
@@ -80,6 +80,11 @@ these steps:
   be used to start a shell with elevated permissions.
 - Navigate to the installation package directory, run the `Install-Service.ps1`
   script.
+
+### Manual Installation
+
+For detailed steps on how to do the installation steps yourself, have a look at
+the [manual installation](INSTALLATION-MANUAL.md) instructions.
 
 ## Operation
 
