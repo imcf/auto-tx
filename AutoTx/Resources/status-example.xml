@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<XmlStatus xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<ServiceStatus xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <LastStatusUpdate>0001-01-01T00:00:00</LastStatusUpdate>
   <LastStorageNotification>0001-01-01T00:00:00</LastStorageNotification>
   <LastAdminNotification>0001-01-01T00:00:00</LastAdminNotification>
@@ -10,4 +10,4 @@
   <FilecopyFinished>true</FilecopyFinished>
   <CleanShutdown>true</CleanShutdown>
   <CurrentTransferSize>0</CurrentTransferSize>
-</XmlStatus>
+</ServiceStatus>
