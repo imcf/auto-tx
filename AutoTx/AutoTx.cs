@@ -6,6 +6,7 @@ using System.ServiceProcess;
 using System.IO;
 using System.Timers;
 using System.DirectoryServices.AccountManagement;
+using System.Globalization;
 using System.Management;
 using AutoTx.XmlWrapper;
 using RoboSharp;
@@ -268,6 +269,7 @@ namespace AutoTx
             writeLogDebug("IncomingDirectory: " + _config.IncomingDirectory);
             writeLogDebug("MarkerFile: " + _config.MarkerFile);
             writeLogDebug("ManagedDirectory: " + _config.ManagedDirectory);
+            writeLogDebug("GracePeriod: " + _config.GracePeriod);
             writeLogDebug("DestinationDirectory: " + _config.DestinationDirectory);
             writeLogDebug("TmpTransferDir: " + _config.TmpTransferDir);
             writeLogDebug("ServiceTimer: " + _config.ServiceTimer);
@@ -299,6 +301,14 @@ namespace AutoTx
                               GetFreeDriveSpace(driveToCheck.DriveName));
             }
             writeLogDebug("");
+
+            writeLogDebug("------ Grace location status ------");
+            try {
+                CheckGraceLocation();
+            }
+            catch (Exception ex) {
+                writeLog("CheckGraceLocation() failed: " + ex.Message, true);
+            }
         }
 
         #endregion
@@ -807,6 +817,9 @@ namespace AutoTx
                     sourceDirectory.Delete();
                     if (sourceDirectory.Parent != null)
                         sourceDirectory.Parent.Delete();
+                    // check age and size of existing folders in the grace location after
+                    // a transfer has completed, trigger a notification if necessary:
+                    CheckGraceLocation();
                     return;
                 }
                 errMsg = "unable to move " + sourceDirectory.FullName;
@@ -951,6 +964,46 @@ namespace AutoTx
             return new DirectoryInfo(path)
                 .GetFiles("*", SearchOption.AllDirectories)
                 .Sum(file => file.Length);
+        }
+
+        /// <summary>
+        /// Generate a report on expired folders in the grace location.
+        /// 
+        /// Check all user-directories in the grace location for subdirectories whose
+        /// name-timestamp exceeds the configured grace period and generate a summary
+        /// containing the age and size of those directories.
+        /// </summary>
+        public void CheckGraceLocation() {
+            var graceDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
+            var report = "";
+            foreach (var userdir in graceDir.GetDirectories()) {
+                var expired = "";
+                foreach (var subdir in userdir.GetDirectories()) {
+                    DateTime timestamp;
+                    try {
+                        timestamp = DateTime.ParseExact(subdir.Name,
+                            "yyyy-MM-dd__HH-mm-ss", CultureInfo.InvariantCulture);
+                    }
+                    catch (Exception ex) {
+                        writeLogDebug("ERROR parsing timestamp from directory name '" +
+                            subdir.Name + "', skipping: " + ex.Message);
+                        continue;
+                    }
+                    var delta = DateTime.UtcNow - timestamp;
+                    if (delta.Days < _config.GracePeriod)
+                        continue;
+                    var size = GetDirectorySize(subdir.FullName) / MegaBytes;
+                    expired += "   - " + subdir + ": " + size + " MB (age: "
+                        + delta.Days + " days)\n";
+                }
+                if (string.IsNullOrWhiteSpace(expired))
+                    continue;
+                report += "\n - user '" + userdir + "':\n" + expired;
+            }
+            if (string.IsNullOrWhiteSpace(report))
+                return;
+            writeLogDebug("Expired folders in grace location (" + graceDir.FullName + "):\n"
+                + report);
         }
 
         #endregion

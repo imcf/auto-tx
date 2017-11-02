@@ -69,6 +69,12 @@ namespace AutoTx.XmlWrapper
         public int AdminNotificationDelta { get; set; }
         public int StorageNotificationDelta { get; set; }
 
+        /// <summary>
+        /// GracePeriod: number of days after data in the "DONE" location expires,
+        /// which will trigger a summary email to the admin address.
+        /// </summary>
+        public int GracePeriod { get; set; }
+
         public bool SendAdminNotification { get; set; }
         public bool SendTransferNotification { get; set; }
         public bool Debug { get; set; }
