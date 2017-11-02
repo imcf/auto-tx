@@ -108,6 +108,15 @@ is in XML format so it is easily usable from C# code using the core
 Serialization / Deserialization functions. Likewise, this file is to be found in
 the service base directory and called `status.xml`.
 
+### Grace Location Cleanup
+
+After a transfer has completed, the service moves all folders of that transfer
+into one subfolder inside the `$ManagedDirectory/DONE/<username>/` location.
+Grace location checks are done
+ - at service startup
+ - after a transfer has finished
+ - once every *configurable* hours
+
 
 ## Development
 
