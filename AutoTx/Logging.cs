@@ -26,7 +26,7 @@ namespace AutoTx
         }
 
         /// <summary>
-        /// // Calls writeLog() if debug mode is enabled in the config file
+        /// Call writeLog() if debug mode is enabled, optionally send an admin notification.
         /// </summary>
         public void writeLogDebug(string logText, bool notify = false) {
             if (_config.Debug)
