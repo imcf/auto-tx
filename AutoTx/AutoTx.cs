@@ -289,6 +289,9 @@ namespace AutoTx
                 writeLogDebug("SmtpHost: ====== Not configured, disabling notification emails! ======");
             } else {
                 writeLogDebug("SmtpHost: " + _config.SmtpHost);
+                writeLogDebug("EmailFrom: " + _config.EmailFrom);
+                writeLogDebug("AdminEmailAdress: " + _config.AdminEmailAdress);
+                writeLogDebug("AdminDebugEmailAdress: " + _config.AdminDebugEmailAdress);
             }
             writeLogDebug("");
 

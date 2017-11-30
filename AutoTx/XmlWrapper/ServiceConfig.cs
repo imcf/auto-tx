@@ -59,6 +59,7 @@ namespace AutoTx.XmlWrapper
         public string SmtpPasswortCredential { get; set; }
         public string EmailFrom { get; set; }
         public string AdminEmailAdress { get; set; }
+        public string AdminDebugEmailAdress { get; set; }
         public string EmailPrefix { get; set; }
 
         public int ServiceTimer { get; set; }
