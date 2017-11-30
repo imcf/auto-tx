@@ -111,8 +111,9 @@ the service base directory and called `status.xml`.
 ### Grace Location Cleanup
 
 After a transfer has completed, the service moves all folders of that transfer
-into one subfolder inside the `$ManagedDirectory/DONE/<username>/` location.
-Grace location checks are done
+into one subfolder inside the `$ManagedDirectory/DONE/<username>/` location. The
+subfolders are named with a timestamp `YYYY-MM-DD__hh-mm-ss`. The grace location
+checks are done
  - at service startup
  - after a transfer has finished
  - once every *configurable* hours
