@@ -2,12 +2,20 @@
 # AutoTx service binaries and configuration file
 
 
-# ------------------------------------------------------------------------------
-$InstallationPath = "C:\Tools\AutoTx"
-$ServiceName = "AutoTx"
+[CmdletBinding()]
+Param(
+    [Parameter(Mandatory=$True)][string] $UpdaterSettings
+)
 
-$UpdateSourcePath = "C:\ATX\TARGET\d-vamp-dw\_AUTOTX_"
-# ------------------------------------------------------------------------------
+try {
+    . $UpdaterSettings
+}
+catch {
+    $ex = $_.Exception.Message
+    Write-Host "Error reading settings file: '$($UpdaterSettings)' [$($ex)]"
+    Exit
+}
+
 
 
 function Check-ServiceState([string]$ServiceName) {
