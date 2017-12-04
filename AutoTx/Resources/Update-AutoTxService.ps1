@@ -36,7 +36,7 @@ function Check-ServiceState([string]$ServiceName) {
     if ($Continue) {
         Return
     }
-    Write-Host "ERROR: Service $($ServiceName) must be installed and running."
+    Log-Error "ERROR: Service '$($ServiceName)' must be installed and running."
     Exit
 }
 
@@ -98,7 +98,7 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
     if (-Not ($SrcWriteTime -gt $TgtWriteTime)) {
         Return
     }
-    Write-Host "Found newer file at $($SourcePath), updating..."
+    Log-Info -Message "Found newer file at $($SourcePath), updating..."
     Stop-MyService
 
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
@@ -109,9 +109,8 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
         Copy-Item -Path $SourcePath -Destination $Destination -ErrorAction Stop
     }
     catch {
-        $ex = $_.Exception
-        Write-Host "Copying $($SourcePath) FAILED!" -Fore Red
-        Write-Host $ex.Message
+        $ex = $_.Exception.Message
+        Log-Error -Message "Copying $($SourcePath) FAILED!`n$($ex)"
         Exit
     }
 }
@@ -151,12 +150,45 @@ function Update-ServiceBinaries {
     if (Test-Path "$MarkerFile" -Type Leaf) {
         Return
     }
-    Write-Host "No marker file found, trying to update service binaries..."
+    Log-Info -Message "No marker file found, trying to update service binaries."
     Stop-MyService
     Copy-ServiceFiles
     New-Item -Type File "$MarkerFile" | Out-Null
 }
 
+
+function Log-Message([string]$Type, [string]$Message, [int]$Id){
+     $msg = "[$($Me)] "
+     try {
+         Write-EventLog `
+            -LogName Application `
+            -Source "AutoTx" `
+            -Category 0 `
+            -EventId $Id `
+            -EntryType $Type `
+            -Message "[$($Me)]: $($Message)" `
+            -ErrorAction Stop
+        $msg += "Logged message (Id=$($Id), Type=$($Type)).`n"
+        $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
+     }
+     catch {
+         $ex = $_.Exception.Message
+         $msg += "Error logging message (Id=$($Id), Type=$($Type))!`n"
+         $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
+         $msg += "--- Exception ---`n$($ex)`n--- Exception ---"
+     }
+     Write-Host $msg
+}
+
+
+function Log-Error([string]$Message){
+    Log-Message -Type Error -Message $Message -Id 1
+}
+
+
+function Log-Info([string]$Message) {
+    Log-Message -Type Information -Message $Message -Id 1
+}
 
 
 
