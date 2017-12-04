@@ -16,6 +16,8 @@ catch {
     Exit
 }
 
+$Me = $MyInvocation.MyCommand -replace '.ps1'
+
 
 
 function Check-ServiceState([string]$ServiceName) {
