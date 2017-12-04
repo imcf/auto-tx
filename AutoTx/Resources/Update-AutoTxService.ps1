@@ -45,7 +45,8 @@ function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
     if (Test-Path -PathType Container $DirName) {
         Return
     }
-    Write-Host "ERROR: can't find / access $($Desc) path: $($DirName)"
+    $msg = "ERROR: can't find / access $($Desc) path: $($DirName)"
+    Send-MailReport -Subject "path or permission error" -Body $msg
     Exit
 }
 
@@ -154,6 +155,33 @@ function Update-ServiceBinaries {
     Stop-MyService
     Copy-ServiceFiles
     New-Item -Type File "$MarkerFile" | Out-Null
+}
+
+
+function Send-MailReport([string]$Subject, [string]$Body) {
+    $Subject = "[$($Me)] $($env:COMPUTERNAME) - $($Subject)"
+    $msg = "------------------------------`n"
+    $msg += "From: $($EmailFrom)`n"
+    $msg += "To: $($EmailTo)`n"
+    $msg += "Subject: $($Subject)`n`n"
+    $msg += "Body: $($Body)"
+    $msg += "`n------------------------------`n"
+    try {
+        Send-MailMessage `
+            -SmtpServer $EmailSMTP `
+            -From $EmailFrom `
+            -To $EmailTo `
+            -Body $Body `
+            -Subject $Subject `
+            -ErrorAction Stop
+        Log-Info -Message "Sent Mail Message:`n$($msg)"
+    }
+    catch {
+        $ex = $_.Exception.Message
+        $msg = "Error sending email!`n`n$($msg)"
+        $msg += "Exception message: $($ex)"
+        Log-Error -Message $msg
+    }
 }
 
 
