@@ -1,5 +1,5 @@
-# helper script to be run by the task scheduler for automatic updates of the
-# AutoTx service binaries and configuration file
+# Script to be run by the task scheduler for automatic updates of the AutoTx
+# service binaries and / or configuration file.
 
 
 [CmdletBinding()]
