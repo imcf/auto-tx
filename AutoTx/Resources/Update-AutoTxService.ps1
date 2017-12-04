@@ -107,12 +107,13 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
 }
 
 
-function Update-ConfigFile {
+function Update-Configuration {
     $NewConfig = "$($UpdateConfigPath)\configuration.xml"
     if (Test-Path -PathType Leaf $NewConfig) {
         Update-FileIfNewer $NewConfig $InstallationPath
     }
 }
+
 
 function Copy-ServiceFiles {
     Write-Host -NoNewLine "Updating service binaries: "
@@ -147,6 +148,8 @@ function Update-ServiceBinaries {
 }
 
 
+
+
 # first check if the service is installed and running at all
 Check-ServiceState $ServiceName
 
@@ -160,7 +163,7 @@ Exit-IfDirMissing $UpdateConfigPath "configuration update"
 Exit-IfDirMissing $UpdateMarkerPath "update marker"
 Exit-IfDirMissing $UpdateBinariesPath "service binaries update"
 
-Update-ConfigFile
+Update-Configuration
 Update-ServiceBinaries
 
 Start-MyService
