@@ -102,6 +102,7 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
     Log-Info -Message "Found newer file at $($SourcePath), updating..."
     Stop-MyService
 
+    # assemble a timestamp string like "2017-12-04T16.41.35"
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
     $BakName = "$($SrcFileNoSuffix)_pre-$BakTimeStamp$SrcFileSuffix"
     Rename-Item "$DstPath" "$Destination\$BakName"
