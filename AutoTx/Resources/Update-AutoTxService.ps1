@@ -90,7 +90,7 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
     $SrcFileSuffix = [io.path]::GetExtension($SrcFile)
     $DstPath = "$($Destination)\$($SrcFile)"
     if (-Not (Test-Path "$DstPath")) {
-        Write-Host "File not existing in destination, NOT UPDATING: $DstPath"
+        Log-Info "File not existing in destination, NOT UPDATING: $($DstPath)"
         Return
     }
 
@@ -104,14 +104,15 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
 
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
     $BakName = "$($SrcFileNoSuffix)_pre-$BakTimeStamp$SrcFileSuffix"
-    Write-Host "Creating backup: $($BakName)"
     Rename-Item "$DstPath" "$Destination\$BakName"
+    Log-Info "Creating backup of '$($DstPath)' to '$($BakName)'."
     try {
         Copy-Item -Path $SourcePath -Destination $Destination -ErrorAction Stop
+        Log-Info "Updated config file '$($DstPath)'."
     }
     catch {
         $ex = $_.Exception.Message
-        Log-Error -Message "Copying $($SourcePath) FAILED!`n$($ex)"
+        Log-Error "Copying $($SourcePath) FAILED!`n$($ex)"
         Exit
     }
 }
