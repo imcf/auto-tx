@@ -105,8 +105,15 @@ function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
     # assemble a timestamp string like "2017-12-04T16.41.35"
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
     $BakName = "$($SrcFileNoSuffix)_pre-$BakTimeStamp$SrcFileSuffix"
-    Rename-Item "$DstPath" "$Destination\$BakName"
     Log-Info "Creating backup of '$($DstPath)' to '$($BakName)'."
+    try {
+        Rename-Item "$DstPath" "$Destination\$BakName" -ErrorAction Stop
+    }
+    catch {
+        $ex = $_.Exception.Message
+        Log-Error "Backing up '$($DstPath)' as '$($BakName) FAILED!`n$($ex)"
+        Exit
+    }
     try {
         Copy-Item -Path $SourcePath -Destination $Destination -ErrorAction Stop
         Log-Info "Updated config file '$($DstPath)'."
