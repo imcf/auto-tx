@@ -59,11 +59,14 @@ function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
 function Stop-MyService {
     Write-Host -NoNewLine "Stopping service $($ServiceName): "
     try {
-        Stop-Service $ServiceName -ErrorAction Stop
+        Stop-Service "$($ServiceName)" -ErrorAction Stop
         Write-Host "[OK]" -Fore Green
     }
     catch {
+        $ex = $_.Exception.Message
         Write-Host "[FAILED]" -Fore Red
+        Send-MailReport -Subject "Shutdown of service $($ServiceName) failed!" `
+            -Body "Trying to stop the service results in this error:`n$($ex)"
         Exit
     }
 }
@@ -75,13 +78,16 @@ function Start-MyService {
     }
     Write-Host -NoNewLine "Starting service $($ServiceName): "
     try {
-        Start-Service $ServiceName -ErrorAction Stop
+        Start-Service "$($ServiceName)" -ErrorAction Stop
         Write-Host "[OK]" -Fore Green
     }
     catch {
-        $ex = $_.Exception
+        $ex = $_.Exception.Message
         Write-Host "[FAILED]" -Fore Red
-        Write-Host $ex.Message
+        Write-Host $ex
+        Send-MailReport -Subject "Startup of service $($ServiceName) failed!" `
+            -Body "Trying to start the service results in this error:`n$($ex)"        
+        Exit
     }
 }
 
