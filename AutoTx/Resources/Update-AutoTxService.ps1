@@ -1,6 +1,9 @@
 # Script to be run by the task scheduler for automatic updates of the AutoTx
 # service binaries and / or configuration file.
 
+# Testing has been done on PowerShell 5.1 only, so we set this as a requirement:
+#requires -version 5.1
+
 
 [CmdletBinding()]
 Param(
