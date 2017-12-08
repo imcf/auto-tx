@@ -206,7 +206,7 @@ function Update-Configuration {
 function Copy-ServiceFiles {
     try {
         Copy-Item -Recurse -Force -ErrorAction Stop `
-            -Path "$UpdateBinariesPath" `
+            -Path "$($UpdateBinariesPath)\*" `
             -Destination "$InstallationPath"
     }
     catch {
