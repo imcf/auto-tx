@@ -232,7 +232,14 @@ function Update-ServiceBinaries {
     Log-Info "Marker file ($($MarkerFile)) missing, trying to update service."
     Stop-MyService
     Copy-ServiceFiles
-    New-Item -Type File "$MarkerFile" | Out-Null
+    try {
+        New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
+        Write-Verbose "Created marker file: $($MarkerFile)"
+    }
+    catch {
+        Log-Error "Creating $($MarkerFile) FAILED!`n$($_.Exception.Message)"
+        Exit
+    }
 }
 
 
