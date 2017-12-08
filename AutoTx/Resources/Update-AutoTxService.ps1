@@ -83,56 +83,119 @@ function Start-MyService {
 }
 
 
-function Update-FileIfNewer([string]$SourcePath, [string]$Destination) {
-    # SourcePath is expected to be a FILE (full path)
-    # Destination is expected to be a DIRECTORY (full path)
-    $SrcDir = Split-Path $SourcePath -Parent
-    $SrcFile = Split-Path $SourcePath -Leaf
-    $SrcFileNoSuffix = [io.path]::GetFileNameWithoutExtension($SrcFile)
-    $SrcFileSuffix = [io.path]::GetExtension($SrcFile)
-    $DstPath = "$($Destination)\$($SrcFile)"
-    if (-Not (Test-Path "$DstPath")) {
-        Log-Info "File not existing in destination, NOT UPDATING: $($DstPath)"
-        Return
+function Get-WriteTime([string]$FileName) {
+    try {
+        $TimeStamp = (Get-Item "$FileName").LastWriteTime
     }
-
-    $SrcWriteTime = (Get-Item "$SourcePath").LastWriteTime
-    $TgtWriteTime = (Get-Item "$DstPath").LastWriteTime
-    if (-Not ($SrcWriteTime -gt $TgtWriteTime)) {
-        Return
+    catch {
+        $ex = $_.Exception.Message
+        Log-Error "Error determining file age of '$($FileName)'!`n$($ex)"
+        Exit
     }
-    Log-Info -Message "Found newer file at $($SourcePath), updating..."
-    Stop-MyService
+    Return $TimeStamp
+}
 
+
+function File-IsUpToDate([string]$ExistingFile, [string]$UpdateCandidate) {
+    # Compare write-timestamps, return $False if $UpdateCandidate is newer.
+    Write-Verbose "Comparing $($UpdateCandidate) vs. $($ExistingFile)..."
+    $CandidateTime = Get-WriteTime -FileName $UpdateCandidate
+    $ExistingTime = Get-WriteTime -FileName $ExistingFile
+    if ($CandidateTime -le $ExistingTime) {
+        Write-Verbose "File $($ExistingFile) is up-to-date."
+        Return $True
+    }
+    Return $False
+}
+
+
+function Create-Backup {
+    Param (
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({Test-Path -PathType Leaf $_})]
+        [String]$FileName
+
+    )
+    $FileWithoutSuffix = [io.path]::GetFileNameWithoutExtension($FileName)
+    $FileSuffix = [io.path]::GetExtension($FileName)
+    $BaseDir = Split-Path -Parent $FileName
+    
     # assemble a timestamp string like "2017-12-04T16.41.35"
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
-    $BakName = "$($SrcFileNoSuffix)_pre-$BakTimeStamp$SrcFileSuffix"
-    Log-Info "Creating backup of '$($DstPath)' to '$($BakName)'."
+    $BakName = "$($FileWithoutSuffix)_pre-$($BakTimeStamp)$($FileSuffix)"
+    Log-Info "Creating backup of '$($FileName)' as '$($BaseDir)\$($BakName)'."
     try {
-        Rename-Item "$DstPath" "$Destination\$BakName" -ErrorAction Stop
+        Rename-Item "$FileName" "$BaseDir\$BakName" -ErrorAction Stop
     }
     catch {
         $ex = $_.Exception.Message
-        Log-Error "Backing up '$($DstPath)' as '$($BakName) FAILED!`n$($ex)"
+        Log-Error "Backing up '$($FileName)' as '$($BakName) FAILED!`n$($ex)"
         Exit
     }
+}
+
+
+function Update-File {
+    # Check the given $SrcFile if a file with the same name is existing in
+    # $DstPath. If $SrcFile is newer, stop the service, create a backup of the
+    # file in $DstPath and finally copy the file from $SrcFile to $DstPath.
+    #
+    # Return $True if the file was updated, $False otherwise.
+    #
+    # WARNING: the function TERMINATES the script on any error!
+    #
+    Param (
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({[IO.Path]::IsPathRooted($_)})]
+        [String]$SrcFile,
+
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({(Get-Item $_).PSIsContainer})]
+        [String]$DstPath
+    )
+
+    $DstFile = "$($DstPath)\$(Split-Path -Leaf $SrcFile)"
+    if (-Not (Test-Path "$DstFile")) {
+        Log-Info "File not existing in destination, NOT UPDATING: $($DstFile)"
+        Return $False
+    }
+
+    if (File-IsUpToDate -ExistingFile $DstFile -UpdateCandidate $SrcFile) {
+        Return $False        
+    }
+
+    Log-Info "Found newer file at $($SrcFile), updating..."
+    Stop-MyService
+
     try {
-        Copy-Item -Path $SourcePath -Destination $Destination -ErrorAction Stop
-        Log-Info "Updated config file '$($DstPath)'."
+        Create-Backup -FileName $DstFile
     }
     catch {
-        $ex = $_.Exception.Message
-        Log-Error "Copying $($SourcePath) FAILED!`n$($ex)"
+        Log-Error "Backing up $($DstFile) FAILED!`n$($_.Exception.Message)"
         Exit
     }
+
+    try {
+        Copy-Item -Path $SrcFile -Destination $DstPath -ErrorAction Stop
+        Log-Info "Updated config file '$($DstFile)'."
+    }
+    catch {
+        Log-Error "Copying $($SrcFile) FAILED!`n$($_.Exception.Message)"
+        Exit
+    }
+    Return $True
 }
 
 
 function Update-Configuration {
     $NewConfig = "$($UpdateConfigPath)\configuration.xml"
     if (Test-Path -PathType Leaf $NewConfig) {
-        Update-FileIfNewer $NewConfig $InstallationPath
+        $ret = Update-File $NewConfig $InstallationPath
+    } else {
+        $ret = $False
+        Write-Verbose "No configuration file found at '$($NewConfig)'."
     }
+    Return $ret
 }
 
 
@@ -216,7 +279,7 @@ function Log-Message([string]$Type, [string]$Message, [int]$Id){
          $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
          $msg += "--- Exception ---`n$($ex)`n--- Exception ---"
      }
-     Write-Host $msg
+     Write-Verbose $msg
 }
 
 
@@ -246,7 +309,7 @@ Exit-IfDirMissing $UpdateConfigPath "configuration update"
 Exit-IfDirMissing $UpdateMarkerPath "update marker"
 Exit-IfDirMissing $UpdateBinariesPath "service binaries update"
 
-Update-Configuration
-Update-ServiceBinaries
+$ConfigUpdated = Update-Configuration
+# Update-ServiceBinaries
 
 Start-MyService
