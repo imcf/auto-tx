@@ -204,23 +204,16 @@ function Update-Configuration {
 
 
 function Copy-ServiceFiles {
-    Write-Host -NoNewLine "Updating service binaries: "
     try {
         Copy-Item -Recurse -Force -ErrorAction Stop `
             -Path "$UpdateBinariesPath" `
             -Destination "$InstallationPath"
-        # Copy-FileIfNew "configuration.xml" $ServiceDir
-        # Copy-FileIfNew "status.xml" $ServiceDir
-        # Copy-FileIfNew "service.log" $ServiceDir
-        # Clear-Content "$($ServiceDir)\service.log"
-        Write-Host "[OK]" -Fore Green
     }
     catch {
-        $ex = $_.Exception
-        Write-Host "[FAILED]" -Fore Red
-        Write-Host $ex.Message
+        Log-Error "Updating service binaries FAILED!`n$($_.Exception.Message)"
         Exit
     }
+    Log-Info "Updated service binaries!"
 }
 
 
