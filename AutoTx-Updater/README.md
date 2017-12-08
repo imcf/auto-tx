@@ -43,7 +43,7 @@ $Cred = Get-Credential
 
 # register the job for execution
 Register-ScheduledJob `
-    -FilePath C:\Tools\AutoTx\Update-AutoTxService.ps1 `
+    -FilePath C:\Tools\AutoTx\Update-Service.ps1 `
     -Name "Update-AutoTxService" `
     -ScheduledJobOption $JobOptions `
     -Trigger $JobTrigger `
