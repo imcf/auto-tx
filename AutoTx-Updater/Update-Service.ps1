@@ -57,14 +57,12 @@ function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
 
 
 function Stop-MyService {
-    Write-Host -NoNewLine "Stopping service $($ServiceName): "
     try {
         Stop-Service "$($ServiceName)" -ErrorAction Stop
-        Write-Host "[OK]" -Fore Green
+        Write-Verbose "Stopped service $($ServiceName)."
     }
     catch {
         $ex = $_.Exception.Message
-        Write-Host "[FAILED]" -Fore Red
         Send-MailReport -Subject "Shutdown of service $($ServiceName) failed!" `
             -Body "Trying to stop the service results in this error:`n$($ex)"
         Exit
@@ -76,15 +74,12 @@ function Start-MyService {
     if ((Get-Service $ServiceName).Status -eq "Running") {
         Return
     }
-    Write-Host -NoNewLine "Starting service $($ServiceName): "
     try {
         Start-Service "$($ServiceName)" -ErrorAction Stop
-        Write-Host "[OK]" -Fore Green
+        Write-Verbose "Started service $($ServiceName)."
     }
     catch {
         $ex = $_.Exception.Message
-        Write-Host "[FAILED]" -Fore Red
-        Write-Host $ex
         Send-MailReport -Subject "Startup of service $($ServiceName) failed!" `
             -Body "Trying to start the service results in this error:`n$($ex)"        
         Exit
@@ -234,7 +229,7 @@ function Update-ServiceBinaries {
     if (Test-Path "$MarkerFile" -Type Leaf) {
         Return
     }
-    Log-Info -Message "No marker file found, trying to update service binaries."
+    Log-Info "Marker file ($($MarkerFile)) missing, trying to update service."
     Stop-MyService
     Copy-ServiceFiles
     New-Item -Type File "$MarkerFile" | Out-Null
