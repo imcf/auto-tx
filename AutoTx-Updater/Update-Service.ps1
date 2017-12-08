@@ -310,7 +310,7 @@ Check-ServiceState $ServiceName
 
 $UpdateConfigPath = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
 $UpdateMarkerPath = "$($UpdateSourcePath)\Service\UpdateMarkers"
-$UpdateBinariesPath = "$($UpdateSourcePath)\Service\LatestBinaries"
+$UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries\Latest"
 
 Exit-IfDirMissing $InstallationPath "installation"
 Exit-IfDirMissing $UpdateSourcePath "update source"

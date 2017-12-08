@@ -1,13 +1,43 @@
 Service Installation Updates
 ============================
 
-The service can automatically be updated by running the `Update-AutoTxService.ps1`
-script. It will check a remote location (configured in the script header) and do
+The service can automatically be updated by running the `Update-Service.ps1`
+script. It will check a remote location (configurable via a config file) and do
 the following tasks:
 
 - check for new service binaries and update the local ones if applicable
 - check for a new configuration file for this host and update the local one
 - try to restart the service if one of the previous tasks was done
+
+Config File Options
+-------------------
+
+An example config file for the update script is provided as
+`UpdaterConfig-Example.inc.ps1`. The values should be mostly self-explaining, so
+just a few comments here:
+
+- `$InstallationPath` refers to the local directory where the service
+  executables have been installed, e.g. `C:\Tools\AutoTx`
+- `$UpdateSourcePath` points to the base directory on a storage location (most
+  likely some UNC path) where the service update files are provided. See the
+  next section for details on the structure therein.
+
+Folder Structure
+----------------
+
+The `$UpdateSourcePath` folder structure is expected to be like this:
+
+```
+├─── Configs
+│   └─── <HOSTNAME>
+│       └─── configuration.xml
+└─── Service
+    ├─── Binaries
+    │   ├─── Latest
+    │   └─── build_2018-01-23_11-22-33
+    └─── UpdateMarkers
+        └─── <HOSTNAME>
+```
 
 Automatic Updates
 -----------------
