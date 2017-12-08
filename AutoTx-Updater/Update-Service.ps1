@@ -316,6 +316,18 @@ Exit-IfDirMissing $UpdateMarkerPath "update marker"
 Exit-IfDirMissing $UpdateBinariesPath "service binaries update"
 
 $ConfigUpdated = Update-Configuration
-# Update-ServiceBinaries
+$ServiceUpdated = Update-ServiceBinaries
 
-Start-MyService
+$msg = ""
+if ($ConfigUpdated) {
+    $msg += "The configuration files were updated.`n"
+}
+if ($ServiceUpdated) {
+    $msg += "The service binaries were updated.`n"
+}
+
+if ($msg -ne "") {
+    Start-MyService
+    Send-MailReport -Subject "Config and / or service has been updated!" `
+        -Body $msg
+}
