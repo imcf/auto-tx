@@ -20,6 +20,8 @@ $Me = $MyInvocation.MyCommand -replace '.ps1'
 
 
 
+###  function definitions  #####################################################
+
 function Check-ServiceState([string]$ServiceName) {
     $Continue = $True
     try {
@@ -226,6 +228,8 @@ function Log-Error([string]$Message){
 function Log-Info([string]$Message) {
     Log-Message -Type Information -Message $Message -Id 1
 }
+
+################################################################################
 
 
 
