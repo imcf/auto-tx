@@ -205,8 +205,14 @@ function Update-Configuration {
 
 function Copy-ServiceFiles {
     try {
+        Write-Verbose "Looking for source package using pattern: $($Pattern)"
+        $PkgDir = Get-ChildItem -Path $UpdateBinariesPath -Directory -Name |
+            Where-Object {$_ -match $Pattern} |
+            Sort-Object |
+            Select-Object -Last 1
+        Write-Verbose "Update source package: $($PkgDir)"
         Copy-Item -Recurse -Force -ErrorAction Stop `
-            -Path "$($UpdateBinariesPath)\$($ServiceName)\*" `
+            -Path "$($UpdateBinariesPath)\$($PkgDir)\$($ServiceName)\*" `
             -Destination "$InstallationPath"
     }
     catch {
@@ -307,7 +313,7 @@ Check-ServiceState $ServiceName
 
 $UpdateConfigPath = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
 $UpdateMarkerPath = "$($UpdateSourcePath)\Service\UpdateMarkers"
-$UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries\Latest"
+$UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
 
 Exit-IfDirMissing $InstallationPath "installation"
 Exit-IfDirMissing $UpdateSourcePath "update source"
