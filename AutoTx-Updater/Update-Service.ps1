@@ -56,6 +56,20 @@ function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
 }
 
 
+function Get-LastLogLines([string]$Path, [int]$Count) {
+    try {
+        $msg = Get-Content -Path $Path -Tail $Count -ErrorAction Stop
+    }
+    catch {
+        $ex = $_.Exception.Message
+        $errxx = "XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX"
+        $msg = "`n$errxx`n`n$ex `n`n$errxx"
+    }
+    # Out-String is required as otherwise all newlines from the log disappear:
+    Return $msg | Out-String
+}
+
+
 function Stop-MyService {
     try {
         Stop-Service "$($ServiceName)" -ErrorAction Stop
@@ -80,8 +94,12 @@ function Start-MyService {
     }
     catch {
         $ex = $_.Exception.Message
+        $msg = "Trying to start the service results in this error:`n$($ex)`n`n"
+        $msg += " -------------------- last 50 log lines --------------------`n"
+        $msg += Get-LastLogLines "$($LogPath)\service.log" 50
+        $msg += " -------------------- ----------------- --------------------`n"
         Send-MailReport -Subject "Startup of service $($ServiceName) failed!" `
-            -Body "Trying to start the service results in this error:`n$($ex)"        
+            -Body $msg
         Exit
     }
 }
