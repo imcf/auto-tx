@@ -226,7 +226,7 @@ function Copy-ServiceFiles {
 function Update-ServiceBinaries {
     $MarkerFile = "$($UpdateMarkerPath)\$($env:COMPUTERNAME)"
     if (Test-Path "$MarkerFile" -Type Leaf) {
-        Write-Verbose "Found marker ($($MarkerFile)), not updating service."
+        Write-Verbose "Found marker [$($MarkerFile)], not updating service."
         Return $False
     }
     Log-Info "Marker file ($($MarkerFile)) missing, trying to update service."
@@ -234,12 +234,13 @@ function Update-ServiceBinaries {
     Copy-ServiceFiles
     try {
         New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
-        Write-Verbose "Created marker file: $($MarkerFile)"
+        Write-Verbose "Created marker file [$($MarkerFile)]."
     }
     catch {
-        Log-Error "Creating $($MarkerFile) FAILED!`n$($_.Exception.Message)"
+        Log-Error "Creating [$($MarkerFile)] FAILED!`n$($_.Exception.Message)"
         Exit
     }
+    Log-Info "Service binaries were updated successfully."
     Return $True
 }
 
