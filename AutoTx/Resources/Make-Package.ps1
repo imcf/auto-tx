@@ -12,6 +12,7 @@ $BaseDir = "build_" + $BaseDir
 Write-Host "Creating package: [$($BaseDir)]"
 
 if (Test-Path $BaseDir) {
+    Write-Host "Removing existing package dir..."
     Remove-Item -Recurse -Force $BaseDir
 }
 
