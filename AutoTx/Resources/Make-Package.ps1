@@ -9,6 +9,8 @@ catch {
 $BaseDir = $BuildDate -replace ':','-' -replace ' ','_'
 $BaseDir = "build_" + $BaseDir
 
+Write-Host "Creating package: [$($BaseDir)]"
+
 if (Test-Path $BaseDir) {
     Remove-Item -Recurse -Force $BaseDir
 }
