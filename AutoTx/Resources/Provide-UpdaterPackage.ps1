@@ -14,7 +14,6 @@ catch {
 
 
 $UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
-$Pattern = 'build_[0-9]{4}-[0-9]{2}-[0-9]{2}_'
 
 $PackageDir = Get-ChildItem -Directory -Name |
     Where-Object {$_ -match $Pattern} |
