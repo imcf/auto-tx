@@ -33,8 +33,10 @@ The `$UpdateSourcePath` folder structure is expected to be like this:
 │       └─── configuration.xml
 └─── Service
     ├─── Binaries
-    │   ├─── Latest
+    │   ├─── build_2018-01-21_17-18-19
+    │   │   └─── AutoTx
     │   └─── build_2018-01-23_11-22-33
+    │       └─── AutoTx
     └─── UpdateMarkers
         └─── <HOSTNAME>
 ```
