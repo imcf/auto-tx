@@ -92,28 +92,6 @@ function Install-Service {
 }
 
 
-function Uninstall-FileCopyService {
-    try {
-        $FCS = "FileCopyService"
-        $Service = Get-Service $FCS -ErrorAction Stop
-        Stop-Service $FCS
-    }
-    catch {
-        return
-    }
-    Write-Host "Uninstalling service $($FCS)... "
-    Write-Host "========================================================================"
-    $InstallUtil = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe"
-    $ServiceExe = "C:\Tools\" + $FCS + "\" + $FCS + ".exe"
-    $ArgList = ("/uninstall", "$ServiceExe")
-    $InstallProcess = Start-Process -FilePath "$InstallUtil" -ArgumentList $ArgList -Wait -NoNewWindow -PassThru
-    Write-Host "========================================================================"
-    Write-Host "InstallUtil exit code: $($InstallProcess.ExitCode)"
-    Write-Host "========================================================================"
-}
-
-
-
 $LocalConfiguration = ".\ScriptsConfig.ps1"
 if (Test-Path $LocalConfiguration) {
     . $LocalConfiguration
@@ -122,8 +100,6 @@ if (Test-Path $LocalConfiguration) {
     Exit
 }
 
-
-Uninstall-FileCopyService
 
 try {
     $Service = Get-Service $ServiceName -ErrorAction Stop
