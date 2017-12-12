@@ -263,6 +263,20 @@ function Update-ServiceBinaries {
 }
 
 
+function Upload-LogFiles {
+    try {
+        Copy-Item -Force -ErrorAction Stop `
+            -Path "$($LogPath)\service.log" `
+            -Destination $LogfileUpload
+        Write-Verbose "Uploaded logfile to [$($LogfileUpload)]."
+    }
+    catch {
+        Log-Error "Uploading logfile FAILED!`n$($_.Exception.Message)"
+        # do not exit here, error on log file uploading is non-critical!
+    }
+}
+
+
 function Send-MailReport([string]$Subject, [string]$Body) {
     $Subject = "[$($Me)] $($env:COMPUTERNAME) - $($Subject)"
     $msg = "------------------------------`n"
@@ -333,15 +347,22 @@ Check-ServiceState $ServiceName
 $UpdateConfigPath = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
 $UpdateMarkerPath = "$($UpdateSourcePath)\Service\UpdateMarkers"
 $UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
+$LogfileUpload = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
 
 Exit-IfDirMissing $InstallationPath "installation"
 Exit-IfDirMissing $UpdateSourcePath "update source"
 Exit-IfDirMissing $UpdateConfigPath "configuration update"
 Exit-IfDirMissing $UpdateMarkerPath "update marker"
 Exit-IfDirMissing $UpdateBinariesPath "service binaries update"
+Exit-IfDirMissing $LogfileUpload "log file target"
 
+# NOTE: Upload-LogFiles is called before AND after the main tasks to make sure
+#       the logfiles are uploaded no matter if one of the other tasks fails and
+#       terminates the entire script:
+Upload-LogFiles
 $ConfigUpdated = Update-Configuration
 $ServiceUpdated = Update-ServiceBinaries
+Upload-LogFiles
 
 $msg = ""
 if ($ConfigUpdated) {
