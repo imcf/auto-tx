@@ -25,7 +25,7 @@ $Me = $MyInvocation.MyCommand -replace '.ps1'
 
 ###  function definitions  #####################################################
 
-function Check-ServiceState([string]$ServiceName) {
+function Ensure-ServiceRunning([string]$ServiceName) {
     $Continue = $True
     try {
         $Service = Get-Service $ServiceName -ErrorAction Stop
@@ -342,7 +342,7 @@ function Log-Info([string]$Message) {
 
 
 # first check if the service is installed and running at all
-Check-ServiceState $ServiceName
+Ensure-ServiceRunning $ServiceName
 
 $UpdateConfigPath = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
 $UpdateMarkerPath = "$($UpdateSourcePath)\Service\UpdateMarkers"
