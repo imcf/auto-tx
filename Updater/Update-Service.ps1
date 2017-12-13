@@ -387,6 +387,7 @@ $UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
 $LogfileUpload = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
 
 Exit-IfDirMissing $InstallationPath "installation"
+Exit-IfDirMissing $LogPath "log files"
 Exit-IfDirMissing $ConfigPath "configuration files"
 Exit-IfDirMissing $UpdateSourcePath "update source"
 Exit-IfDirMissing $UpdateConfigPath "configuration update"
