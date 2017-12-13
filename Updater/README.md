@@ -52,7 +52,8 @@ done by using the following PowerShell commands:
 $TimeSpan = New-TimeSpan -Minutes 1
 
 
-# configure a JobTrigger for the task using the repetition interval from above, repeating forever
+# configure a JobTrigger for the task using the repetition interval from above,
+# repeating forever
 $JobTrigger = New-JobTrigger `
     -Once `
     -At (Get-Date).Date `
@@ -60,16 +61,16 @@ $JobTrigger = New-JobTrigger `
     -RepeatIndefinitely
 
 
-# configure the JobOptions for the task (battery options should not be required on a fixed system,
-# but doesn't hurt either)
+# configure the JobOptions for the task (battery options should not be required
+# on a fixed system, but doesn't hurt either)
 $JobOptions = New-ScheduledJobOption `
     -RunElevated `
     -StartIfOnBattery `
     -ContinueIfGoingOnBattery
 
 
-# set credentials for running the task (requires permission to start/stop the service
-# and overwriting the configuration and binaries)
+# set credentials for running the task (requires permission to start/stop the
+# service and overwriting the configuration and binaries)
 $Cred = Get-Credential
 
 
