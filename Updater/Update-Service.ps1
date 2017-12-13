@@ -70,9 +70,10 @@ function ServiceIsBusy {
 
 function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
     if (Test-Path -PathType Container $DirName) {
+        Write-Verbose "Verified $($Desc) path: [$($DirName)]"
         Return
     }
-    $msg = "ERROR: can't find / access $($Desc) path: $($DirName)"
+    $msg = "ERROR: can't find / access $($Desc) path: [$($DirName)]"
     Send-MailReport -Subject "path or permission error" -Body $msg
     Exit
 }
@@ -265,9 +266,9 @@ function Copy-ServiceFiles {
             Write-Host "ERROR: couldn't find package matching '$($Pattern)'!"
             Exit
         }
+        Write-Verbose "Found update source package: $($PkgDir)"
 
         Stop-MyService "Trying to update service using package [$($PkgDir)]."
-        Write-Verbose "Update source package: $($PkgDir)"
         Copy-Item -Recurse -Force -ErrorAction Stop `
             -Path "$($UpdateBinariesPath)\$($PkgDir)\$($ServiceName)\*" `
             -Destination "$InstallationPath"
