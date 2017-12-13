@@ -28,6 +28,7 @@ function Ensure-ServiceRunning([string]$ServiceName) {
         $Continue = $False
     }
     if ($Continue) {
+        Log-Debug "Prerequisites okay, service is running."
         Return
     }
     Log-Error "ERROR: Service '$($ServiceName)' must be installed and running."
@@ -42,7 +43,7 @@ function ServiceIsBusy {
         if ($XML.ServiceStatus.TransferInProgress) {
             Return $True
         } else {
-            Write-Verbose "Service is idle, shutdown possible."
+            Log-Debug "Service is idle, shutdown possible."
             Return $False
         }
     }
@@ -147,7 +148,7 @@ function File-IsUpToDate([string]$ExistingFile, [string]$UpdateCandidate) {
     $CandidateTime = Get-WriteTime -FileName $UpdateCandidate
     $ExistingTime = Get-WriteTime -FileName $ExistingFile
     if ($CandidateTime -le $ExistingTime) {
-        Write-Verbose "File $($ExistingFile) is up-to-date."
+        Log-Debug "File [$($ExistingFile)] is up-to-date."
         Return $True
     }
     Return $False
@@ -206,7 +207,7 @@ function Update-File {
     }
 
     if (File-IsUpToDate -ExistingFile $DstFile -UpdateCandidate $SrcFile) {
-        Return $False        
+        Return $False
     }
 
     Stop-MyService "Found newer file at $($SrcFile), updating..."
@@ -237,7 +238,7 @@ function Update-Configuration {
         $ret = Update-File $NewConfig $ConfigPath
     } else {
         $ret = $False
-        Write-Verbose "No configuration file found at '$($NewConfig)'."
+        Log-Debug "No configuration file found at '$($NewConfig)'."
     }
     Return $ret
 }
@@ -273,7 +274,7 @@ function Copy-ServiceFiles {
 function Update-ServiceBinaries {
     $MarkerFile = "$($UpdateMarkerPath)\$($env:COMPUTERNAME)"
     if (Test-Path "$MarkerFile" -Type Leaf) {
-        Write-Verbose "Found marker [$($MarkerFile)], not updating service."
+        Log-Debug "Found marker [$($MarkerFile)], not updating service."
         Return $False
     }
     Copy-ServiceFiles
@@ -364,6 +365,14 @@ function Log-Info([string]$Message) {
     Log-Message -Type Information -Message $Message -Id 1
 }
 
+
+function Log-Debug([string]$Message) {
+    Write-Verbose $Message
+    # NOTE: to disable debug logging simply uncomment the "Return" below:
+    # Return
+    Log-Message -Type Information -Message $Message -Id 999
+}
+
 ################################################################################
 
 
@@ -381,6 +390,9 @@ catch {
 # NOTE: $MyInvocation is not available when run as ScheduledJob, so we have to
 # set a shortcut for our name explicitly ourselves here:
 $Me = "Update-Service"
+Log-Debug "$($Me) started..."
+
+
 # first check if the service is installed and running at all
 Ensure-ServiceRunning $ServiceName
 
@@ -398,6 +410,7 @@ Exit-IfDirMissing $UpdateMarkerPath "update marker"
 Exit-IfDirMissing $UpdateBinariesPath "service binaries update"
 Exit-IfDirMissing $LogfileUpload "log file target"
 
+
 # NOTE: Upload-LogFiles is called before AND after the main tasks to make sure
 #       the logfiles are uploaded no matter if one of the other tasks fails and
 #       terminates the entire script:
@@ -414,9 +427,14 @@ if ($ServiceUpdated) {
 }
 
 if ($msg -ne "") {
+    Log-Debug "Update action occurred, finishing up..."
     Start-MyService
     Send-MailReport -Subject "Config and / or service has been updated!" `
         -Body $msg
+} else {
+    Log-Debug "No update action found to be necessary."
 }
 
 Upload-LogFiles
+
+Log-Debug "$($Me) finished..."
