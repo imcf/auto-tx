@@ -7,7 +7,7 @@
   <CurrentTransferSrc />
   <CurrentTargetTmp />
   <ServiceSuspended>false</ServiceSuspended>
-  <FilecopyFinished>true</FilecopyFinished>
+  <TransferInProgress>false</TransferInProgress>
   <CleanShutdown>true</CleanShutdown>
   <CurrentTransferSize>0</CurrentTransferSize>
 </ServiceStatus>
