@@ -2,6 +2,7 @@
 
 $ServiceName = "AutoTx"
 $InstallationPath = "C:\Tools\$($ServiceName)"
+$ConfigPath = "$($InstallationPath)"
 $LogPath = "$($InstallationPath)"
 
 $UpdateSourcePath = "\\fileserver.mydomain.xy\share\_AUTOTX_"

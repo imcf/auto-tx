@@ -244,7 +244,7 @@ function Update-File {
 function Update-Configuration {
     $NewConfig = "$($UpdateConfigPath)\configuration.xml"
     if (Test-Path -PathType Leaf $NewConfig) {
-        $ret = Update-File $NewConfig $InstallationPath
+        $ret = Update-File $NewConfig $ConfigPath
     } else {
         $ret = $False
         Write-Verbose "No configuration file found at '$($NewConfig)'."
@@ -387,6 +387,7 @@ $UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
 $LogfileUpload = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
 
 Exit-IfDirMissing $InstallationPath "installation"
+Exit-IfDirMissing $ConfigPath "configuration files"
 Exit-IfDirMissing $UpdateSourcePath "update source"
 Exit-IfDirMissing $UpdateConfigPath "configuration update"
 Exit-IfDirMissing $UpdateMarkerPath "update marker"
