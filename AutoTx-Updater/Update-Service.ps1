@@ -70,8 +70,13 @@ function Get-LastLogLines([string]$Path, [int]$Count) {
 }
 
 
-function Stop-MyService {
+function Stop-MyService([string]$Message) {
+    if ((Get-Service $ServiceName).Status -eq "Stopped") {
+        Log-Info "$($Message) (Service already in state 'Stopped')"
+        Return
+    }
     try {
+        Log-Info "$($Message) Attempting service $($ServiceName) shutdown..."
         Stop-Service "$($ServiceName)" -ErrorAction Stop
         Write-Verbose "Stopped service $($ServiceName)."
     }
@@ -186,8 +191,7 @@ function Update-File {
         Return $False        
     }
 
-    Log-Info "Found newer file at $($SrcFile), updating..."
-    Stop-MyService
+    Stop-MyService "Found newer file at $($SrcFile), updating..."
 
     try {
         Create-Backup -FileName $DstFile
@@ -228,6 +232,7 @@ function Copy-ServiceFiles {
             Where-Object {$_ -match $Pattern} |
             Sort-Object |
             Select-Object -Last 1
+        Stop-MyService "Trying to update service using package [$($PkgDir)]."
         Write-Verbose "Update source package: $($PkgDir)"
         Copy-Item -Recurse -Force -ErrorAction Stop `
             -Path "$($UpdateBinariesPath)\$($PkgDir)\$($ServiceName)\*" `
@@ -247,8 +252,6 @@ function Update-ServiceBinaries {
         Write-Verbose "Found marker [$($MarkerFile)], not updating service."
         Return $False
     }
-    Log-Info "Marker file ($($MarkerFile)) missing, trying to update service."
-    Stop-MyService
     Copy-ServiceFiles
     try {
         New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
