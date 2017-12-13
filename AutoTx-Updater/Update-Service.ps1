@@ -260,6 +260,12 @@ function Copy-ServiceFiles {
             Where-Object {$_ -match $Pattern} |
             Sort-Object |
             Select-Object -Last 1
+        
+        if ([string]::IsNullOrEmpty($PkgDir)) {
+            Write-Host "ERROR: couldn't find package matching '$($Pattern)'!"
+            Exit
+        }
+
         Stop-MyService "Trying to update service using package [$($PkgDir)]."
         Write-Verbose "Update source package: $($PkgDir)"
         Copy-Item -Recurse -Force -ErrorAction Stop `
