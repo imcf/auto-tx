@@ -1,0 +1,4 @@
+ScriptsConfig.ps1
+
+# build packages
+build_*/

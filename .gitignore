@@ -286,8 +286,3 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
-
-
-
-# current packages are stored inside "Resources", so ignore them:
-/AutoTx/Resources/build_*
