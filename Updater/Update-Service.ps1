@@ -399,7 +399,6 @@ Exit-IfDirMissing $LogfileUpload "log file target"
 Upload-LogFiles
 $ConfigUpdated = Update-Configuration
 $ServiceUpdated = Update-ServiceBinaries
-Upload-LogFiles
 
 $msg = ""
 if ($ConfigUpdated) {
@@ -414,3 +413,5 @@ if ($msg -ne "") {
     Send-MailReport -Subject "Config and / or service has been updated!" `
         -Body $msg
 }
+
+Upload-LogFiles
