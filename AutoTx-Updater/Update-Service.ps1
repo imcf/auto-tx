@@ -46,6 +46,28 @@ function Ensure-ServiceRunning([string]$ServiceName) {
 }
 
 
+function ServiceIsBusy {
+    $StatusXml = "$($InstallationPath)\status.xml"
+    try {
+        [xml]$XML = Get-Content $StatusXml -ErrorAction Stop
+        if ($XML.ServiceStatus.TransferInProgress) {
+            Return $True
+        } else {
+            Write-Verbose "Service is idle, shutdown possible."
+            Return $False
+        }
+    }
+    catch {
+        $ex = $_.Exception.Message
+        $msg = "Trying to read the service status from [$($StatusXml)] failed! "
+        $msg += "The reported error message was:`n$($ex)"
+        Send-MailReport -Subject "Error parsing status of $($ServiceName)!" `
+            -Body $msg
+        Exit
+    }
+}
+
+
 function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
     if (Test-Path -PathType Container $DirName) {
         Return
@@ -74,6 +96,12 @@ function Stop-MyService([string]$Message) {
     if ((Get-Service $ServiceName).Status -eq "Stopped") {
         Log-Info "$($Message) (Service already in state 'Stopped')"
         Return
+    }
+    if (ServiceIsBusy) {
+        $msg = "*DENYING* to stop the service $($ServiceName) as it is "
+        $msg += "currently busy.`nShutdown reason was '$($Message)'."
+        Log-Info $msg
+        Exit
     }
     try {
         Log-Info "$($Message) Attempting service $($ServiceName) shutdown..."
