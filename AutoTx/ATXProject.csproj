@@ -151,6 +151,10 @@
     <PreBuildEvent>PowerShell -Command "Get-Date -Format 'yyyy-MM-dd HH:mm:ss' &gt; $(ProjectDir)\Resources\BuildDate.txt ; Get-Content $(ProjectDir)\Resources\BuildDate.txt"
 </PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>PowerShell -Command "Write-Host $(ConfigurationName)" &gt; $(ProjectDir)\Resources\BuildConfiguration.txt
+</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
