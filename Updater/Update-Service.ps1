@@ -10,17 +10,6 @@ Param(
     [Parameter(Mandatory=$True)][string] $UpdaterSettings
 )
 
-try {
-    . $UpdaterSettings
-}
-catch {
-    $ex = $_.Exception.Message
-    Write-Host "Error reading settings file: '$($UpdaterSettings)' [$($ex)]"
-    Exit
-}
-
-$Me = $MyInvocation.MyCommand -replace '.ps1'
-
 
 
 ###  function definitions  #####################################################
@@ -379,6 +368,19 @@ function Log-Info([string]$Message) {
 
 
 
+try {
+    . $UpdaterSettings
+}
+catch {
+    $ex = $_.Exception.Message
+    Write-Host "Error reading settings file: '$($UpdaterSettings)' [$($ex)]"
+    Exit
+}
+
+
+# NOTE: $MyInvocation is not available when run as ScheduledJob, so we have to
+# set a shortcut for our name explicitly ourselves here:
+$Me = "Update-Service"
 # first check if the service is installed and running at all
 Ensure-ServiceRunning $ServiceName
 
