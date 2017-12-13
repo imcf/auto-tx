@@ -256,7 +256,7 @@ namespace AutoTx
             writeLogDebug("------ Loaded status flags ------");
             writeLogDebug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
             writeLogDebug("CurrentTargetTmp: " + _status.CurrentTargetTmp);
-            writeLogDebug("FilecopyFinished: " + _status.FilecopyFinished);
+            writeLogDebug("TransferInProgress: " + _status.TransferInProgress);
             writeLogDebug("LastStorageNotification: " +
                           _status.LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss"));
             writeLogDebug("LastAdminNotification: " +
@@ -358,7 +358,7 @@ namespace AutoTx
                 catch (Exception ex) {
                     writeLog("Error terminating the RoboCopy process: " + ex.Message, true);
                 }
-                _status.FilecopyFinished = false;
+                _status.TransferInProgress = true;
                 writeLog("Not all files were transferred - will resume upon next start");
                 writeLogDebug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
                 // should we delete an incompletely transferred file on the target?
@@ -654,7 +654,7 @@ namespace AutoTx
             // only happens while all system parameters are within their valid ranges
 
             // make sure the service is in an expected state before cleaning up:
-            if (_transferState != TxState.Stopped || _status.FilecopyFinished != true)
+            if (_transferState != TxState.Stopped || _status.TransferInProgress)
                 return;
             
             if (_status.CurrentTargetTmp.Length > 0) {
@@ -684,10 +684,10 @@ namespace AutoTx
             // CONDITIONS (a transfer has to be resumed):
             // - CurrentTargetTmp has to be non-empty
             // - TransferState has to be "Stopped"
-            // - FileCopyFinished must be false
+            // - TransferInProgress must be true
             if (_status.CurrentTargetTmp.Length <= 0 ||
                 _transferState != TxState.Stopped ||
-                _status.FilecopyFinished)
+                _status.TransferInProgress == false)
                 return;
 
             writeLogDebug("Resuming transfer from '" + _status.CurrentTransferSrc +

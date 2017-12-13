@@ -17,7 +17,7 @@ namespace AutoTx.XmlWrapper
         string _currentTransferSrc;
         string _currentTargetTmp;
 
-        bool _filecopyFinished;
+        bool _transferInProgress;
         private bool _serviceSuspended;
         private bool _cleanShutdown;
 
@@ -83,10 +83,10 @@ namespace AutoTx.XmlWrapper
             }
         }
 
-        public bool FilecopyFinished {
-            get { return _filecopyFinished; }
+        public bool TransferInProgress {
+            get { return _transferInProgress; }
             set {
-                _filecopyFinished = value;
+                _transferInProgress = value;
                 log("FilecopyFinished was updated (" + value + "), calling Serialize()...");
                 Serialize();
             }
@@ -115,7 +115,7 @@ namespace AutoTx.XmlWrapper
         public ServiceStatus() {
             _currentTransferSrc = "";
             _currentTargetTmp = "";
-            _filecopyFinished = true;
+            _transferInProgress = false;
         }
 
         public void Serialize() {

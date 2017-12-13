@@ -27,7 +27,7 @@ namespace AutoTx
             CreateNewDirectory(ExpandCurrentTargetTmp(), false);
 
             _transferState = TxState.Active;
-            _status.FilecopyFinished = false;
+            _status.TransferInProgress = true;
             try {
                 // events
                 _roboCommand.OnCopyProgressChanged += RsProgressChanged;
@@ -136,7 +136,7 @@ namespace AutoTx
             _transferState = TxState.Stopped;
             _roboCommand.Dispose();
             _roboCommand = new RoboCommand();
-            _status.FilecopyFinished = true;
+            _status.TransferInProgress = false;
         }
 
         /// <summary>
