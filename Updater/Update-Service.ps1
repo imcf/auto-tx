@@ -448,4 +448,4 @@ if ($msg -ne "") {
 
 Upload-LogFiles
 
-Log-Debug "$($Me) finished..."
+Log-Debug "$($Me) finished."
