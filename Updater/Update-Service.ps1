@@ -135,7 +135,7 @@ function Get-WriteTime([string]$FileName) {
     }
     catch {
         $ex = $_.Exception.Message
-        Log-Error "Error determining file age of '$($FileName)'!`n$($ex)"
+        Log-Error "Error determining file age of [$($FileName)]!`n$($ex)"
         Exit
     }
     Return $TimeStamp
@@ -144,7 +144,7 @@ function Get-WriteTime([string]$FileName) {
 
 function File-IsUpToDate([string]$ExistingFile, [string]$UpdateCandidate) {
     # Compare write-timestamps, return $False if $UpdateCandidate is newer.
-    Write-Verbose "Comparing $($UpdateCandidate) vs. $($ExistingFile)..."
+    Write-Verbose "Comparing [$($UpdateCandidate)] vs. [$($ExistingFile)]..."
     $CandidateTime = Get-WriteTime -FileName $UpdateCandidate
     $ExistingTime = Get-WriteTime -FileName $ExistingFile
     if ($CandidateTime -le $ExistingTime) {
@@ -169,13 +169,13 @@ function Create-Backup {
     # assemble a timestamp string like "2017-12-04T16.41.35"
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
     $BakName = "$($FileWithoutSuffix)_pre-$($BakTimeStamp)$($FileSuffix)"
-    Log-Info "Creating backup of '$($FileName)' as '$($BaseDir)\$($BakName)'."
+    Log-Info "Creating backup of [$($FileName)] as [$($BaseDir)\$($BakName)]."
     try {
         Rename-Item "$FileName" "$BaseDir\$BakName" -ErrorAction Stop
     }
     catch {
         $ex = $_.Exception.Message
-        Log-Error "Backing up '$($FileName)' as '$($BakName) FAILED!`n$($ex)"
+        Log-Error "Backing up [$($FileName)] as [$($BakName)] FAILED!`n$($ex)"
         Exit
     }
 }
@@ -202,7 +202,7 @@ function Update-File {
 
     $DstFile = "$($DstPath)\$(Split-Path -Leaf $SrcFile)"
     if (-Not (Test-Path "$DstFile")) {
-        Log-Info "File not existing in destination, NOT UPDATING: $($DstFile)"
+        Log-Info "File not existing in destination, NOT UPDATING: [$($DstFile)]"
         Return $False
     }
 
@@ -256,7 +256,7 @@ function Copy-ServiceFiles {
             Write-Host "ERROR: couldn't find package matching '$($Pattern)'!"
             Exit
         }
-        Write-Verbose "Found update source package: $($PkgDir)"
+        Write-Verbose "Found update source package: [$($PkgDir)]"
 
         Stop-MyService "Trying to update service using package [$($PkgDir)]."
         Copy-Item -Recurse -Force -ErrorAction Stop `
@@ -267,7 +267,7 @@ function Copy-ServiceFiles {
         Log-Error "Updating service binaries FAILED!`n$($_.Exception.Message)"
         Exit
     }
-    Log-Info "Updated service binaries!"
+    Log-Info "Updated service binaries with [$($PkgDir)]."
 }
 
 
@@ -280,13 +280,12 @@ function Update-ServiceBinaries {
     Copy-ServiceFiles
     try {
         New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
-        Write-Verbose "Created marker file [$($MarkerFile)]."
+        Log-Debug "Created marker file [$($MarkerFile)]."
     }
     catch {
         Log-Error "Creating [$($MarkerFile)] FAILED!`n$($_.Exception.Message)"
         Exit
     }
-    Log-Info "Service binaries were updated successfully."
     Return $True
 }
 
