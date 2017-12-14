@@ -368,9 +368,9 @@ function Log-Info([string]$Message) {
 
 function Log-Debug([string]$Message) {
     Write-Verbose $Message
-    # NOTE: to disable debug logging simply uncomment the "Return" below:
-    # Return
-    Log-Message -Type Information -Message $Message -Id 999
+    if ($UpdaterDebugLogging) {
+        Log-Message -Type Information -Message $Message -Id 1000
+    }
 }
 
 ################################################################################
