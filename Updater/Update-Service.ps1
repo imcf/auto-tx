@@ -386,6 +386,16 @@ catch {
     Exit
 }
 
+if (-Not ([System.Diagnostics.EventLog]::SourceExists($ServiceName))) {
+    try {
+        New-EventLog -LogName Application -Source $ServiceName
+    }
+    catch {
+        $ex = $_.Exception.Message
+        Write-Verbose "Error creating event log source: $($ex)"
+    }
+}
+
 
 # NOTE: $MyInvocation is not available when run as ScheduledJob, so we have to
 # set a shortcut for our name explicitly ourselves here:
