@@ -49,7 +49,7 @@ done by using the following PowerShell commands:
 
 ```powershell
 # create a repetition interval
-$TimeSpan = New-TimeSpan -Minutes 1
+$TimeSpan = New-TimeSpan -Minutes 10
 
 
 # configure a JobTrigger for the task using the repetition interval from above,
@@ -73,11 +73,11 @@ $JobOptions = New-ScheduledJobOption `
 # service and overwriting the configuration and binaries)
 $Cred = Get-Credential
 
-
 # register the job for execution
 Register-ScheduledJob `
-    -FilePath C:\Tools\AutoTx\Update-Service.ps1 `
     -Name "Update-AutoTxService" `
+    -FilePath C:\Tools\AutoTx-Updater\Update-Service.ps1 `
+    -ArgumentList C:\Tools\AutoTx-Updater\UpdaterConfig.inc.ps1 `
     -ScheduledJobOption $JobOptions `
     -Trigger $JobTrigger `
     -Credential $Cred `
