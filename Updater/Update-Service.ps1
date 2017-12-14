@@ -233,14 +233,21 @@ function Update-File {
 
 
 function Update-Configuration {
-    $NewConfig = "$($UpdateConfigPath)\configuration.xml"
-    if (Test-Path -PathType Leaf $NewConfig) {
-        $ret = Update-File $NewConfig $ConfigPath
-    } else {
-        $ret = $False
-        Log-Debug "No configuration file found at '$($NewConfig)'."
+    $RetOr = $False
+    # common config files first:
+    ForEach ($NewConfig in Get-ChildItem $UpdPathConfigCommon) {
+        $ret = Update-File $NewConfig.FullName $ConfigPath
+        $RetOr = $RetOr -Or $ret
     }
-    Return $ret
+    # then host specific config files:
+    ForEach ($NewConfig in Get-ChildItem $UpdPathConfig) {
+        $ret = Update-File $NewConfig.FullName $ConfigPath
+        $RetOr = $RetOr -Or $ret
+    }
+    if (-Not ($RetOr)) {
+        Log-Debug "No (new) configuration file(s) found."
+    }
+    Return $RetOr
 }
 
 
@@ -408,6 +415,7 @@ Log-Debug "$($Me) started..."
 Ensure-ServiceRunning $ServiceName
 
 $UpdPathConfig = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
+$UpdPathConfigCommon = "$($UpdateSourcePath)\Configs\_COMMON_"
 $UpdPathMarkerFiles = "$($UpdateSourcePath)\Service\UpdateMarkers"
 $UpdPathBinaries = "$($UpdateSourcePath)\Service\Binaries"
 $UploadPathLogs = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
@@ -417,6 +425,7 @@ Exit-IfDirMissing $LogPath "log files"
 Exit-IfDirMissing $ConfigPath "configuration files"
 Exit-IfDirMissing $UpdateSourcePath "update source"
 Exit-IfDirMissing $UpdPathConfig "configuration update"
+Exit-IfDirMissing $UpdPathConfigCommon "common configuration update"
 Exit-IfDirMissing $UpdPathMarkerFiles "update marker"
 Exit-IfDirMissing $UpdPathBinaries "service binaries update"
 Exit-IfDirMissing $UploadPathLogs "log file target"

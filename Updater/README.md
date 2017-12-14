@@ -29,6 +29,8 @@ The `$UpdateSourcePath` folder structure is expected to be like this:
 
 ```
 ├─── Configs
+│   ├─── _COMMON_
+│   │   └─── common_config.xml
 │   └─── <HOSTNAME>
 │       └─── configuration.xml
 └─── Service
