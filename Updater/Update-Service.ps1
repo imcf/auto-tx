@@ -333,31 +333,38 @@ function Send-MailReport([string]$Subject, [string]$Body) {
 
 
 function Log-Message([string]$Type, [string]$Message, [int]$Id){
-     $msg = "[$($Me)] "
-     try {
-         Write-EventLog `
+    # NOTE: by convention, this script is setting the $Id parameter to match the
+    # numbers for the output types described in 'Help about_Redirection'
+    $msg = "[$($Me)] "
+    try {
+        Write-EventLog `
             -LogName Application `
-            -Source "AutoTx" `
-            -Category 0 `
+            -Source $ServiceName `
+            -Category 100 `
             -EventId $Id `
             -EntryType $Type `
             -Message "[$($Me)]: $($Message)" `
             -ErrorAction Stop
         $msg += "Logged message (Id=$($Id), Type=$($Type)).`n"
         $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
-     }
-     catch {
-         $ex = $_.Exception.Message
-         $msg += "Error logging message (Id=$($Id), Type=$($Type))!`n"
-         $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
-         $msg += "--- Exception ---`n$($ex)`n--- Exception ---"
-     }
-     Write-Verbose $msg
+    }
+    catch {
+        $ex = $_.Exception.Message
+        $msg += "Error logging message (Id=$($Id), Type=$($Type))!`n"
+        $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
+        $msg += "--- Exception ---`n$($ex)`n--- Exception ---"
+    }
+    Write-Verbose $msg
+}
+
+
+function Log-Warning([string]$Message) {
+    Log-Message -Type Warning -Message $Message -Id 3
 }
 
 
 function Log-Error([string]$Message){
-    Log-Message -Type Error -Message $Message -Id 1
+    Log-Message -Type Error -Message $Message -Id 2
 }
 
 
@@ -369,7 +376,7 @@ function Log-Info([string]$Message) {
 function Log-Debug([string]$Message) {
     Write-Verbose $Message
     if ($UpdaterDebugLogging) {
-        Log-Message -Type Information -Message $Message -Id 1000
+        Log-Message -Type Information -Message $Message -Id 5
     }
 }
 
