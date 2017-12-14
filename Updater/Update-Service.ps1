@@ -333,22 +333,20 @@ function Send-MailReport([string]$Subject, [string]$Body) {
 function Log-Message([string]$Type, [string]$Message, [int]$Id){
     # NOTE: by convention, this script is setting the $Id parameter to match the
     # numbers for the output types described in 'Help about_Redirection'
-    $msg = "[$($Me)] "
     try {
         Write-EventLog `
             -LogName Application `
-            -Source $ServiceName `
-            -Category 100 `
+            -Source $Me `
+            -Category 0 `
             -EventId $Id `
             -EntryType $Type `
             -Message "[$($Me)]: $($Message)" `
             -ErrorAction Stop
-        $msg += "Logged message (Id=$($Id), Type=$($Type)).`n"
-        $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
+        $msg = "[EventLog $($Type)/$($Id)]: $($Message)"
     }
     catch {
         $ex = $_.Exception.Message
-        $msg += "Error logging message (Id=$($Id), Type=$($Type))!`n"
+        $msg = "Error logging message (Id=$($Id), Type=$($Type))!`n"
         $msg += "--- Log Message ---`n$($Message)`n--- Log Message ---`n"
         $msg += "--- Exception ---`n$($ex)`n--- Exception ---"
     }
@@ -372,7 +370,6 @@ function Log-Info([string]$Message) {
 
 
 function Log-Debug([string]$Message) {
-    Write-Verbose $Message
     if ($UpdaterDebugLogging) {
         Log-Message -Type Information -Message $Message -Id 5
     }
@@ -391,20 +388,19 @@ catch {
     Exit
 }
 
-if (-Not ([System.Diagnostics.EventLog]::SourceExists($ServiceName))) {
+# NOTE: $MyInvocation is not available when run as ScheduledJob, so we have to
+# set a shortcut for our name explicitly ourselves here:
+$Me = "$($ServiceName)-Updater"
+
+if (-Not ([System.Diagnostics.EventLog]::SourceExists($Me))) {
     try {
-        New-EventLog -LogName Application -Source $ServiceName
+        New-EventLog -LogName Application -Source $Me
     }
     catch {
         $ex = $_.Exception.Message
         Write-Verbose "Error creating event log source: $($ex)"
     }
 }
-
-
-# NOTE: $MyInvocation is not available when run as ScheduledJob, so we have to
-# set a shortcut for our name explicitly ourselves here:
-$Me = "Update-Service"
 Log-Debug "$($Me) started..."
 
 
