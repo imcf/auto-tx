@@ -299,8 +299,7 @@ function Upload-LogFiles {
         Write-Verbose "Uploaded logfile to [$($LogfileUpload)]."
     }
     catch {
-        Log-Error "Uploading logfile FAILED!`n$($_.Exception.Message)"
-        # do not exit here, error on log file uploading is non-critical!
+        Log-Warning "Uploading logfile FAILED!`n$($_.Exception.Message)"
     }
 }
 
@@ -325,9 +324,9 @@ function Send-MailReport([string]$Subject, [string]$Body) {
     }
     catch {
         $ex = $_.Exception.Message
-        $msg = "Error sending email!`n`n$($msg)"
+        $msg = "Sending email failed!`n`n$($msg)"
         $msg += "Exception message: $($ex)"
-        Log-Error -Message $msg
+        Log-Warning -Message $msg
     }
 }
 
