@@ -14,25 +14,19 @@ Param(
 
 ###  function definitions  #####################################################
 
-function Ensure-ServiceRunning([string]$ServiceName) {
-    $Continue = $True
+function ServiceIsRunning([string]$ServiceName) {
     try {
         $Service = Get-Service $ServiceName -ErrorAction Stop
         if ($Service.Status -ne "Running") {
-            Write-Host "Service $($ServiceName) is not running."
-            $Continue = $False
+            Log-Debug "Service $($ServiceName) is not running."
+            Return $False
         }
     }
     catch {
-        Write-Host $_.Exception.Message
-        $Continue = $False
+        Log-Error "Error checking service state: $($_.Exception.Message)"
+        Exit
     }
-    if ($Continue) {
-        Log-Debug "Prerequisites okay, service is running."
-        Return
-    }
-    Log-Error "ERROR: Service '$($ServiceName)' must be installed and running."
-    Exit
+    Return $True
 }
 
 
@@ -414,7 +408,7 @@ Log-Debug "$($Me) started..."
 
 
 # first check if the service is installed and running at all
-Ensure-ServiceRunning $ServiceName
+$ServiceRunningBefore = ServiceIsRunning $ServiceName
 
 $UpdPathConfig = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
 $UpdPathConfigCommon = "$($UpdateSourcePath)\Configs\_COMMON_"
@@ -449,8 +443,12 @@ if ($ServiceUpdated) {
 }
 
 if ($msg -ne "") {
-    Log-Debug "Update action occurred, finishing up..."
-    Start-MyService
+    if ($ServiceRunningBefore) {
+        Log-Debug "Update action occurred, finishing up..."
+        Start-MyService
+    } else {
+        Log-Debug "Not starting the service as it was not running before."
+    }
     Send-MailReport -Subject "Config and / or service has been updated!" `
         -Body $msg
 } else {
