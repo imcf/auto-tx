@@ -298,11 +298,13 @@ function Update-ServiceBinaries {
 
 
 function Upload-LogFiles {
+    $Dest = "$($UploadPathLogs)\$($env:COMPUTERNAME)"
+    New-Item -Force -Type Directory $Dest
     try {
         Copy-Item -Force -ErrorAction Stop `
             -Path "$($LogPath)\service.log" `
-            -Destination $UploadPathLogs
-        Log-Debug "Uploaded logfile to [$($UploadPathLogs)]."
+            -Destination $Dest
+        Log-Debug "Uploaded logfile to [$($Dest)]."
     }
     catch {
         Log-Warning "Uploading logfile FAILED!`n$($_.Exception.Message)"
@@ -418,7 +420,7 @@ $UpdPathConfig = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
 $UpdPathConfigCommon = "$($UpdateSourcePath)\Configs\_COMMON_"
 $UpdPathMarkerFiles = "$($UpdateSourcePath)\Service\UpdateMarkers"
 $UpdPathBinaries = "$($UpdateSourcePath)\Service\Binaries"
-$UploadPathLogs = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
+$UploadPathLogs = "$($UpdateSourcePath)\Logs"
 
 Exit-IfDirMissing $InstallationPath "installation"
 Exit-IfDirMissing $LogPath "log files"
