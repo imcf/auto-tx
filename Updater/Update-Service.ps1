@@ -247,7 +247,7 @@ function Update-Configuration {
 function Copy-ServiceFiles {
     try {
         Write-Verbose "Looking for source package using pattern: $($Pattern)"
-        $PkgDir = Get-ChildItem -Path $UpdateBinariesPath -Directory -Name |
+        $PkgDir = Get-ChildItem -Path $UpdPathBinaries -Directory -Name |
             Where-Object {$_ -match $Pattern} |
             Sort-Object |
             Select-Object -Last 1
@@ -260,7 +260,7 @@ function Copy-ServiceFiles {
 
         Stop-MyService "Trying to update service using package [$($PkgDir)]."
         Copy-Item -Recurse -Force -ErrorAction Stop `
-            -Path "$($UpdateBinariesPath)\$($PkgDir)\$($ServiceName)\*" `
+            -Path "$($UpdPathBinaries)\$($PkgDir)\$($ServiceName)\*" `
             -Destination "$InstallationPath"
     }
     catch {
@@ -272,7 +272,7 @@ function Copy-ServiceFiles {
 
 
 function Update-ServiceBinaries {
-    $MarkerFile = "$($UpdateMarkerPath)\$($env:COMPUTERNAME)"
+    $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
     if (Test-Path "$MarkerFile" -Type Leaf) {
         Log-Debug "Found marker [$($MarkerFile)], not updating service."
         Return $False
@@ -294,8 +294,8 @@ function Upload-LogFiles {
     try {
         Copy-Item -Force -ErrorAction Stop `
             -Path "$($LogPath)\service.log" `
-            -Destination $LogfileUpload
-        Write-Verbose "Uploaded logfile to [$($LogfileUpload)]."
+            -Destination $UploadPathLogs
+        Log-Debug "Uploaded logfile to [$($UploadPathLogs)]."
     }
     catch {
         Log-Warning "Uploading logfile FAILED!`n$($_.Exception.Message)"
@@ -411,19 +411,19 @@ Log-Debug "$($Me) started..."
 # first check if the service is installed and running at all
 Ensure-ServiceRunning $ServiceName
 
-$UpdateConfigPath = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
-$UpdateMarkerPath = "$($UpdateSourcePath)\Service\UpdateMarkers"
-$UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
-$LogfileUpload = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
+$UpdPathConfig = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
+$UpdPathMarkerFiles = "$($UpdateSourcePath)\Service\UpdateMarkers"
+$UpdPathBinaries = "$($UpdateSourcePath)\Service\Binaries"
+$UploadPathLogs = "$($UpdateSourcePath)\Logs\$($env:COMPUTERNAME)"
 
 Exit-IfDirMissing $InstallationPath "installation"
 Exit-IfDirMissing $LogPath "log files"
 Exit-IfDirMissing $ConfigPath "configuration files"
 Exit-IfDirMissing $UpdateSourcePath "update source"
-Exit-IfDirMissing $UpdateConfigPath "configuration update"
-Exit-IfDirMissing $UpdateMarkerPath "update marker"
-Exit-IfDirMissing $UpdateBinariesPath "service binaries update"
-Exit-IfDirMissing $LogfileUpload "log file target"
+Exit-IfDirMissing $UpdPathConfig "configuration update"
+Exit-IfDirMissing $UpdPathMarkerFiles "update marker"
+Exit-IfDirMissing $UpdPathBinaries "service binaries update"
+Exit-IfDirMissing $UploadPathLogs "log file target"
 
 
 # NOTE: Upload-LogFiles is called before AND after the main tasks to make sure
