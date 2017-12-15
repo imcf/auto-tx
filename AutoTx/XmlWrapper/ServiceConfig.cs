@@ -90,7 +90,7 @@ namespace AutoTx.XmlWrapper
 
         public static void Serialize(string file, ServiceConfig c) {
             // the config is never meant to be written by us, therefore:
-            throw new SettingsPropertyIsReadOnlyException("The config file should not be written by the service!");
+            throw new SettingsPropertyIsReadOnlyException("The config file must not be written by the service!");
         }
 
         public static ServiceConfig Deserialize(string file) {

@@ -847,8 +847,10 @@ namespace AutoTx
             try {
                 // make sure the target directory that should hold all subdirectories to
                 // be moved is existing:
-                if (string.IsNullOrEmpty(CreateNewDirectory(destPath, false)))
+                if (string.IsNullOrEmpty(CreateNewDirectory(destPath, false))) {
+                    writeLog("WARNING: destination path doesn't exist: " + destPath);
                     return false;
+                }
 
                 foreach (var subDir in sourceDir.GetDirectories()) {
                     var target = Path.Combine(destPath, subDir.Name);
