@@ -629,7 +629,6 @@ namespace AutoTx
                 }
                 catch (Exception ex) {
                     writeLog("Error deleting directory: " + queued[0].Name + " - " + ex.Message);
-                    return;
                 }
                 return;
             }
