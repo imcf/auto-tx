@@ -673,7 +673,7 @@ namespace AutoTx
                 writeLogDebug("Finalizing transfer, cleaning up target storage location...");
                 var finalDst = DestinationPath(_status.CurrentTargetTmp);
                 if (!string.IsNullOrWhiteSpace(finalDst)) {
-                    if (MoveAllSubDirs(new DirectoryInfo(ExpandCurrentTargetTmp()), finalDst)) {
+                    if (MoveAllSubDirs(new DirectoryInfo(ExpandCurrentTargetTmp()), finalDst, true)) {
                         _status.CurrentTargetTmp = "";
                     }
                 }
@@ -853,7 +853,7 @@ namespace AutoTx
         /// <param name="sourceDir">The source path as DirectoryInfo object.</param>
         /// <param name="destPath">The destination path as a string.</param>
         /// <returns>True on success, false otherwise.</returns>
-        private bool MoveAllSubDirs(DirectoryInfo sourceDir, string destPath) {
+        private bool MoveAllSubDirs(DirectoryInfo sourceDir, string destPath, bool resetAcls = false) {
             // TODO: check whether _transferState should be adjusted while moving dirs!
             writeLogDebug("MoveAllSubDirs: " + sourceDir.FullName + " to " + destPath);
             try {
@@ -872,10 +872,17 @@ namespace AutoTx
                     writeLogDebug(" - " + subDir.Name + " > " + target);
                     subDir.MoveTo(target);
 
-                    if (_config.EnforceInheritedACLs) {
-                        var acl = Directory.GetAccessControl(target);
-                        acl.SetAccessRuleProtection(false, false);
-                        Directory.SetAccessControl(target, acl);
+                    if (resetAcls && _config.EnforceInheritedACLs) {
+                        try {
+                            var acl = Directory.GetAccessControl(target);
+                            acl.SetAccessRuleProtection(false, false);
+                            Directory.SetAccessControl(target, acl);
+                            writeLogDebug("Successfully reset inherited ACLs on " + target);
+                        }
+                        catch (Exception ex) {
+                            writeLog("Error resetting inherited ACLs on " + target + ":\n" +
+                                ex.Message);
+                        }
                     }
                 }
             }
