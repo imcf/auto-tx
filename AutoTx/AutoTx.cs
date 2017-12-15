@@ -272,6 +272,7 @@ namespace AutoTx
             writeLogDebug("GracePeriod: " + _config.GracePeriod);
             writeLogDebug("DestinationDirectory: " + _config.DestinationDirectory);
             writeLogDebug("TmpTransferDir: " + _config.TmpTransferDir);
+            writeLogDebug("EnforceInheritedACLs: " + _config.EnforceInheritedACLs);
             writeLogDebug("ServiceTimer: " + _config.ServiceTimer);
             writeLogDebug("InterPacketGap: " + _config.InterPacketGap);
             writeLogDebug("MaxCpuUsage: " + _config.MaxCpuUsage);
@@ -859,11 +860,12 @@ namespace AutoTx
                         target += "_" + CreateTimestamp();
                     writeLogDebug(" - " + subDir.Name + " > " + target);
                     subDir.MoveTo(target);
-                    // force inheritance of ACLs for the moved directories (see
-                    // https://support.microsoft.com/en-us/help/320246 for more details):
-                    var acl = Directory.GetAccessControl(target);
-                    acl.SetAccessRuleProtection(false, false);
-                    Directory.SetAccessControl(target, acl);
+
+                    if (_config.EnforceInheritedACLs) {
+                        var acl = Directory.GetAccessControl(target);
+                        acl.SetAccessRuleProtection(false, false);
+                        Directory.SetAccessControl(target, acl);
+                    }
                 }
             }
             catch (Exception ex) {

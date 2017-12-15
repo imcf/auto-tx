@@ -12,6 +12,11 @@ namespace AutoTx.XmlWrapper
     [Serializable]
     public class ServiceConfig
     {
+        public ServiceConfig() {
+            // set values for the optional XML elements:
+            EnforceInheritedACLs = true;
+        }
+        
         /// <summary>
         /// A human friendly name for the host, to be used in emails etc.
         /// </summary>
@@ -87,6 +92,19 @@ namespace AutoTx.XmlWrapper
         [XmlArray]
         [XmlArrayItem(ElementName = "ProcessName")]
         public List<string> BlacklistedProcesses { get; set; }
+
+
+
+        #region optional configuration parameters
+
+        /// <summary>
+        /// EnforceInheritedACLs: whether to enforce ACL inheritance when moving files and
+        /// directories, see https://support.microsoft.com/en-us/help/320246 for more details.
+        /// </summary>
+        public bool EnforceInheritedACLs { get; set; }
+
+        #endregion
+
 
         public static void Serialize(string file, ServiceConfig c) {
             // the config is never meant to be written by us, therefore:
