@@ -619,9 +619,22 @@ namespace AutoTx
             var queued = new DirectoryInfo(processingDir).GetDirectories();
             if (queued.Length == 0)
                 return;
-            
+
+            var subdirs = queued[0].GetDirectories();
+            if (subdirs.Length == 0) {
+                writeLog("WARNING: empty processing directory found: " + queued[0].Name);
+                try {
+                    queued[0].Delete();
+                    writeLogDebug("Removed empty directory: " + queued[0].Name);
+                }
+                catch (Exception ex) {
+                    writeLog("Error deleting directory: " + queued[0].Name + " - " + ex.Message);
+                    return;
+                }
+                return;
+            }
             try {
-                _status.CurrentTransferSrc = queued[0].GetDirectories()[0].FullName;
+                _status.CurrentTransferSrc = subdirs[0].FullName;
                 _status.CurrentTransferSize = GetDirectorySize(_status.CurrentTransferSrc);
             }
             catch (Exception ex) {
