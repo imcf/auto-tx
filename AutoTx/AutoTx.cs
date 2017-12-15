@@ -634,14 +634,12 @@ namespace AutoTx
                 return;
             }
             try {
-                _status.CurrentTransferSrc = subdirs[0].FullName;
-                _status.CurrentTransferSize = GetDirectorySize(_status.CurrentTransferSrc);
+                StartTransfer(subdirs[0].FullName);
             }
             catch (Exception ex) {
                 writeLog("Error checking for data to be transferred: " + ex.Message);
                 throw;
             }
-            StartTransfer();
         }
 
         /// <summary>
@@ -706,7 +704,7 @@ namespace AutoTx
 
             writeLogDebug("Resuming transfer from '" + _status.CurrentTransferSrc +
                           "' to '" + ExpandCurrentTargetTmp() + "'");
-            StartTransfer();
+            StartTransfer(_status.CurrentTransferSrc);
         }
 
         #endregion

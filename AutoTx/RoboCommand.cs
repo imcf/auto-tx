@@ -16,12 +16,14 @@ namespace AutoTx
         /// false. The currently processed path is stored in the global status
         /// variable CurrentTransferSrc.
         /// </summary>
-        private void StartTransfer() {
+        private void StartTransfer(string sourcePath) {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped)
                 return;
 
-            var sourcePath = _status.CurrentTransferSrc;
+            _status.CurrentTransferSrc = sourcePath;
+            _status.CurrentTransferSize = GetDirectorySize(sourcePath);
+
             // the user name is expected to be the last part of the path:
             _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
             CreateNewDirectory(ExpandCurrentTargetTmp(), false);
