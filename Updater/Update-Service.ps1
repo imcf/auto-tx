@@ -34,7 +34,8 @@ function ServiceIsBusy {
     $StatusXml = "$($InstallationPath)\status.xml"
     try {
         [xml]$XML = Get-Content $StatusXml -ErrorAction Stop
-        if ($XML.ServiceStatus.TransferInProgress) {
+        # careful, we need a string comparison here:
+        if ($XML.ServiceStatus.TransferInProgress -eq "true") {
             Return $True
         } else {
             Log-Debug "Service is idle, shutdown possible."
