@@ -12,9 +12,9 @@ namespace AutoTx
         /// <summary>
         /// Send an email using the configuration values.
         /// </summary>
-        /// <param name="recipient"></param>
-        /// <param name="subject"></param>
-        /// <param name="body"></param>
+        /// <param name="recipient">A full email address OR a valid ActiveDirectory account.</param>
+        /// <param name="subject">The subject, might be prefixed with a configurable string.</param>
+        /// <param name="body">The email body.</param>
         public void SendEmail(string recipient, string subject, string body) {
             subject = _config.EmailPrefix + subject;
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
