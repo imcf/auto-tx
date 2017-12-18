@@ -14,8 +14,14 @@ namespace AutoTx.XmlWrapper
     {
         public ServiceConfig() {
             // set values for the optional XML elements:
+            SmtpHost = "";
+            SmtpPort = 25;
+            SmtpUserCredential = "";
+            SmtpPasswortCredential = "";
             EnforceInheritedACLs = true;
         }
+
+        #region required configuration parameters
         
         /// <summary>
         /// A human friendly name for the host, to be used in emails etc.
@@ -59,9 +65,7 @@ namespace AutoTx.XmlWrapper
         /// to keep the temporary data of running transfers.
         /// </summary>
         public string TmpTransferDir { get; set; }
-        public string SmtpHost { get; set; }
-        public string SmtpUserCredential { get; set; }
-        public string SmtpPasswortCredential { get; set; }
+
         public string EmailFrom { get; set; }
         public string AdminEmailAdress { get; set; }
         public string AdminDebugEmailAdress { get; set; }
@@ -71,7 +75,6 @@ namespace AutoTx.XmlWrapper
         public int InterPacketGap { get; set; }
         public int MaxCpuUsage { get; set; }
         public int MinAvailableMemory { get; set; }
-        public int SmtpPort { get; set; }
         public int AdminNotificationDelta { get; set; }
         public int StorageNotificationDelta { get; set; }
 
@@ -93,9 +96,15 @@ namespace AutoTx.XmlWrapper
         [XmlArrayItem(ElementName = "ProcessName")]
         public List<string> BlacklistedProcesses { get; set; }
 
+        #endregion
 
 
         #region optional configuration parameters
+
+        public string SmtpHost { get; set; }
+        public string SmtpUserCredential { get; set; }
+        public string SmtpPasswortCredential { get; set; }
+        public int SmtpPort { get; set; }
 
         /// <summary>
         /// EnforceInheritedACLs: whether to enforce ACL inheritance when moving files and

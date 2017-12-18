@@ -62,12 +62,6 @@
         <ProcessName>wordpad</ProcessName>
     </BlacklistedProcesses>
 
-    <SmtpHost>smtp.mydomain.xy</SmtpHost>
-    <!--><SmtpHost /><-->
-    <SmtpPort>25</SmtpPort>
-    <SmtpUserCredential />
-    <SmtpPasswortCredential />
-
     <!-- SendAdminNotification: send email to user on finished transfers -->
     <SendTransferNotification>true</SendTransferNotification>
     <EmailFrom>admin@mydomain.xy</EmailFrom>
@@ -84,6 +78,15 @@
 
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+    <!-- SmtpHost: SMTP server hostname -->
+    <SmtpHost>smtp.mydomain.xy</SmtpHost>
+    <!-- SmtpPort: SMTP server port, defaults to 25 if omitted -->
+    <SmtpPort>25</SmtpPort>
+    <!-- SmtpUserCredential: SMTP user name if authentication required -->
+    <SmtpUserCredential />
+    <!-- SmtpPasswortCredential: SMTP password if authentication required -->
+    <SmtpPasswortCredential />
 
     <!-- EnforceInheritedACLs: whether to enforce ACL inheritance when moving
          files and directories, see this page for details (DEFAULT: true)
