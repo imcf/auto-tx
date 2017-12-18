@@ -96,12 +96,12 @@ namespace AutoTx
         /// <summary>
         /// Resume a previously paused transfer.
         /// </summary>
-        private void ResumeTransfer() {
+        private void ResumePausedTransfer() {
             // only proceed when in a valid state:
             if (_transferState != TxState.Paused)
                 return;
 
-            writeLog("Resuming the active transfer...");
+            writeLog("Resuming the paused transfer...");
             _roboCommand.Resume();
             _transferState = TxState.Active;
             writeLogDebug("Transfer resumed");

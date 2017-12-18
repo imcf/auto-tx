@@ -600,15 +600,15 @@ namespace AutoTx
 
             // if we're paused, resume the transfer and DO NOTHING ELSE:
             if (_transferState == TxState.Paused) {
-                ResumeTransfer();
+                ResumePausedTransfer();
                 return;
             }
 
             // first check if there are finished transfers and clean them up:
-            CheckFinishedTransfers();
+            FinalizeTransfers();
 
             // next check if there is a transfer that has to be resumed:
-            CheckTransfersToResume();
+            ResumeInterruptedTransfer();
 
             // check if any of the above calls changed the transfer state:
             if (_transferState != TxState.Stopped)
@@ -660,7 +660,7 @@ namespace AutoTx
         /// to the final (user) destination and by locally moving the transferred folders to the
         /// grace location for deferred deletion.
         /// </summary>
-        private void CheckFinishedTransfers() {
+        private void FinalizeTransfers() {
             // NOTE: this is intentionally triggered by the timer only to make sure the cleanup
             // only happens while all system parameters are within their valid ranges
 
@@ -689,9 +689,10 @@ namespace AutoTx
         }
 
         /// <summary>
-        /// Check if conditions for resuming a transfer are met and do so if true.
+        /// Check if an interrupted (service shutdown) transfer exists and whether the current
+        /// state allows for resuming it.
         /// </summary>
-        private void CheckTransfersToResume() {
+        private void ResumeInterruptedTransfer() {
             // CONDITIONS (a transfer has to be resumed):
             // - CurrentTargetTmp has to be non-empty
             // - TransferState has to be "Stopped"
@@ -701,7 +702,7 @@ namespace AutoTx
                 _status.TransferInProgress == false)
                 return;
 
-            writeLogDebug("Resuming transfer from '" + _status.CurrentTransferSrc +
+            writeLogDebug("Resuming interrupted transfer from '" + _status.CurrentTransferSrc +
                           "' to '" + ExpandCurrentTargetTmp() + "'");
             StartTransfer(_status.CurrentTransferSrc);
         }
