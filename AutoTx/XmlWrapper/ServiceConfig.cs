@@ -18,6 +18,12 @@ namespace AutoTx.XmlWrapper
             SmtpPort = 25;
             SmtpUserCredential = "";
             SmtpPasswortCredential = "";
+            EmailPrefix = "";
+            AdminEmailAdress = "";
+            AdminDebugEmailAdress = "";
+
+            InterPacketGap = 0;
+
             EnforceInheritedACLs = true;
         }
 
@@ -67,12 +73,9 @@ namespace AutoTx.XmlWrapper
         public string TmpTransferDir { get; set; }
 
         public string EmailFrom { get; set; }
-        public string AdminEmailAdress { get; set; }
-        public string AdminDebugEmailAdress { get; set; }
-        public string EmailPrefix { get; set; }
 
         public int ServiceTimer { get; set; }
-        public int InterPacketGap { get; set; }
+
         public int MaxCpuUsage { get; set; }
         public int MinAvailableMemory { get; set; }
         public int AdminNotificationDelta { get; set; }
@@ -105,6 +108,12 @@ namespace AutoTx.XmlWrapper
         public string SmtpUserCredential { get; set; }
         public string SmtpPasswortCredential { get; set; }
         public int SmtpPort { get; set; }
+
+        public string EmailPrefix { get; set; }
+        public string AdminEmailAdress { get; set; }
+        public string AdminDebugEmailAdress { get; set; }
+
+        public int InterPacketGap { get; set; }
 
         /// <summary>
         /// EnforceInheritedACLs: whether to enforce ACL inheritance when moving files and
