@@ -47,7 +47,8 @@ Automatic Updates
 -----------------
 
 To automate the above, a *scheduled task* has to be created. This can easily be
-done by using the following PowerShell commands:
+done by using the following PowerShell commands (or by running the provided
+`Install-UpdaterTask.ps1` script):
 
 ```powershell
 # create a repetition interval
