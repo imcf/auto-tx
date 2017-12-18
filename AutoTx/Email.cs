@@ -21,6 +21,15 @@ namespace AutoTx
                 writeLogDebug("SendEmail: " + subject + "\n" + body);
                 return;
             }
+            if (!recipient.Contains(@"@")) {
+                writeLogDebug("Invalid recipient, trying to resolve via AD: " + recipient);
+                recipient = GetEmailAddress(recipient);
+            }
+            if (string.IsNullOrWhiteSpace(recipient)) {
+                writeLogDebug("Invalid or empty recipient given, NOT sending email!");
+                writeLogDebug("SendEmail: " + subject + "\n" + body);
+                return;
+            }
             try {
                 var smtpClient = new SmtpClient() {
                     Port = _config.SmtpPort,
@@ -145,9 +154,7 @@ namespace AutoTx
 
             try {
                 var body = LoadMailTemplate("Transfer-Success.txt", substitutions);
-                SendEmail(GetEmailAddress(userDir),
-                    ServiceName + " - Transfer Notification",
-                    body);
+                SendEmail(userDir, ServiceName + " - Transfer Notification", body);
             }
             catch (Exception ex) {
                 writeLog("Error loading email template: " + ex.Message, true);
@@ -173,7 +180,7 @@ namespace AutoTx
 
             try {
                 var body = LoadMailTemplate("Transfer-Interrupted.txt", substitutions);
-                SendEmail(GetEmailAddress(userDir),
+                SendEmail(userDir,
                     ServiceName + " - Transfer Interrupted - " + _config.HostAlias,
                     body);
             }
