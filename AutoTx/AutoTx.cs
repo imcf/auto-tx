@@ -610,17 +610,27 @@ namespace AutoTx
             // next check if there is a transfer that has to be resumed:
             ResumeInterruptedTransfer();
 
-            // check if any of the above calls changed the transfer state:
+            // check the queueing location and dispatch new transfers:
+            ProcessQueuedDirectories();
+        }
+
+        /// <summary>
+        /// Process directories in the queueing location, dispatching new transfers if applicable.
+        /// </summary>
+        private void ProcessQueuedDirectories() {
+            // only proceed when in a valid state:
             if (_transferState != TxState.Stopped)
                 return;
 
-            // select next directory from "processing" for transfer:
+            // check the "processing" location for directories:
             var processingDir = Path.Combine(_managedPath, "PROCESSING");
             var queued = new DirectoryInfo(processingDir).GetDirectories();
             if (queued.Length == 0)
                 return;
 
             var subdirs = queued[0].GetDirectories();
+            // having no subdirectories should not happen in theory - in practice it could e.g. if
+            // an admin is moving around stuff while the service is operating, so better be safe:
             if (subdirs.Length == 0) {
                 writeLog("WARNING: empty processing directory found: " + queued[0].Name);
                 try {
@@ -632,6 +642,8 @@ namespace AutoTx
                 }
                 return;
             }
+
+            // dispatch the next directory from "processing" for transfer:
             try {
                 StartTransfer(subdirs[0].FullName);
             }
