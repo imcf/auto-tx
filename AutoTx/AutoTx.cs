@@ -486,7 +486,7 @@ namespace AutoTx
                 // always check the incoming dirs, independently of running transfers:
                 CheckIncomingDirectories();
                 // now trigger potential transfer tasks:
-                CheckAllTransferTasks();
+                RunTransferTasks();
             }
         }
 
@@ -588,11 +588,11 @@ namespace AutoTx
 
             return "";
         }
-
+        
         /// <summary>
         /// Check for transfers to be finished, resumed or newly initiated.
         /// </summary>
-        public void CheckAllTransferTasks() {
+        public void RunTransferTasks() {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped &&
                 _transferState != TxState.Paused) 
