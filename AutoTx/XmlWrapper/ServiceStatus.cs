@@ -7,7 +7,9 @@ namespace AutoTx.XmlWrapper
     [Serializable]
     public class ServiceStatus
     {
-        [NonSerialized] string _storageFile; // remember where we came from
+        [XmlIgnore] string _storageFile; // remember where we came from
+        [XmlIgnore] private ServiceConfig _config; 
+        [XmlIgnore] public string ValidationWarnings;
         
         private DateTime _lastStatusUpdate;
         private DateTime _lastStorageNotification;
@@ -154,8 +156,9 @@ namespace AutoTx.XmlWrapper
              */
         }
 
-        public static ServiceStatus Deserialize(string file) {
+        public static ServiceStatus Deserialize(string file, ServiceConfig config) {
             ServiceStatus status;
+
             var xs = new XmlSerializer(typeof(ServiceStatus));
             try {
                 var reader = File.OpenText(file);
@@ -166,9 +169,33 @@ namespace AutoTx.XmlWrapper
                 // if reading the status XML fails, we return an empty (new) one
                 status = new ServiceStatus();
             }
+            status._config = config;
+            ValidateStatus(status);
             // now set the storage filename:
             status._storageFile = file;
             return status;
+        }
+
+        private static void ValidateStatus(ServiceStatus s) {
+            // CurrentTransferSrc
+            if (s.CurrentTransferSrc.Length > 0
+                && !Directory.Exists(s.CurrentTransferSrc)) {
+                s.ValidationWarnings += " - found non-existing source path of an unfinished " +
+                                        "transfer: " + s.CurrentTransferSrc + "\n";
+                s.CurrentTransferSrc = "";
+            }
+
+            // CurrentTargetTmp
+            var currentTargetTmpPath = Path.Combine(s._config.DestinationDirectory,
+                s._config.TmpTransferDir,
+                s.CurrentTargetTmp);
+            if (s.CurrentTargetTmp.Length > 0
+                && !Directory.Exists(currentTargetTmpPath)) {
+                s.ValidationWarnings += " - found non-existing temporary path of an " +
+                                        "unfinished transfer: " + currentTargetTmpPath+ "\n";
+                s.CurrentTargetTmp = "";
+            }
+
         }
     }
 }

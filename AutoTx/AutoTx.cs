@@ -146,7 +146,7 @@ namespace AutoTx
         private void LoadStatusXml() {
             try {
                 writeLogDebug("Trying to load status from " + _statusPath);
-                _status = ServiceStatus.Deserialize(_statusPath);
+                _status = ServiceStatus.Deserialize(_statusPath, _config);
                 writeLogDebug("Loaded status from " + _statusPath);
             }
             catch (Exception ex) {
@@ -169,22 +169,6 @@ namespace AutoTx
                 if (CheckSpoolingDirectories() == false) {
                     writeLog("ERROR checking spooling directories (incoming / managed)!");
                     configInvalid = true;
-                }
-
-                // CurrentTransferSrc
-                if (_status.CurrentTransferSrc.Length > 0
-                    && !Directory.Exists(_status.CurrentTransferSrc)) {
-                    writeLog("WARNING: status file contains non-existing source path of an " +
-                             "unfinished transfer: " + _status.CurrentTransferSrc);
-                    _status.CurrentTransferSrc = "";
-                }
-
-                // CurrentTargetTmp
-                if (_status.CurrentTargetTmp.Length > 0
-                    && !Directory.Exists(ExpandCurrentTargetTmp())) {
-                    writeLog("WARNING: status file contains non-existing temporary path of an " +
-                             "unfinished transfer: " + _status.CurrentTargetTmp);
-                    _status.CurrentTargetTmp = "";
                 }
             }
             catch (Exception ex) {
@@ -285,7 +269,11 @@ namespace AutoTx
 
             if (!string.IsNullOrEmpty(_config.ValidationWarnings)) {
                 writeLog("WARNING: some configuration settings might not be optimal:\n" +
-                    _config.ValidationWarnings);
+                         _config.ValidationWarnings);
+            }
+            if (!string.IsNullOrEmpty(_status.ValidationWarnings)) {
+                writeLog("WARNING: some status parameters were invalid and have been reset:\n" +
+                         _status.ValidationWarnings);
             }
         }
 
