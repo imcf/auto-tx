@@ -197,5 +197,19 @@ namespace AutoTx.XmlWrapper
             }
 
         }
+
+        public string Summary() {
+            return
+                "CurrentTransferSrc: " + CurrentTransferSrc + "\n" +
+                "CurrentTargetTmp: " + CurrentTargetTmp + "\n" +
+                "TransferInProgress: " + TransferInProgress + "\n" +
+                "CurrentTransferSize: " + CurrentTransferSize + "\n" +
+                "LastStatusUpdate: " +
+                LastStatusUpdate.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                "LastStorageNotification: " +
+                LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                "LastAdminNotification: " +
+                LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n";
+        }
     }
 }

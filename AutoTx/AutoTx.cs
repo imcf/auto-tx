@@ -190,68 +190,31 @@ namespace AutoTx
         /// Write a summary of loaded config + status to the log.
         /// </summary>
         private void StartupSummary() {
-            writeLogDebug("------ RoboSharp ------");
+            var msg = "\n\n------ RoboSharp ------\n";
             var roboDll = System.Reflection.Assembly.GetAssembly(typeof(RoboCommand)).Location;
             if (roboDll != null) {
                 var versionInfo = FileVersionInfo.GetVersionInfo(roboDll);
-                writeLogDebug(" > DLL file: " + roboDll);
-                writeLogDebug(" > DLL description: " + versionInfo.Comments);
-                writeLogDebug(" > DLL version: " + versionInfo.FileVersion);
+                msg += " > DLL file: " + roboDll + "\n" +
+                       " > DLL description: " + versionInfo.Comments + "\n" +
+                       " > DLL version: " + versionInfo.FileVersion + "\n";
             }
-            writeLogDebug("");
+            writeLogDebug(msg);
 
-            writeLogDebug("------ Loaded status flags ------");
-            writeLogDebug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
-            writeLogDebug("CurrentTargetTmp: " + _status.CurrentTargetTmp);
-            writeLogDebug("TransferInProgress: " + _status.TransferInProgress);
-            writeLogDebug("LastStorageNotification: " +
-                          _status.LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss"));
-            writeLogDebug("LastAdminNotification: " +
-                          _status.LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss"));
-            writeLogDebug("");
 
-            writeLogDebug("------ Loaded configuration settings ------");
-            writeLogDebug("HostAlias: " + _config.HostAlias);
-            writeLogDebug("SourceDrive: " + _config.SourceDrive);
-            writeLogDebug("IncomingDirectory: " + _config.IncomingDirectory);
-            writeLogDebug("MarkerFile: " + _config.MarkerFile);
-            writeLogDebug("ManagedDirectory: " + _config.ManagedDirectory);
-            writeLogDebug("GracePeriod: " + _config.GracePeriod);
-            writeLogDebug("DestinationDirectory: " + _config.DestinationDirectory);
-            writeLogDebug("TmpTransferDir: " + _config.TmpTransferDir);
-            writeLogDebug("EnforceInheritedACLs: " + _config.EnforceInheritedACLs);
-            writeLogDebug("ServiceTimer: " + _config.ServiceTimer);
-            writeLogDebug("InterPacketGap: " + _config.InterPacketGap);
-            writeLogDebug("MaxCpuUsage: " + _config.MaxCpuUsage);
-            writeLogDebug("MinAvailableMemory: " + _config.MinAvailableMemory);
-            foreach (var processName in _config.BlacklistedProcesses) {
-                writeLogDebug("BlacklistedProcess: " + processName);
-            }
+            msg = "\n\n------ Loaded status flags ------\n" + _status.Summary() +
+                  "\n------ Loaded configuration settings ------\n" + _config.Summary();
+            writeLogDebug(msg);
+
+
+            msg = "\n\n------ Current system parameters ------\n" +
+                  "Hostname: " + Environment.MachineName + "\n" +
+                  "Free system memory: " + GetFreeMemory() + " MB" + "\n";
             foreach (var driveToCheck in _config.SpaceMonitoring) {
-                writeLogDebug("Drive to check free space: " + driveToCheck.DriveName +
-                              " (threshold: " + driveToCheck.SpaceThreshold + ")");
+                msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
+                       GetFreeDriveSpace(driveToCheck.DriveName) + "\n";
             }
-            writeLogDebug("StorageNotificationDelta: " + _config.StorageNotificationDelta);
-            writeLogDebug("AdminNotificationDelta: " + _config.AdminNotificationDelta);
-            if (string.IsNullOrEmpty(_config.SmtpHost)) {
-                writeLogDebug("SmtpHost: ====== Not configured, disabling notification emails! ======");
-            } else {
-                writeLogDebug("SmtpHost: " + _config.SmtpHost);
-                writeLogDebug("EmailFrom: " + _config.EmailFrom);
-                writeLogDebug("AdminEmailAdress: " + _config.AdminEmailAdress);
-                writeLogDebug("AdminDebugEmailAdress: " + _config.AdminDebugEmailAdress);
-            }
-            writeLogDebug("");
+            writeLogDebug(msg);
 
-            // finally some current information:
-            writeLogDebug("------ Current system parameters ------");
-            writeLogDebug("Hostname: " + Environment.MachineName);
-            writeLogDebug("Free system memory: " + GetFreeMemory() + " MB");
-            foreach (var driveToCheck in _config.SpaceMonitoring) {
-                writeLogDebug("Free space on drive '" + driveToCheck.DriveName + "': " +
-                              GetFreeDriveSpace(driveToCheck.DriveName));
-            }
-            writeLogDebug("");
 
             writeLogDebug("------ Grace location status ------");
             try {
