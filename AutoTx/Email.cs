@@ -155,6 +155,7 @@ namespace AutoTx
             try {
                 var body = LoadMailTemplate("Transfer-Success.txt", substitutions);
                 SendEmail(userDir, ServiceName + " - Transfer Notification", body);
+                writeLogDebug("Sent transfer completed notification to " + userDir);
             }
             catch (Exception ex) {
                 writeLog("Error loading email template: " + ex.Message, true);
