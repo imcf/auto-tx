@@ -5,8 +5,6 @@
     <HostAlias>Confocal Microscope 2</HostAlias>
     <!-- DestinationAlias: friendly name for the target to be used in mails -->
     <DestinationAlias>Core Facility Storage</DestinationAlias>
-    <!-- EmailPrefix: prefix label for email subjects -->
-    <EmailPrefix>[Core Facility] </EmailPrefix>
 
     <!-- enable or disable debug log messages -->
     <Debug>true</Debug>
@@ -39,8 +37,6 @@
     <MaxCpuUsage>25</MaxCpuUsage>
     <!-- MinAvailableMemory: pause transfer if free RAM is below (in MB) -->
     <MinAvailableMemory>512</MinAvailableMemory>
-    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
-    <InterPacketGap>0</InterPacketGap>
     
     <SpaceMonitoring>
         <DriveToCheck>
@@ -71,10 +67,6 @@
     <!-- AdminNotificationDelta: how long to wait (in minutes) after sending an
          admin notification before sending the next one -->
     <AdminNotificationDelta>60</AdminNotificationDelta>
-    <AdminEmailAdress>admin@mydomain.xy</AdminEmailAdress>
-    <!-- AdminDebugEmailAdress: an email address where to send certain debug
-         messages to, e.g. on completed transfers. Can be empty. -->
-    <AdminDebugEmailAdress>admin@mydomain.xy</AdminDebugEmailAdress>
 
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
@@ -87,6 +79,16 @@
     <SmtpUserCredential />
     <!-- SmtpPasswortCredential: SMTP password if authentication required -->
     <SmtpPasswortCredential />
+
+    <!-- EmailPrefix: prefix label for email subjects -->
+    <EmailPrefix>[Core Facility] </EmailPrefix>
+    <AdminEmailAdress>admin@mydomain.xy</AdminEmailAdress>
+    <!-- AdminDebugEmailAdress: an email address where to send certain debug
+         messages to, e.g. on completed transfers. Can be empty. -->
+    <AdminDebugEmailAdress>admin@mydomain.xy</AdminDebugEmailAdress>
+
+    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
+    <InterPacketGap>0</InterPacketGap>
 
     <!-- EnforceInheritedACLs: whether to enforce ACL inheritance when moving
          files and directories, see this page for details (DEFAULT: true)
