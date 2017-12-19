@@ -107,7 +107,8 @@ namespace AutoTx
                 _roboCommand = new RoboCommand();
             }
             catch (Exception ex) {
-                writeLog("Error in LoadSettings(): " + ex.Message, true);
+                writeLog("Error in LoadSettings(): " + ex.Message + "\n" +
+                    ex.StackTrace, true);
                 throw new Exception("Error in LoadSettings.");
             }
             // NOTE: this is explicitly called *outside* the try-catch block so an Exception
@@ -219,7 +220,7 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                writeLog("Error in CheckConfiguration(): " + ex.Message);
+                writeLog("Error in CheckConfiguration(): " + ex.Message + " " + ex.StackTrace);
                 configInvalid = true;
             }
 
