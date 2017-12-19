@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
@@ -126,6 +127,11 @@ namespace AutoTx
                 _config = ServiceConfig.Deserialize(_configPath);
                 writeLogDebug("Loaded config from " + _configPath);
             }
+            catch (ConfigurationErrorsException ex) {
+                writeLog("ERROR validating configuration file [" + _configPath +
+                    "]: " + ex.Message);
+                throw new Exception("Error validating configuration.");
+            }
             catch (Exception ex) {
                 writeLog("Error loading configuration XML: " + ex.Message, true);
                 // this should terminate the service process:
@@ -158,33 +164,6 @@ namespace AutoTx
         public void CheckConfiguration() {
             var configInvalid = false;
             try {
-                if (string.IsNullOrEmpty(_config.SourceDrive) ||
-                    string.IsNullOrEmpty(_config.IncomingDirectory) ||
-                    string.IsNullOrEmpty(_config.ManagedDirectory)) {
-                    writeLog("ERROR: mandatory parameter missing!");
-                    configInvalid = true;
-                }
-                if (_config.SourceDrive.Substring(1) != @":\") {
-                    writeLog("ERROR: SourceDrive must be a drive letter followed by a colon" +
-                             @" and a backslash, e.g. 'D:\'!");
-                    configInvalid = true;
-                }
-                var driveInfo = new DriveInfo(_config.SourceDrive);
-                if (driveInfo.DriveType != DriveType.Fixed) {
-                    writeLog("ERROR: SourceDrive (" + _config.SourceDrive + ") must be a " +
-                             "local (fixed) drive, OS reports '" + driveInfo.DriveType + "')!");
-                    configInvalid = true;
-                }
-
-                // spooling directories: IncomingDirectory + ManagedDirectory
-                if (_config.IncomingDirectory.StartsWith(@"\")) {
-                    writeLog("ERROR: IncomingDirectory must not start with a backslash!");
-                    configInvalid = true;
-                }
-                if (_config.ManagedDirectory.StartsWith(@"\")) {
-                    writeLog("ERROR: ManagedDirectory must not start with a backslash!");
-                    configInvalid = true;
-                }
                 _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
                 _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
                 if (CheckSpoolingDirectories() == false) {
@@ -192,28 +171,11 @@ namespace AutoTx
                     configInvalid = true;
                 }
 
-                // DestinationDirectory
-                if (!_config.DestinationDirectory.StartsWith(@"\\")) {
-                    writeLog("WARNING: DestinationDirectory is no UNC path!");
-                }
-                if (!Directory.Exists(_config.DestinationDirectory)) {
-                    writeLog("ERROR: can't find destination: " + _config.DestinationDirectory);
-                    configInvalid = true;
-                }
-
-                // TmpTransferDir
-                var tmpTransferPath = Path.Combine(_config.DestinationDirectory,
-                    _config.TmpTransferDir);
-                if (!Directory.Exists(tmpTransferPath)) {
-                    writeLog("ERROR: temporary transfer dir doesn't exist: " + tmpTransferPath);
-                    configInvalid = true;
-                }
-
                 // CurrentTransferSrc
                 if (_status.CurrentTransferSrc.Length > 0
                     && !Directory.Exists(_status.CurrentTransferSrc)) {
                     writeLog("WARNING: status file contains non-existing source path of an " +
-                        "unfinished transfer: " + _status.CurrentTransferSrc);
+                             "unfinished transfer: " + _status.CurrentTransferSrc);
                     _status.CurrentTransferSrc = "";
                 }
 
@@ -221,14 +183,8 @@ namespace AutoTx
                 if (_status.CurrentTargetTmp.Length > 0
                     && !Directory.Exists(ExpandCurrentTargetTmp())) {
                     writeLog("WARNING: status file contains non-existing temporary path of an " +
-                        "unfinished transfer: " + _status.CurrentTargetTmp);
+                             "unfinished transfer: " + _status.CurrentTargetTmp);
                     _status.CurrentTargetTmp = "";
-                }
-
-                // ServiceTimer
-                if (_config.ServiceTimer < 1000) {
-                    writeLog("ERROR: ServiceTimer must not be smaller than 1000 ms!");
-                    configInvalid = true;
                 }
             }
             catch (Exception ex) {
@@ -325,6 +281,11 @@ namespace AutoTx
             }
             catch (Exception ex) {
                 writeLog("CheckGraceLocation() failed: " + ex.Message, true);
+            }
+
+            if (!string.IsNullOrEmpty(_config.ValidationWarnings)) {
+                writeLog("WARNING: some configuration settings might not be optimal:\n" +
+                    _config.ValidationWarnings);
             }
         }
 

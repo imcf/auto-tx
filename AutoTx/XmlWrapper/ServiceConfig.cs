@@ -12,7 +12,10 @@ namespace AutoTx.XmlWrapper
     [Serializable]
     public class ServiceConfig
     {
+        [XmlIgnore] public string ValidationWarnings;
+        
         public ServiceConfig() {
+            ValidationWarnings = "";
             // set values for the optional XML elements:
             SmtpHost = "";
             SmtpPort = 25;
@@ -134,7 +137,48 @@ namespace AutoTx.XmlWrapper
             var reader = File.OpenText(file);
             var config = (ServiceConfig) xs.Deserialize(reader);
             reader.Close();
+            ValidateConfiguration(config);
             return config;
+        }
+
+        private static void ValidateConfiguration(ServiceConfig c) {
+            if (string.IsNullOrEmpty(c.SourceDrive) ||
+                string.IsNullOrEmpty(c.IncomingDirectory) ||
+                string.IsNullOrEmpty(c.ManagedDirectory))
+                throw new ConfigurationErrorsException("mandatory parameter missing!");
+
+            if (c.SourceDrive.Substring(1) != @":\")
+                throw new ConfigurationErrorsException("SourceDrive must be a drive " +
+                    @"letter followed by a colon and a backslash, e.g. 'D:\'!");
+
+            // make sure SourceDrive is a local (fixed) disk:
+            var driveInfo = new DriveInfo(c.SourceDrive);
+            if (driveInfo.DriveType != DriveType.Fixed)
+                throw new ConfigurationErrorsException("SourceDrive (" + c.SourceDrive +
+                    ") must be a local (fixed) drive, OS reports '" + driveInfo.DriveType + "')!");
+
+
+            // spooling directories: IncomingDirectory + ManagedDirectory
+            if (c.IncomingDirectory.StartsWith(@"\"))
+                throw new ConfigurationErrorsException("IncomingDirectory must not start with a backslash!");
+            if (c.ManagedDirectory.StartsWith(@"\"))
+                throw new ConfigurationErrorsException("ManagedDirectory must not start with a backslash!");
+
+            if (!Directory.Exists(c.DestinationDirectory))
+                throw new ConfigurationErrorsException("can't find destination: " + c.DestinationDirectory);
+
+            var tmpTransferPath = Path.Combine(c.DestinationDirectory, c.TmpTransferDir);
+            if (!Directory.Exists(tmpTransferPath))
+                throw new ConfigurationErrorsException("temporary transfer dir doesn't exist: " + tmpTransferPath);
+
+            if (c.ServiceTimer < 1000)
+                throw new ConfigurationErrorsException("ServiceTimer must not be smaller than 1000 ms!");
+
+
+            // NON-CRITICAL stuff just adds messages to ValidationWarnings:
+            // DestinationDirectory
+            if (!c.DestinationDirectory.StartsWith(@"\\"))
+                c.ValidationWarnings += " - <DestinationDirectory> is not a UNC path!\n";
         }
 
     }
