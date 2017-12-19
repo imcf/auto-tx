@@ -125,6 +125,8 @@ namespace AutoTx
         private void LoadConfigXml() {
             try {
                 _config = ServiceConfig.Deserialize(_configPath);
+                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
+                _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
                 writeLogDebug("Loaded config from " + _configPath);
             }
             catch (ConfigurationErrorsException ex) {
@@ -163,16 +165,8 @@ namespace AutoTx
         /// </summary>
         public void CheckConfiguration() {
             var configInvalid = false;
-            try {
-                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
-                _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
-                if (CheckSpoolingDirectories() == false) {
-                    writeLog("ERROR checking spooling directories (incoming / managed)!");
-                    configInvalid = true;
-                }
-            }
-            catch (Exception ex) {
-                writeLog("Error in CheckConfiguration(): " + ex.Message + " " + ex.StackTrace);
+            if (CheckSpoolingDirectories() == false) {
+                writeLog("ERROR checking spooling directories (incoming / managed)!");
                 configInvalid = true;
             }
 
