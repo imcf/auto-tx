@@ -92,7 +92,7 @@ namespace AutoTx
         }
 
         /// <summary>
-        /// Loads the initial settings.
+        /// Load the initial settings.
         /// </summary>
         private void LoadSettings() {
             try {
@@ -102,7 +102,8 @@ namespace AutoTx
                 _configPath = Path.Combine(baseDir, "configuration.xml");
                 _statusPath = Path.Combine(baseDir, "status.xml");
 
-                LoadConfigStatusXml();
+                LoadConfigXml();
+                LoadStatusXml();
 
                 _roboCommand = new RoboCommand();
             }
@@ -116,10 +117,11 @@ namespace AutoTx
             CheckConfiguration();
         }
 
+
         /// <summary>
-        /// Loads the configuration and status xml files.
+        /// Load the configuration xml file.
         /// </summary>
-        private void LoadConfigStatusXml() {
+        private void LoadConfigXml() {
             try {
                 _config = ServiceConfig.Deserialize(_configPath);
                 writeLogDebug("Loaded config from " + _configPath);
@@ -129,16 +131,26 @@ namespace AutoTx
                 // this should terminate the service process:
                 throw new Exception("Error loading config.");
             }
+        }
+
+
+        /// <summary>
+        /// Load the status xml file.
+        /// </summary>
+        private void LoadStatusXml() {
             try {
+                writeLogDebug("Trying to load status from " + _statusPath);
                 _status = ServiceStatus.Deserialize(_statusPath);
                 writeLogDebug("Loaded status from " + _statusPath);
             }
             catch (Exception ex) {
-                writeLog("Error loading status XML: " + ex.Message, true);
+                writeLog("Error loading status XML from [" + _statusPath + "]: "
+                         + ex.Message + "\n" + ex.StackTrace, true);
                 // this should terminate the service process:
                 throw new Exception("Error loading status.");
             }
         }
+
 
         /// <summary>
         /// Check if loaded configuration is valid, print a summary to the log.
