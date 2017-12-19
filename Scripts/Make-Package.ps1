@@ -41,8 +41,30 @@ Copy-Item "$($ResourceDir)\configuration-example.xml" "$($PkgDir)\configuration.
 Copy-Item "$($ResourceDir)\status-example.xml" "$($PkgDir)\status.xml"
 Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\service.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
+try {
+    $CommitRefFile = "$($PkgDir)\BuildCommitRef.txt"
+    git describe > $CommitRefFile
+    $BuildCommit = Get-Content $CommitRefFile
+}
+catch {
+    Write-Host "Error getting commit reference from git!"
+    $BuildCommit = "<UNKNOWN>"
+}
+
 
 Copy-Item "ScriptsConfig.ps1" $PkgDir
 Copy-Item "Install-Service.ps1" $PkgDir
 
-Write-Host "Done creating package [$($PkgDir)] (config: $($BuildConfiguration))"
+function Highlight([string]$Message) {
+    Write-Host -NoNewline "["
+    Write-Host -NoNewline -F Cyan $Message
+    Write-Host -NoNewline "]"
+}
+
+Write-Host -NoNewline "Done creating package "
+Highlight $PkgDir
+Write-Host -NoNewline " using config "
+Highlight $BuildConfiguration
+Write-Host -NoNewline " based on commit "
+Highlight $BuildCommit
+Write-Host
