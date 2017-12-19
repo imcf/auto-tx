@@ -914,7 +914,7 @@ namespace AutoTx
         /// <summary>
         /// Recursively sum up size of all files under a given path.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">Full path of the directory.</param>
         /// <returns>The total size in bytes.</returns>
         public static long GetDirectorySize(string path) {
             return new DirectoryInfo(path)
@@ -930,36 +930,68 @@ namespace AutoTx
         /// containing the age and size of those directories.
         /// </summary>
         public void CheckGraceLocation() {
-            var graceDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
+            var expired = ExpiredDirs(_config.GracePeriod);
             var report = "";
+            foreach (var userdir in expired.Keys) {
+                report += "\n - user '" + userdir + "'\n";
+                foreach (var subdir in expired[userdir]) {
+                    report += string.Format("   - {0} [age: {2} days, size: {1} MB]\n",
+                        subdir.Item1, subdir.Item2, subdir.Item3);
+                }
+            }
+            writeLogDebug("Expired folders in grace location:\n" + report);
+        }
+
+        /// <summary>
+        /// Assemble a dictionary with information about expired directories.
+        /// </summary>
+        /// <returns>A dictionary having usernames as keys (of those users that actually do have
+        /// expired directories), where the values are lists of tuples with the DirInfo objects,
+        /// size and age (in days) of the expired directories.</returns>
+        private Dictionary<string, List<Tuple<DirectoryInfo, long, int>>> ExpiredDirs(int thresh) {
+            var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
+            var graceDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
+            var now = DateTime.UtcNow;
             foreach (var userdir in graceDir.GetDirectories()) {
-                var expired = "";
+                var expired = new List<Tuple<DirectoryInfo, long, int>>();
                 foreach (var subdir in userdir.GetDirectories()) {
-                    DateTime timestamp;
+                    var age = DirNameToAge(subdir, now);
+                    if (age < thresh)
+                        continue;
+                    long size = -1;
                     try {
-                        timestamp = DateTime.ParseExact(subdir.Name,
-                            "yyyy-MM-dd__HH-mm-ss", CultureInfo.InvariantCulture);
+                        size = GetDirectorySize(subdir.FullName);
                     }
                     catch (Exception ex) {
-                        writeLogDebug("ERROR parsing timestamp from directory name '" +
-                            subdir.Name + "', skipping: " + ex.Message);
-                        continue;
+                        writeLog("ERROR getting directory size of " + subdir.FullName +
+                            " - " + ex.Message);
                     }
-                    var delta = DateTime.UtcNow - timestamp;
-                    if (delta.Days < _config.GracePeriod)
-                        continue;
-                    var size = GetDirectorySize(subdir.FullName) / MegaBytes;
-                    expired += "   - " + subdir + ": " + size + " MB (age: "
-                        + delta.Days + " days)\n";
+                    expired.Add(new Tuple<DirectoryInfo, long, int>(subdir, size, age));
                 }
-                if (string.IsNullOrWhiteSpace(expired))
-                    continue;
-                report += "\n - user '" + userdir + "':\n" + expired;
+                if (expired.Count > 0)
+                    collection.Add(userdir.Name, expired);
             }
-            if (string.IsNullOrWhiteSpace(report))
-                return;
-            writeLogDebug("Expired folders in grace location (" + graceDir.FullName + "):\n"
-                + report);
+            return collection;
+        }
+
+        /// <summary>
+        /// Convert the timestamp given by the NAME of a directory into the age in days.
+        /// </summary>
+        /// <param name="dir">The DirectoryInfo object to check for its name-age.</param>
+        /// <param name="baseTime">The DateTime object to compare to.</param>
+        /// <returns>The age in days, or -1 in case of an error.</returns>
+        private int DirNameToAge(DirectoryInfo dir, DateTime baseTime) {
+            DateTime dirTimestamp;
+            try {
+                dirTimestamp = DateTime.ParseExact(dir.Name, "yyyy-MM-dd__HH-mm-ss",
+                    CultureInfo.InvariantCulture);
+            }
+            catch (Exception ex) {
+                writeLogDebug("ERROR parsing timestamp from directory name '" +
+                              dir.Name + "', skipping: " + ex.Message);
+                return -1;
+            }
+            return (baseTime - dirTimestamp).Days;
         }
 
         #endregion
