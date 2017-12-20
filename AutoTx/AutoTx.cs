@@ -922,6 +922,10 @@ namespace AutoTx
                 .Sum(file => file.Length);
         }
 
+        public void CheckGraceLocation() {
+            writeLogDebug(GraceLocationSummary());
+        }
+
         /// <summary>
         /// Generate a report on expired folders in the grace location.
         /// 
@@ -929,7 +933,7 @@ namespace AutoTx
         /// name-timestamp exceeds the configured grace period and generate a summary
         /// containing the age and size of those directories.
         /// </summary>
-        public void CheckGraceLocation() {
+        public string GraceLocationSummary() {
             var expired = ExpiredDirs(_config.GracePeriod);
             var report = "";
             foreach (var userdir in expired.Keys) {
@@ -939,7 +943,9 @@ namespace AutoTx
                         subdir.Item1, subdir.Item2, subdir.Item3);
                 }
             }
-            writeLogDebug("Expired folders in grace location:\n" + report);
+            if (string.IsNullOrEmpty(report))
+                return "No expired folders in grace location.\n";
+            return  "Expired folders in grace location:\n" + report;
         }
 
         /// <summary>
