@@ -964,7 +964,7 @@ namespace AutoTx
                         continue;
                     long size = -1;
                     try {
-                        size = GetDirectorySize(subdir.FullName);
+                        size = GetDirectorySize(subdir.FullName) / MegaBytes;
                     }
                     catch (Exception ex) {
                         writeLog("ERROR getting directory size of " + subdir.FullName +
