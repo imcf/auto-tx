@@ -190,7 +190,7 @@ namespace AutoTx
         /// Write a summary of loaded config + status to the log.
         /// </summary>
         private void StartupSummary() {
-            var msg = "\n\n------ RoboSharp ------\n";
+            var msg = "Startup Summary:\n\n------ RoboSharp ------\n";
             var roboDll = System.Reflection.Assembly.GetAssembly(typeof(RoboCommand)).Location;
             if (roboDll != null) {
                 var versionInfo = FileVersionInfo.GetVersionInfo(roboDll);
@@ -198,27 +198,24 @@ namespace AutoTx
                        " > DLL description: " + versionInfo.Comments + "\n" +
                        " > DLL version: " + versionInfo.FileVersion + "\n";
             }
-            writeLogDebug(msg);
 
 
-            msg = "\n\n------ Loaded status flags ------\n" + _status.Summary() +
-                  "\n------ Loaded configuration settings ------\n" + _config.Summary();
-            writeLogDebug(msg);
+            msg += "\n------ Loaded status flags ------\n" + _status.Summary() +
+                   "\n------ Loaded configuration settings ------\n" + _config.Summary();
 
 
-            msg = "\n\n------ Current system parameters ------\n" +
-                  "Hostname: " + Environment.MachineName + "\n" +
-                  "Free system memory: " + GetFreeMemory() + " MB" + "\n";
+            msg += "\n------ Current system parameters ------\n" +
+                   "Hostname: " + Environment.MachineName + "\n" +
+                   "Free system memory: " + GetFreeMemory() + " MB" + "\n";
             foreach (var driveToCheck in _config.SpaceMonitoring) {
                 msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
                        GetFreeDriveSpace(driveToCheck.DriveName) + "\n";
             }
-            writeLogDebug(msg);
 
 
-            writeLogDebug("------ Grace location status ------");
+            msg += "\n------ Grace location status ------\n";
             try {
-                CheckGraceLocation();
+                msg += GraceLocationSummary();
             }
             catch (Exception ex) {
                 writeLog("CheckGraceLocation() failed: " + ex.Message, true);
@@ -232,6 +229,7 @@ namespace AutoTx
                 writeLog("WARNING: some status parameters were invalid and have been reset:\n" +
                          _status.ValidationWarnings);
             }
+            writeLogDebug(msg);
         }
 
         #endregion
