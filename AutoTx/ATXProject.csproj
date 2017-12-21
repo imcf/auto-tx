@@ -152,7 +152,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>PowerShell -Command "$BCommit = '$(ProjectDir)\Resources\BuildCommit.txt' ; $BDate = '$(ProjectDir)\Resources\BuildDate.txt' ; if (-Not (Test-Path $BCommit)) { Write-Output 'UNKNOWN' &gt; $BCommit } ; Get-Date -Format 'yyyy-MM-dd HH:mm:ss' &gt; $BDate ; Get-Content $BDate"</PreBuildEvent>
+    <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)\Scripts\Prepare-Build.ps1 $(ProjectDir)</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>PowerShell -Command "Write-Host $(ConfigurationName)" &gt; $(ProjectDir)\Resources\BuildConfiguration.txt
