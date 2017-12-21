@@ -215,7 +215,7 @@ namespace AutoTx
 
             msg += "\n------ Grace location status ------\n";
             try {
-                msg += GraceLocationSummary();
+                msg += GraceLocationSummary(_config.GracePeriod);
             }
             catch (Exception ex) {
                 writeLog("CheckGraceLocation() failed: " + ex.Message, true);
@@ -921,7 +921,7 @@ namespace AutoTx
         }
 
         public void CheckGraceLocation() {
-            writeLogDebug(GraceLocationSummary());
+            writeLogDebug(GraceLocationSummary(_config.GracePeriod));
         }
 
         /// <summary>
@@ -931,8 +931,9 @@ namespace AutoTx
         /// name-timestamp exceeds the configured grace period and generate a summary
         /// containing the age and size of those directories.
         /// </summary>
-        public string GraceLocationSummary() {
-            var expired = ExpiredDirs(_config.GracePeriod);
+        /// <param name="threshold">The number of days used as expiration threshold.</param>
+        public string GraceLocationSummary(int threshold) {
+            var expired = ExpiredDirs(threshold);
             var report = "";
             foreach (var userdir in expired.Keys) {
                 report += "\n - user '" + userdir + "'\n";
