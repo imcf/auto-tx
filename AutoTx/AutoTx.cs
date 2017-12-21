@@ -949,6 +949,7 @@ namespace AutoTx
         /// <summary>
         /// Assemble a dictionary with information about expired directories.
         /// </summary>
+        /// <param name="thresh">The number of days used as expiration threshold.</param>
         /// <returns>A dictionary having usernames as keys (of those users that actually do have
         /// expired directories), where the values are lists of tuples with the DirInfo objects,
         /// size and age (in days) of the expired directories.</returns>
