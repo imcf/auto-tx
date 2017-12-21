@@ -943,8 +943,8 @@ namespace AutoTx
                 }
             }
             if (string.IsNullOrEmpty(report))
-                return "No expired folders in grace location.\n";
-            return  "Expired folders in grace location:\n" + report;
+                report = " -- NONE --\n";
+            return  "Folders older than " + threshold + " days in grace location:\n" + report;
         }
 
         /// <summary>
