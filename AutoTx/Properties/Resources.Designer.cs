@@ -61,7 +61,17 @@ namespace AutoTx.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 2017-08-28 18:49:13
+        ///   Looks up a localized string similar to autotransfer-v1-134-g04a73b1
+        ///.
+        /// </summary>
+        internal static string BuildCommit {
+            get {
+                return ResourceManager.GetString("BuildCommit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 2017-12-21 10:42:03
         ///.
         /// </summary>
         internal static string BuildDate {

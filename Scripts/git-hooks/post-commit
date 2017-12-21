@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# A hook script to generate a file containing the output of "git describe" for
+# being used further down the build+packaging pipeline.
+
+git describe --tags > AutoTx/Resources/BuildCommit.txt

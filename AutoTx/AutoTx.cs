@@ -251,8 +251,11 @@ namespace AutoTx
 
             // read the build timestamp from the resources:
             var buildTimestamp = Properties.Resources.BuildDate.Trim();
+            var buildCommitName = Properties.Resources.BuildCommit.Trim();
             writeLog("-----------------------");
-            writeLog(ServiceName + " service started <build " + buildTimestamp + ">");
+            writeLog(ServiceName + " service started.");
+            writeLog("build: [" + buildTimestamp + "]");
+            writeLog("commit: [" + buildCommitName + "]");
             writeLog("-----------------------");
         }
 
