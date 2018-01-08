@@ -254,7 +254,7 @@ namespace AutoTx
             var buildCommitName = Properties.Resources.BuildCommit.Trim();
             writeLog("-----------------------");
             writeLog(ServiceName + " service started.");
-            writeLog("build: [" + buildTimestamp + "]");
+            writeLog("build:  [" + buildTimestamp + "]");
             writeLog("commit: [" + buildCommitName + "]");
             writeLog("-----------------------");
         }
