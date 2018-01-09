@@ -213,12 +213,17 @@ namespace AutoTx
             }
 
 
-            msg += "\n------ Grace location status ------\n";
+            msg += "\n------ Grace location status (threshold: " + _config.GracePeriod + ") ------\n";
             try {
-                msg += GraceLocationSummary(_config.GracePeriod);
+                var tmp = GraceLocationSummary(_config.GracePeriod);
+                if (string.IsNullOrEmpty(tmp)) {
+                    msg += " -- NO EXPIRED folders in grace location! --\n";
+                } else {
+                    msg += tmp;
+                }
             }
             catch (Exception ex) {
-                writeLog("CheckGraceLocation() failed: " + ex.Message, true);
+                writeLog("GraceLocationSummary() failed: " + ex.Message, true);
             }
 
             if (!string.IsNullOrEmpty(_config.ValidationWarnings)) {
@@ -766,7 +771,7 @@ namespace AutoTx
                         sourceDirectory.Parent.Delete();
                     // check age and size of existing folders in the grace location after
                     // a transfer has completed, trigger a notification if necessary:
-                    CheckGraceLocation();
+                    writeLogDebug(GraceLocationSummary(_config.GracePeriod));
                     return;
                 }
                 errMsg = "unable to move " + sourceDirectory.FullName;
@@ -923,10 +928,6 @@ namespace AutoTx
                 .Sum(file => file.Length);
         }
 
-        public void CheckGraceLocation() {
-            writeLogDebug(GraceLocationSummary(_config.GracePeriod));
-        }
-
         /// <summary>
         /// Generate a report on expired folders in the grace location.
         /// 
@@ -946,8 +947,9 @@ namespace AutoTx
                 }
             }
             if (string.IsNullOrEmpty(report))
-                report = " -- NONE --\n";
-            return  "Folders older than " + threshold + " days in grace location:\n" + report;
+                return "";
+            report = "Expired folders in grace location:\n" + report;
+            return report;
         }
 
         /// <summary>
