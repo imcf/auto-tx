@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXSerializables", "ATXSeri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXConfigTest", "ATXConfigTest\ATXConfigTest.csproj", "{81E0A5AC-0E0D-4F98-B399-41A58612EF33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXTray", "ATXTray\ATXTray.csproj", "{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{81E0A5AC-0E0D-4F98-B399-41A58612EF33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81E0A5AC-0E0D-4F98-B399-41A58612EF33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81E0A5AC-0E0D-4F98-B399-41A58612EF33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
