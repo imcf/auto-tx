@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXProject", "AutoTx\ATXProject.csproj", "{5CB67E3A-E63A-4791-B90B-8CEF0027AEAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXSerializables", "ATXSerializables\ATXSerializables.csproj", "{166D65D5-EE10-4364-8AA3-4D86BA5CE244}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5CB67E3A-E63A-4791-B90B-8CEF0027AEAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CB67E3A-E63A-4791-B90B-8CEF0027AEAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CB67E3A-E63A-4791-B90B-8CEF0027AEAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{166D65D5-EE10-4364-8AA3-4D86BA5CE244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{166D65D5-EE10-4364-8AA3-4D86BA5CE244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{166D65D5-EE10-4364-8AA3-4D86BA5CE244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{166D65D5-EE10-4364-8AA3-4D86BA5CE244}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
