@@ -80,9 +80,12 @@ namespace AutoTx
             if (_config.SendAdminNotification == false)
                 return;
 
-            var delta = DateTime.Now - _status.LastAdminNotification;
-            if (delta.Minutes < _config.AdminNotificationDelta)
+            var delta = (int)(DateTime.Now - _status.LastAdminNotification).TotalMinutes;
+            if (delta < _config.AdminNotificationDelta) {
+                writeLogDebug("Suppressed admin email, interval too short (" + delta + " vs. " +
+                    _config.AdminNotificationDelta + "):\n\n" + subject + "\n" + body);
                 return;
+            }
 
             if (subject == "") {
                 subject = ServiceName +
@@ -103,8 +106,8 @@ namespace AutoTx
         /// </summary>
         /// <param name="spaceDetails">String describing the drives being low on space.</param>
         public void SendLowSpaceMail(string spaceDetails) {
-            var delta = DateTime.Now - _status.LastStorageNotification;
-            if (delta.Minutes < _config.StorageNotificationDelta)
+            var delta = (int)(DateTime.Now - _status.LastStorageNotification).TotalMinutes;
+            if (delta < _config.StorageNotificationDelta)
                 return;
 
             writeLog("WARNING: " + spaceDetails);

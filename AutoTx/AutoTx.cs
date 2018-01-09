@@ -399,8 +399,8 @@ namespace AutoTx
             CheckFreeDiskSpace();
             UpdateServiceState();
 
-            var delta = DateTime.Now - _lastUserDirCheck;
-            if (delta.Seconds >= 120)
+            var delta = (int)(DateTime.Now - _lastUserDirCheck).TotalSeconds;
+            if (delta >= 120)
                 CreateIncomingDirectories();
 
             // tasks depending on the service state:
@@ -970,7 +970,7 @@ namespace AutoTx
         private Dictionary<string, List<Tuple<DirectoryInfo, long, int>>> ExpiredDirs(int thresh) {
             var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
             var graceDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
             foreach (var userdir in graceDir.GetDirectories()) {
                 var expired = new List<Tuple<DirectoryInfo, long, int>>();
                 foreach (var subdir in userdir.GetDirectories()) {
