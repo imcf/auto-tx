@@ -24,6 +24,7 @@ namespace AutoTx.XmlWrapper
             EmailPrefix = "";
             AdminEmailAdress = "";
             AdminDebugEmailAdress = "";
+            GraceNotificationDelta = 720;
 
             InterPacketGap = 0;
 
@@ -115,6 +116,8 @@ namespace AutoTx.XmlWrapper
         public string EmailPrefix { get; set; }
         public string AdminEmailAdress { get; set; }
         public string AdminDebugEmailAdress { get; set; }
+
+        public int GraceNotificationDelta { get; set; }
 
         public int InterPacketGap { get; set; }
 
@@ -212,8 +215,8 @@ namespace AutoTx.XmlWrapper
                     "AdminEmailAdress: " + AdminEmailAdress + "\n" +
                     "AdminDebugEmailAdress: " + AdminDebugEmailAdress + "\n" +
                     "StorageNotificationDelta: " + StorageNotificationDelta + "\n" +
-                    "AdminNotificationDelta: " + AdminNotificationDelta + "\n";
-
+                    "AdminNotificationDelta: " + AdminNotificationDelta + "\n" +
+                    "GraceNotificationDelta: " + GraceNotificationDelta + "\n";
             }
             return msg;
         }

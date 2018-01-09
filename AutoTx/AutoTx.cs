@@ -931,9 +931,10 @@ namespace AutoTx
         /// <summary>
         /// Generate a report on expired folders in the grace location.
         /// 
-        /// Check all user-directories in the grace location for subdirectories whose
-        /// name-timestamp exceeds the configured grace period and generate a summary
-        /// containing the age and size of those directories.
+        /// Check all user-directories in the grace location for subdirectories whose timestamp
+        /// (the directory name) exceeds the configured grace period and generate a summary
+        /// containing the age and size of those directories. The summary will be sent to the admin
+        /// if the configured GraceNotificationDelta has passed since the last email.
         /// </summary>
         /// <param name="threshold">The number of days used as expiration threshold.</param>
         public string GraceLocationSummary(int threshold) {
@@ -949,6 +950,13 @@ namespace AutoTx
             if (string.IsNullOrEmpty(report))
                 return "";
             report = "Expired folders in grace location:\n" + report;
+            var delta = (int)(DateTime.Now - _status.LastGraceNotification).TotalMinutes;
+            report += "\nTime since last grace notification: " + delta + "\n";
+            if (delta >= _config.GraceNotificationDelta) {
+                SendAdminEmail(report, "Grace location cleanup required.");
+                _status.LastGraceNotification = DateTime.Now;
+                report += "\nNotification sent to AdminEmailAdress.\n";
+            }
             return report;
         }
 

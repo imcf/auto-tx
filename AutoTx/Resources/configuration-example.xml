@@ -87,6 +87,10 @@
          messages to, e.g. on completed transfers. Can be empty. -->
     <AdminDebugEmailAdress>admin@mydomain.xy</AdminDebugEmailAdress>
 
+    <!-- GraceNotificationDelta: minimum time (in minutes) between two emails
+         about expired folders in the grace location (default: 720 (12h)) -->
+    <GraceNotificationDelta>720</GraceNotificationDelta>
+
     <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
     <InterPacketGap>0</InterPacketGap>
 

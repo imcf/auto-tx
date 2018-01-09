@@ -14,6 +14,7 @@ namespace AutoTx.XmlWrapper
         private DateTime _lastStatusUpdate;
         private DateTime _lastStorageNotification;
         private DateTime _lastAdminNotification;
+        private DateTime _lastGraceNotification;
 
         private string _limitReason;
         string _currentTransferSrc;
@@ -45,6 +46,15 @@ namespace AutoTx.XmlWrapper
             get { return _lastAdminNotification; }
             set {
                 _lastAdminNotification = value;
+                Serialize();
+            }
+        }
+
+        [XmlElement("LastGraceNotification", DataType = "dateTime")]
+        public DateTime LastGraceNotification {
+            get { return _lastGraceNotification; }
+            set {
+                _lastGraceNotification = value;
                 Serialize();
             }
         }
@@ -209,7 +219,9 @@ namespace AutoTx.XmlWrapper
                 "LastStorageNotification: " +
                 LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
                 "LastAdminNotification: " +
-                LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n";
+                LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                "LastGraceNotification: " +
+                LastGraceNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n";
         }
     }
 }
