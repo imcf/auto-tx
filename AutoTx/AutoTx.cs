@@ -192,12 +192,10 @@ namespace AutoTx
         private void StartupSummary() {
             var msg = "Startup Summary:\n\n------ RoboSharp ------\n";
             var roboDll = System.Reflection.Assembly.GetAssembly(typeof(RoboCommand)).Location;
-            if (roboDll != null) {
-                var versionInfo = FileVersionInfo.GetVersionInfo(roboDll);
-                msg += " > DLL file: " + roboDll + "\n" +
-                       " > DLL description: " + versionInfo.Comments + "\n" +
-                       " > DLL version: " + versionInfo.FileVersion + "\n";
-            }
+            var versionInfo = FileVersionInfo.GetVersionInfo(roboDll);
+            msg += " > DLL file: " + roboDll + "\n" +
+                   " > DLL description: " + versionInfo.Comments + "\n" +
+                   " > DLL version: " + versionInfo.FileVersion + "\n";
 
 
             msg += "\n------ Loaded status flags ------\n" + _status.Summary() +
