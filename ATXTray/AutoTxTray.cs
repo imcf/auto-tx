@@ -87,6 +87,7 @@ namespace ATXTray
             if (_svcRunning) {
                 serviceRunning = "OK";
                 ReadStatus();
+                UpdateSvcSuspended();
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
                     heartBeat = "OK";
                 if (_status.TransferInProgress)
@@ -153,6 +154,25 @@ namespace ATXTray
                 _miSvcSuspended.Enabled = false;
                 _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
                     "Service stopped.", ToolTipIcon.Error);
+            }
+        }
+
+        private void UpdateSvcSuspended() {
+            if (_svcSuspended == _status.ServiceSuspended)
+                return;
+
+            _statusChanged = true;
+            _svcSuspended = _status.ServiceSuspended;
+            if (_svcSuspended) {
+                _miSvcSuspended.Text = @"Service suspended, reason: " + _status.LimitReason;
+                _miSvcSuspended.BackColor = Color.LightYellow;
+                _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
+                    "Service suspended: " + _status.LimitReason, ToolTipIcon.Warning);
+            } else {
+                _miSvcSuspended.Text = @"No limits apply, service active.";
+                _miSvcSuspended.BackColor = Color.LightGreen;
+                _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
+                    "Service resumed, no limits apply.", ToolTipIcon.Info);
             }
         }
     }
