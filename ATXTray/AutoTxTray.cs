@@ -77,21 +77,26 @@ namespace ATXTray
         }
 
         private void AppTimerElapsed(object sender, ElapsedEventArgs e) {
-            ReadStatus();
             UpdateSvcRunning();
-            string heartBeatText = "OK";
-            var heartBeat = (int) (DateTime.Now - _status.LastStatusUpdate).TotalSeconds;
-            if (heartBeat > 60)
-                heartBeatText = "--";
+
+            var heartBeat = "?";
+            var serviceRunning = "stopped";
+            var txInProgress = "No";
+
+            if (_svcRunning) {
+                serviceRunning = "OK";
+                ReadStatus();
+                if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
+                    heartBeat = "OK";
+                if (_status.TransferInProgress)
+                    txInProgress = "Yes";
+            }
 
             if (!_statusChanged)
                 return;
 
-            string serviceRunning = @"stopped";
-            if (_svcRunning) serviceRunning = @"OK";
-
             UpdateHoverText(string.Format("AutoTx [svc={0}] [hb={1}] [tx={2}]",
-                serviceRunning, heartBeatText, _status.TransferInProgress));
+                serviceRunning, heartBeat, txInProgress));
         }
 
         private void MiExitClick(object sender, EventArgs e) {
