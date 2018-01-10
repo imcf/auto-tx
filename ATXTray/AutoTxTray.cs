@@ -25,30 +25,37 @@ namespace ATXTray
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
         private readonly ContextMenuStrip _cmStrip = new ContextMenuStrip();
-        private readonly ToolStripMenuItem _mi1 = new ToolStripMenuItem();
-        private readonly ToolStripMenuItem _mi2 = new ToolStripMenuItem();
-        private readonly ToolStripMenuItem _mi3 = new ToolStripMenuItem();
+        private readonly ToolStripMenuItem _miExit = new ToolStripMenuItem();
+        private readonly ToolStripMenuItem _miTitle = new ToolStripMenuItem();
+        private readonly ToolStripMenuItem _miSvcRunning = new ToolStripMenuItem();
+        private readonly ToolStripMenuItem _miSvcSuspended = new ToolStripMenuItem();
 
         public AutoTxTray() {
             _notifyIcon.Icon = new Icon("AutoTx.ico");
-            var bold = new Font(_cmStrip.Font, FontStyle.Bold);
 
             _config = ServiceConfig.Deserialize(ConfigFile);
 
-            _mi1.Text = @"Exit";
-            _mi1.Click += _mi1_Click;
+            _miExit.Text = @"Exit";
+            _miExit.Click += MiExitClick;
 
-            _mi2.Font = bold;
-            _mi2.Click += ShowContextMenu;
+            _miTitle.Font = new Font(_cmStrip.Font, FontStyle.Bold);
+            _miTitle.Text = @"AutoTx Service Monitor";
+            _miTitle.Image = Image.FromFile("AutoTx.ico");
+            _miTitle.BackColor = Color.LightCoral;
+            _miTitle.Click += ShowContextMenu;
 
-            _mi3.Font = bold;
-            _mi3.Text = @"service active (no limitations apply)";
-            _mi3.Click += ShowContextMenu;
+            _miSvcRunning.Text = @"Service NOT RUNNING!";
+            _miSvcRunning.BackColor = Color.LightCoral;
+            _miSvcRunning.Click += ShowContextMenu;
+
+            _miSvcSuspended.Text = @"No limits apply, service active.";
+            _miSvcSuspended.Click += ShowContextMenu;
 
             _cmStrip.Items.AddRange(new ToolStripItem[] {
-                _mi3,
-                _mi2,
-                _mi1
+                _miTitle,
+                _miSvcRunning,
+                _miSvcSuspended,
+                _miExit
             });
 
             _notifyIcon.ContextMenuStrip = _cmStrip;
@@ -87,7 +94,7 @@ namespace ATXTray
                 serviceRunning, heartBeatText, _status.TransferInProgress));
         }
 
-        private void _mi1_Click(object sender, EventArgs e) {
+        private void MiExitClick(object sender, EventArgs e) {
             _notifyIcon.Visible = false;
             Application.Exit();
         }
@@ -127,15 +134,15 @@ namespace ATXTray
             _statusChanged = true;
             _svcRunning = curSvcRunState;
             if (_svcRunning) {
-                _mi2.Text = @"AutoTx service running";
-                _mi2.Image = Image.FromFile("AutoTx.ico");
-                _mi2.BackColor = Color.LightGreen;
-                _mi3.Enabled = true;
+                _miSvcRunning.Text = @"Service running.";
+                _miSvcRunning.BackColor = Color.LightGreen;
+                _miTitle.BackColor = Color.LightGreen;
+                _miSvcSuspended.Enabled = true;
             } else {
-                _mi2.Image = null;
-                _mi2.BackColor = Color.LightCoral;
-                _mi2.Text = @"AutoTx service NOT RUNNING";
-                _mi3.Enabled = false;
+                _miSvcRunning.Text = @"Service NOT RUNNING!";
+                _miSvcRunning.BackColor = Color.LightCoral;
+                _miTitle.BackColor = Color.LightCoral;
+                _miSvcSuspended.Enabled = false;
             }
         }
     }
