@@ -34,6 +34,7 @@ namespace ATXTray
             _notifyIcon.Icon = new Icon("AutoTx.ico");
 
             _config = ServiceConfig.Deserialize(ConfigFile);
+            ReadStatus();
 
             _miExit.Text = @"Exit";
             _miExit.Click += MiExitClick;
@@ -113,7 +114,7 @@ namespace ATXTray
         /// <summary>
         /// Read (or re-read) the service status file if it has changed since last time.
         /// </summary>
-        private void ReadStatus() {
+        private static void ReadStatus() {
             var age = new FileInfo(StatusFile).LastWriteTime;
             if (age == _statusAge)
                 return;
