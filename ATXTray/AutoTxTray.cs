@@ -22,6 +22,7 @@ namespace ATXTray
         private static bool _statusChanged = false;
         private static bool _svcRunning = false;
         private static bool _svcSuspended = true;
+        private static string _svcSuspendReason;
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
         private readonly ContextMenuStrip _cmStrip = new ContextMenuStrip();
@@ -158,13 +159,17 @@ namespace ATXTray
         }
 
         private void UpdateSvcSuspended() {
-            if (_svcSuspended == _status.ServiceSuspended)
+            // first update the suspend reason as this can possibly change even if the service
+            // never leaves the suspended state and we should still display the correct reason:
+            if (_svcSuspendReason == _status.LimitReason &&
+                _svcSuspended == _status.ServiceSuspended)
                 return;
 
             _statusChanged = true;
             _svcSuspended = _status.ServiceSuspended;
+            _svcSuspendReason = _status.LimitReason;
             if (_svcSuspended) {
-                _miSvcSuspended.Text = @"Service suspended, reason: " + _status.LimitReason;
+                _miSvcSuspended.Text = @"Service suspended, reason: " + _svcSuspendReason;
                 _miSvcSuspended.BackColor = Color.LightYellow;
                 /*
                 _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
