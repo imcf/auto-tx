@@ -13,9 +13,9 @@ namespace ATXTray
     {
         private const string AppTitle = "AutoTx Service Monitor";
         private static readonly Timer AppTimer = new Timer(1000);
-        private static readonly string _serviceDir = @"C:\Tools\AutoTx";
-        private static readonly string ConfigFile = Path.Combine(_serviceDir, "configuration.xml");
-        private static readonly string StatusFile = Path.Combine(_serviceDir, "status.xml");
+        private static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
+        private static readonly string ConfigFile = Path.Combine(BaseDir, "configuration.xml");
+        private static readonly string StatusFile = Path.Combine(BaseDir, "status.xml");
         private static DateTime _statusAge;
         private static ServiceConfig _config;
         private static ServiceStatus _status;
@@ -33,10 +33,20 @@ namespace ATXTray
         private readonly ToolStripMenuItem _miSvcSuspended = new ToolStripMenuItem();
 
         public AutoTxTray() {
+            _notifyIcon.Visible = true;
             _notifyIcon.Icon = new Icon("AutoTx.ico");
 
-            _config = ServiceConfig.Deserialize(ConfigFile);
-            ReadStatus();
+            try {
+                _config = ServiceConfig.Deserialize(ConfigFile);
+                ReadStatus();
+            }
+            catch (Exception ex) {
+                _notifyIcon.ShowBalloonTip(10000, AppTitle,
+                    "Unable to read config / status: " + ex.Message, ToolTipIcon.Error);
+                System.Threading.Thread.Sleep(10000);
+                _notifyIcon.Visible = false;
+                Application.Exit();
+            }
 
             _miExit.Text = @"Exit";
             _miExit.Click += MiExitClick;
@@ -62,7 +72,6 @@ namespace ATXTray
             });
 
             _notifyIcon.ContextMenuStrip = _cmStrip;
-            _notifyIcon.Visible = true;
 
             AppTimer.Elapsed += AppTimerElapsed;
             AppTimer.Enabled = true;
