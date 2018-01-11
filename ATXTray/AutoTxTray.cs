@@ -4,6 +4,7 @@ using System.Timers;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using ATXSerializables;
 using Timer = System.Timers.Timer;
 
@@ -35,6 +36,7 @@ namespace ATXTray
         private readonly ToolStripMenuItem _miSvcRunning = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miSvcSuspended = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miTxProgress = new ToolStripMenuItem();
+        private readonly ToolStripMenuItem _miTxEnqueue = new ToolStripMenuItem();
 
         public AutoTxTray() {
             _notifyIcon.Visible = true;
@@ -70,14 +72,19 @@ namespace ATXTray
             _miSvcSuspended.Text = @"No limits apply, service active.";
             _miSvcSuspended.Click += ShowContextMenu;
 
-            _miTxProgress.Text = "No transfer running.";
+            _miTxProgress.Text = @"No transfer running.";
             _miTxProgress.Click += ShowContextMenu;
+
+            _miTxEnqueue.Text = @"+++ Add new directory for transfer. +++";
+            _miTxEnqueue.Click += _miTxEnqueue_Click;
 
             _cmStrip.Items.AddRange(new ToolStripItem[] {
                 _miTitle,
                 _miSvcRunning,
                 _miSvcSuspended,
                 _miTxProgress,
+                new ToolStripSeparator(),
+                _miTxEnqueue,
                 new ToolStripSeparator(),
                 _miExit
             });
@@ -133,6 +140,18 @@ namespace ATXTray
             // just show the menu again, to avoid that clicking the menu item closes the context
             // menu without having to disable the item (which would grey out the text and icon):
             _notifyIcon.ContextMenuStrip.Show();
+        }
+
+        private void _miTxEnqueue_Click(object sender, EventArgs e) {
+            var dirDialog = new CommonOpenFileDialog {
+                Title = @"Select directory to be transferred",
+                IsFolderPicker = true,
+                EnsurePathExists = true,
+                DefaultDirectory = _config.SourceDrive
+            };
+            if (dirDialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                MessageBox.Show("Directory selected: " + dirDialog.FileName);
+            }
         }
 
         /// <summary>
