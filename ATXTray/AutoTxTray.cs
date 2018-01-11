@@ -95,7 +95,7 @@ namespace ATXTray
 
             var heartBeat = "?";
             var serviceRunning = "stopped";
-            var txInProgress = "No";
+            var txProgress = "No";
 
             if (_svcRunning) {
                 serviceRunning = "OK";
@@ -111,7 +111,7 @@ namespace ATXTray
                 return;
 
             UpdateHoverText(string.Format("AutoTx [svc={0}] [hb={1}] [tx={2}]",
-                serviceRunning, heartBeat, txInProgress));
+                serviceRunning, heartBeat, txProgress));
         }
 
         private void MiExitClick(object sender, EventArgs e) {
