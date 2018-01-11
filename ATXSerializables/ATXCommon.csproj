@@ -40,10 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FsUtils.cs" />
     <Compile Include="Serializables\DriveToCheck.cs" />
     <Compile Include="Serializables\ServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializables\ServiceStatus.cs" />
+    <Compile Include="TimeUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -10,6 +10,7 @@ using System.DirectoryServices.AccountManagement;
 using System.Globalization;
 using System.Management;
 using ATXCommon.Serializables;
+using ATXCommon;
 using RoboSharp;
 
 namespace AutoTx
@@ -413,14 +414,6 @@ namespace AutoTx
             }
         }
 
-        /// <summary>
-        /// Helper method to create timestamp strings in a consistent fashion.
-        /// </summary>
-        /// <returns>A timestamp string of the current time.</returns>
-        private static string CreateTimestamp() {
-            return DateTime.Now.ToString("yyyy-MM-dd__HH-mm-ss");
-        }
-
         #endregion
 
         #region ActiveDirectory, email address, user name, ...
@@ -733,7 +726,7 @@ namespace AutoTx
                 var targetDir = Path.Combine(
                     _managedPath,
                     target,
-                    CreateTimestamp(),
+                    TimeUtils.Timestamp(),
                     userDir.Name);
                 if (MoveAllSubDirs(userDir, targetDir))
                     return;
@@ -758,7 +751,7 @@ namespace AutoTx
                 _managedPath,
                 "DONE",
                 sourceDirectory.Name, // the username directory
-                CreateTimestamp());
+                TimeUtils.Timestamp());
             // writeLogDebug("MoveToGraceLocation: src(" + sourceDirectory.FullName + ") dst(" + dstPath + ")");
 
             try {
@@ -803,7 +796,7 @@ namespace AutoTx
                     var target = Path.Combine(destPath, subDir.Name);
                     // make sure NOT to overwrite the subdirectories:
                     if (Directory.Exists(target))
-                        target += "_" + CreateTimestamp();
+                        target += "_" + TimeUtils.Timestamp();
                     writeLogDebug(" - " + subDir.Name + " > " + target);
                     subDir.MoveTo(target);
 
@@ -848,7 +841,7 @@ namespace AutoTx
                     if (unique == false)
                         return dirPath;
                     
-                    dirPath = dirPath + "_" + CreateTimestamp();
+                    dirPath = dirPath + "_" + TimeUtils.Timestamp();
                 }
                 Directory.CreateDirectory(dirPath);
                 writeLogDebug("Created directory: " + dirPath);
@@ -916,17 +909,6 @@ namespace AutoTx
         }
 
         /// <summary>
-        /// Recursively sum up size of all files under a given path.
-        /// </summary>
-        /// <param name="path">Full path of the directory.</param>
-        /// <returns>The total size in bytes.</returns>
-        public static long GetDirectorySize(string path) {
-            return new DirectoryInfo(path)
-                .GetFiles("*", SearchOption.AllDirectories)
-                .Sum(file => file.Length);
-        }
-
-        /// <summary>
         /// Generate a report on expired folders in the grace location.
         /// 
         /// Check all user-directories in the grace location for subdirectories whose timestamp
@@ -977,7 +959,7 @@ namespace AutoTx
                         continue;
                     long size = -1;
                     try {
-                        size = GetDirectorySize(subdir.FullName) / MegaBytes;
+                        size = FsUtils.GetDirectorySize(subdir.FullName) / MegaBytes;
                     }
                     catch (Exception ex) {
                         writeLog("ERROR getting directory size of " + subdir.FullName +
