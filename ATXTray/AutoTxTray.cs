@@ -35,6 +35,8 @@ namespace ATXTray
         public AutoTxTray() {
             _notifyIcon.Visible = true;
             _notifyIcon.Icon = new Icon("AutoTx.ico");
+            // this doesn't work properly, the menu will not close etc. so we disable it for now:
+            // _notifyIcon.Click += ShowContextMenu;
 
             try {
                 _config = ServiceConfig.Deserialize(ConfigFile);
