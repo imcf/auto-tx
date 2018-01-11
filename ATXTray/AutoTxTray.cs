@@ -24,6 +24,9 @@ namespace ATXTray
         private static bool _svcRunning = false;
         private static bool _svcSuspended = true;
         private static string _svcSuspendReason;
+
+        private static bool _txInProgress = false;
+        private static long _txSize;
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
         private readonly ContextMenuStrip _cmStrip = new ContextMenuStrip();
@@ -31,6 +34,7 @@ namespace ATXTray
         private readonly ToolStripMenuItem _miTitle = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miSvcRunning = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miSvcSuspended = new ToolStripMenuItem();
+        private readonly ToolStripMenuItem _miTxProgress = new ToolStripMenuItem();
 
         public AutoTxTray() {
             _notifyIcon.Visible = true;
@@ -66,10 +70,14 @@ namespace ATXTray
             _miSvcSuspended.Text = @"No limits apply, service active.";
             _miSvcSuspended.Click += ShowContextMenu;
 
+            _miTxProgress.Text = "No transfer running.";
+            _miTxProgress.Click += ShowContextMenu;
+
             _cmStrip.Items.AddRange(new ToolStripItem[] {
                 _miTitle,
                 _miSvcRunning,
                 _miSvcSuspended,
+                _miTxProgress,
                 _miExit
             });
 
@@ -101,10 +109,11 @@ namespace ATXTray
                 serviceRunning = "OK";
                 ReadStatus();
                 UpdateSvcSuspended();
+                UpdateTxInProgress();
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
                     heartBeat = "OK";
-                if (_status.TransferInProgress)
-                    txInProgress = "Yes";
+                if (_txInProgress)
+                    txProgress = _txSize.ToString();
             }
 
             if (!_statusChanged)
@@ -194,6 +203,27 @@ namespace ATXTray
                 _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
                     "Service resumed, no limits apply.", ToolTipIcon.Info);
                  */
+            }
+        }
+
+        private void UpdateTxInProgress() {
+            if (_txInProgress == _status.TransferInProgress &&
+                _txSize == _status.CurrentTransferSize)
+                return;
+
+            _statusChanged = true;
+            _txInProgress = _status.TransferInProgress;
+            _txSize = _status.CurrentTransferSize;
+            if (_txInProgress) {
+                _miTxProgress.Text = @"Transfer in progress (size: " + _txSize + ")";
+                _miTxProgress.BackColor = Color.LightGreen;
+                _notifyIcon.ShowBalloonTip(500, AppTitle,
+                    "New transfer started (size: " + _txSize + ").", ToolTipIcon.Info);
+            } else {
+                _miTxProgress.Text = @"No transfer running.";
+                _miTxProgress.ResetBackColor();
+                _notifyIcon.ShowBalloonTip(500, AppTitle,
+                    "Transfer completed.", ToolTipIcon.Info);                
             }
         }
     }
