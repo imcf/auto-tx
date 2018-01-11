@@ -11,6 +11,7 @@ namespace ATXTray
 {
     public class AutoTxTray : ApplicationContext
     {
+        private const string AppTitle = "AutoTx Service Monitor";
         private static readonly Timer AppTimer = new Timer(1000);
         private static readonly string _serviceDir = @"C:\Tools\AutoTx";
         private static readonly string ConfigFile = Path.Combine(_serviceDir, "configuration.xml");
@@ -41,7 +42,7 @@ namespace ATXTray
             _miExit.Click += MiExitClick;
 
             _miTitle.Font = new Font(_cmStrip.Font, FontStyle.Bold);
-            _miTitle.Text = @"AutoTx Service Monitor";
+            _miTitle.Text = AppTitle;
             _miTitle.Image = Image.FromFile("AutoTx.ico");
             _miTitle.BackColor = Color.LightCoral;
             _miTitle.Click += ShowContextMenu;
@@ -146,14 +147,14 @@ namespace ATXTray
                 _miSvcRunning.BackColor = Color.LightGreen;
                 _miTitle.BackColor = Color.LightGreen;
                 _miSvcSuspended.Enabled = true;
-                _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
-                    "Service started.", ToolTipIcon.Info);
+                _notifyIcon.ShowBalloonTip(500, AppTitle,
+                    "Service running.", ToolTipIcon.Info);
             } else {
                 _miSvcRunning.Text = @"Service NOT RUNNING!";
                 _miSvcRunning.BackColor = Color.LightCoral;
                 _miTitle.BackColor = Color.LightCoral;
                 _miSvcSuspended.Enabled = false;
-                _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
+                _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "Service stopped.", ToolTipIcon.Error);
             }
         }
