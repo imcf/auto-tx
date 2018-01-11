@@ -78,6 +78,7 @@ namespace ATXTray
                 _miSvcRunning,
                 _miSvcSuspended,
                 _miTxProgress,
+                new ToolStripSeparator(),
                 _miExit
             });
 
