@@ -191,7 +191,7 @@ namespace ATXTray
             _svcSuspendReason = _status.LimitReason;
             if (_svcSuspended) {
                 _miSvcSuspended.Text = @"Service suspended, reason: " + _svcSuspendReason;
-                _miSvcSuspended.BackColor = Color.LightYellow;
+                _miSvcSuspended.BackColor = Color.LightSalmon;
                 /*
                 _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
                     "Service suspended: " + _status.LimitReason, ToolTipIcon.Warning);
