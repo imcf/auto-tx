@@ -150,7 +150,8 @@ namespace ATXTray
                 DefaultDirectory = _config.SourceDrive
             };
             if (dirDialog.ShowDialog() == CommonFileDialogResult.Ok) {
-                MessageBox.Show("Directory selected: " + dirDialog.FileName);
+                MessageBox.Show("Directory\nselected:\n\n" + dirDialog.FileName,
+                    "New transfer confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
         }
 
