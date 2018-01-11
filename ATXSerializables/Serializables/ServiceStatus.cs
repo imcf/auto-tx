@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml.Serialization;
 
-namespace ATXSerializables
+namespace ATXCommon.Serializables
 {
     [Serializable]
     public class ServiceStatus

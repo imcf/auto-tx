@@ -9,7 +9,7 @@ using System.Timers;
 using System.DirectoryServices.AccountManagement;
 using System.Globalization;
 using System.Management;
-using ATXSerializables;
+using ATXCommon.Serializables;
 using RoboSharp;
 
 namespace AutoTx

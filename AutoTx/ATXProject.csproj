@@ -148,9 +148,9 @@
     <None Include="Resources\BuildCommit.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ATXSerializables\ATXSerializables.csproj">
+    <ProjectReference Include="..\ATXSerializables\ATXCommon.csproj">
       <Project>{166D65D5-EE10-4364-8AA3-4D86BA5CE244}</Project>
-      <Name>ATXSerializables</Name>
+      <Name>ATXCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

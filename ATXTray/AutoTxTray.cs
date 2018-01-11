@@ -4,8 +4,8 @@ using System.Timers;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using ATXCommon.Serializables;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using ATXSerializables;
 using Timer = System.Timers.Timer;
 
 namespace ATXTray
