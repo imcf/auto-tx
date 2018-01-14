@@ -41,6 +41,7 @@ namespace ATXTray
         public AutoTxTray() {
             _notifyIcon.Visible = true;
             _notifyIcon.Icon = new Icon("AutoTx.ico");
+            _notifyIcon.DoubleClick += StartNewTransfer;
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
 
@@ -76,7 +77,7 @@ namespace ATXTray
             _miTxProgress.Click += ShowContextMenu;
 
             _miTxEnqueue.Text = @"+++ Add new directory for transfer. +++";
-            _miTxEnqueue.Click += _miTxEnqueue_Click;
+            _miTxEnqueue.Click += StartNewTransfer;
 
             _cmStrip.Items.AddRange(new ToolStripItem[] {
                 _miTitle,
@@ -142,7 +143,7 @@ namespace ATXTray
             _notifyIcon.ContextMenuStrip.Show();
         }
 
-        private void _miTxEnqueue_Click(object sender, EventArgs e) {
+        private static void StartNewTransfer(object sender, EventArgs e) {
             var dirDialog = new CommonOpenFileDialog {
                 Title = @"Select directory to be transferred",
                 IsFolderPicker = true,
