@@ -780,6 +780,7 @@ namespace AutoTx
         /// </summary>
         /// <param name="sourceDir">The source path as DirectoryInfo object.</param>
         /// <param name="destPath">The destination path as a string.</param>
+        /// <param name="resetAcls">Whether to reset the ACLs on the moved subdirectories.</param>
         /// <returns>True on success, false otherwise.</returns>
         private bool MoveAllSubDirs(DirectoryInfo sourceDir, string destPath, bool resetAcls = false) {
             // TODO: check whether _transferState should be adjusted while moving dirs!
