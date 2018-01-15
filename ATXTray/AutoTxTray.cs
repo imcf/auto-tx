@@ -30,6 +30,11 @@ namespace ATXTray
         private static long _txSize;
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
+        private readonly Icon _tiDefault;
+        private readonly Icon _tiStopped;
+        private readonly Icon _tiSuspended;
+        private readonly Icon _tiTx0;
+        private readonly Icon _tiTx1;
         private readonly ContextMenuStrip _cmStrip = new ContextMenuStrip();
         private readonly ToolStripMenuItem _miExit = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miTitle = new ToolStripMenuItem();
@@ -39,9 +44,16 @@ namespace ATXTray
         private readonly ToolStripMenuItem _miTxEnqueue = new ToolStripMenuItem();
 
         public AutoTxTray() {
+            _tiDefault = new Icon("AutoTx.ico");
+            _tiStopped = new Icon("icon-stopped.ico");
+            _tiSuspended = new Icon("icon-suspended.ico");
+            _tiTx0 = new Icon("icon-tx-0.ico");
+            _tiTx1 = new Icon("icon-tx-1.ico");
+
+            _notifyIcon.Icon = _tiStopped;
             _notifyIcon.Visible = true;
-            _notifyIcon.Icon = new Icon("AutoTx.ico");
             _notifyIcon.DoubleClick += StartNewTransfer;
+
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
 
@@ -124,6 +136,8 @@ namespace ATXTray
                 if (_txInProgress)
                     txProgress = _txSize.ToString();
             }
+
+            UpdateTrayIcon();
 
             if (!_statusChanged)
                 return;
@@ -246,6 +260,34 @@ namespace ATXTray
                 _miTxProgress.ResetBackColor();
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "Transfer completed.", ToolTipIcon.Info);                
+            }
+        }
+
+        private void UpdateTrayIcon() {
+            if (_txInProgress &&
+                !_svcSuspended) {
+                if (DateTime.Now.Second % 2 == 0) {
+                    _notifyIcon.Icon = _tiTx0;
+                } else {
+                    _notifyIcon.Icon = _tiTx1;
+                }
+            }
+
+            if (!_statusChanged)
+                return;
+
+            if (!_svcRunning) {
+                _notifyIcon.Icon = _tiStopped;
+                return;
+            }
+
+            if (_svcSuspended) {
+                _notifyIcon.Icon = _tiSuspended;
+                return;
+            }
+
+            if (!_txInProgress) {
+                _notifyIcon.Icon = _tiDefault;
             }
         }
     }
