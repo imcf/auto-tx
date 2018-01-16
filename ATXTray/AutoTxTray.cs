@@ -30,7 +30,7 @@ namespace ATXTray
         private static long _txSize;
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
-        private readonly Icon _tiDefault = new Icon("AutoTx.ico");
+        private readonly Icon _tiDefault = new Icon("icon-default.ico");
         private readonly Icon _tiStopped = new Icon("icon-stopped.ico");
         private readonly Icon _tiSuspended = new Icon("icon-suspended.ico");
         private readonly Icon _tiTx0 = new Icon("icon-tx-0.ico");
@@ -69,7 +69,7 @@ namespace ATXTray
 
             _miTitle.Font = new Font(_cmStrip.Font, FontStyle.Bold);
             _miTitle.Text = AppTitle;
-            _miTitle.Image = Image.FromFile("AutoTx.ico");
+            _miTitle.Image = Image.FromFile("icon-default.ico");
             _miTitle.BackColor = Color.LightCoral;
             _miTitle.Click += ShowContextMenu;
 
