@@ -12,7 +12,7 @@ namespace ATXTray
 {
     public class AutoTxTray : ApplicationContext
     {
-        private const string AppTitle = "AutoTx Service Monitor";
+        private static readonly string AppTitle = Path.GetFileNameWithoutExtension(Application.ExecutablePath);
         private static readonly Timer AppTimer = new Timer(1000);
         private static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
         private static readonly string ConfigFile = Path.Combine(BaseDir, "configuration.xml");
