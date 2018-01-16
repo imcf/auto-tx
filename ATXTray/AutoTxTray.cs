@@ -14,6 +14,8 @@ namespace ATXTray
     {
         private static readonly string AppTitle = Path.GetFileNameWithoutExtension(Application.ExecutablePath);
         private static readonly Timer AppTimer = new Timer(1000);
+        private static bool _terminate = false;
+
         private static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
         private static readonly string ConfigFile = Path.Combine(BaseDir, "configuration.xml");
         private static readonly string StatusFile = Path.Combine(BaseDir, "status.xml");
@@ -55,15 +57,23 @@ namespace ATXTray
             try {
                 _config = ServiceConfig.Deserialize(ConfigFile);
                 ReadStatus();
+                SetupContextMenu();
             }
             catch (Exception ex) {
-                _notifyIcon.ShowBalloonTip(10000, AppTitle,
-                    "Unable to read config / status: " + ex.Message, ToolTipIcon.Error);
-                System.Threading.Thread.Sleep(10000);
-                _notifyIcon.Visible = false;
-                Application.Exit();
+                var msg = "Error during initialization: " + ex.Message;
+                _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
+                // we cannot terminate the message loop (Application.Run()) while the constructor
+                // is being run as it is not active yet - therefore we simply remember that we want
+                // to exit and evaluate this in the "Elapsed" handler:
+                _terminate = true;
+                System.Threading.Thread.Sleep(5000);
             }
 
+            AppTimer.Elapsed += AppTimerElapsed;
+            AppTimer.Enabled = true;
+        }
+
+        private void SetupContextMenu() {
             _miExit.Text = @"Exit";
             _miExit.Click += MiExitClick;
 
@@ -98,9 +108,11 @@ namespace ATXTray
             });
 
             _notifyIcon.ContextMenuStrip = _cmStrip;
-
-            AppTimer.Elapsed += AppTimerElapsed;
-            AppTimer.Enabled = true;
+        }
+        
+        private void AutoTxTrayExit() {
+            _notifyIcon.Visible = false;
+            Application.Exit();
         }
 
         /// <summary>
@@ -115,6 +127,11 @@ namespace ATXTray
         }
 
         private void AppTimerElapsed(object sender, ElapsedEventArgs e) {
+            if (_terminate) {
+                AutoTxTrayExit();
+                return;
+            }
+
             UpdateSvcRunning();
 
             var heartBeat = "?";
@@ -142,8 +159,7 @@ namespace ATXTray
         }
 
         private void MiExitClick(object sender, EventArgs e) {
-            _notifyIcon.Visible = false;
-            Application.Exit();
+            AutoTxTrayExit();
         }
 
         private void ShowContextMenu(object sender, EventArgs e) {
