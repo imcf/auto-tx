@@ -30,11 +30,11 @@ namespace ATXTray
         private static long _txSize;
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
-        private readonly Icon _tiDefault;
-        private readonly Icon _tiStopped;
-        private readonly Icon _tiSuspended;
-        private readonly Icon _tiTx0;
-        private readonly Icon _tiTx1;
+        private readonly Icon _tiDefault = new Icon("AutoTx.ico");
+        private readonly Icon _tiStopped = new Icon("icon-stopped.ico");
+        private readonly Icon _tiSuspended = new Icon("icon-suspended.ico");
+        private readonly Icon _tiTx0 = new Icon("icon-tx-0.ico");
+        private readonly Icon _tiTx1 = new Icon("icon-tx-1.ico");
         private readonly ContextMenuStrip _cmStrip = new ContextMenuStrip();
         private readonly ToolStripMenuItem _miExit = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miTitle = new ToolStripMenuItem();
@@ -44,11 +44,6 @@ namespace ATXTray
         private readonly ToolStripMenuItem _miTxEnqueue = new ToolStripMenuItem();
 
         public AutoTxTray() {
-            _tiDefault = new Icon("AutoTx.ico");
-            _tiStopped = new Icon("icon-stopped.ico");
-            _tiSuspended = new Icon("icon-suspended.ico");
-            _tiTx0 = new Icon("icon-tx-0.ico");
-            _tiTx1 = new Icon("icon-tx-1.ico");
 
             _notifyIcon.Icon = _tiStopped;
             _notifyIcon.Visible = true;
