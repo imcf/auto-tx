@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Management;
+using ATXCommon;
 
 namespace AutoTx
 {
@@ -55,7 +56,7 @@ namespace AutoTx
         private long GetFreeDriveSpace(string drive) {
             try {
                 var dInfo = new DriveInfo(drive);
-                return dInfo.TotalFreeSpace / MegaBytes;
+                return dInfo.TotalFreeSpace / Conv.MegaBytes;
             }
             catch (Exception ex) {
                 Log.Warn("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
