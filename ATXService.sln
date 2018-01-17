@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXProject", "AutoTx\ATXProject.csproj", "{5CB67E3A-E63A-4791-B90B-8CEF0027AEAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXCommon", "ATXSerializables\ATXCommon.csproj", "{166D65D5-EE10-4364-8AA3-4D86BA5CE244}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXCommon", "ATXCommon\ATXCommon.csproj", "{166D65D5-EE10-4364-8AA3-4D86BA5CE244}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXConfigTest", "ATXConfigTest\ATXConfigTest.csproj", "{81E0A5AC-0E0D-4F98-B399-41A58612EF33}"
 EndProject

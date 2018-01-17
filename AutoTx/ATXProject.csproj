@@ -150,7 +150,7 @@
     <None Include="Resources\BuildCommit.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ATXSerializables\ATXCommon.csproj">
+    <ProjectReference Include="..\ATXCommon\ATXCommon.csproj">
       <Project>{166D65D5-EE10-4364-8AA3-4D86BA5CE244}</Project>
       <Name>ATXCommon</Name>
     </ProjectReference>
