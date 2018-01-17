@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
+using ATXCommon;
 
 namespace AutoTx
 {
@@ -23,7 +24,7 @@ namespace AutoTx
             }
             if (!recipient.Contains(@"@")) {
                 Log.Debug("Invalid recipient, trying to resolve via AD: {0}", recipient);
-                recipient = GetEmailAddress(recipient);
+                recipient = ActiveDirectory.GetEmailAddress(recipient);
             }
             if (string.IsNullOrWhiteSpace(recipient)) {
                 Log.Info("Invalid or empty recipient given, NOT sending email!");
@@ -149,7 +150,7 @@ namespace AutoTx
             }
 
             var substitutions = new List<Tuple<string, string>> {
-                Tuple.Create("FACILITY_USER", GetFullUserName(userDir)),
+                Tuple.Create("FACILITY_USER", ActiveDirectory.GetFullUserName(userDir)),
                 Tuple.Create("HOST_ALIAS", _config.HostAlias),
                 Tuple.Create("HOST_NAME", Environment.MachineName),
                 Tuple.Create("DESTINATION_ALIAS", _config.DestinationAlias),
@@ -181,7 +182,7 @@ namespace AutoTx
             var userDir = new DirectoryInfo(_status.CurrentTransferSrc).Name;
 
             var substitutions = new List<Tuple<string, string>> {
-                Tuple.Create("FACILITY_USER", GetFullUserName(userDir)),
+                Tuple.Create("FACILITY_USER", ActiveDirectory.GetFullUserName(userDir)),
                 Tuple.Create("HOST_ALIAS", _config.HostAlias),
                 Tuple.Create("HOST_NAME", Environment.MachineName),
                 Tuple.Create("EMAIL_FROM", _config.EmailFrom)
