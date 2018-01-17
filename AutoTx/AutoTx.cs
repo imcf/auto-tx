@@ -1069,7 +1069,7 @@ namespace AutoTx
             foreach (var userdir in graceDir.GetDirectories()) {
                 var expired = new List<Tuple<DirectoryInfo, long, int>>();
                 foreach (var subdir in userdir.GetDirectories()) {
-                    var age = DirNameToAge(subdir, now);
+                    var age = FsUtils.DirNameToAge(subdir, now);
                     if (age < thresh)
                         continue;
                     long size = -1;
@@ -1086,26 +1086,6 @@ namespace AutoTx
                     collection.Add(userdir.Name, expired);
             }
             return collection;
-        }
-
-        /// <summary>
-        /// Convert the timestamp given by the NAME of a directory into the age in days.
-        /// </summary>
-        /// <param name="dir">The DirectoryInfo object to check for its name-age.</param>
-        /// <param name="baseTime">The DateTime object to compare to.</param>
-        /// <returns>The age in days, or -1 in case of an error.</returns>
-        private int DirNameToAge(DirectoryInfo dir, DateTime baseTime) {
-            DateTime dirTimestamp;
-            try {
-                dirTimestamp = DateTime.ParseExact(dir.Name, "yyyy-MM-dd__HH-mm-ss",
-                    CultureInfo.InvariantCulture);
-            }
-            catch (Exception ex) {
-                Log.Warn("ERROR parsing timestamp from directory name [{0}], skipping: {1}",
-                    dir.Name, ex.Message);
-                return -1;
-            }
-            return (baseTime - dirTimestamp).Days;
         }
 
         #endregion
