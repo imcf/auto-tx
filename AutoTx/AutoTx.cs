@@ -11,9 +11,9 @@ using System.Globalization;
 using System.Management;
 using NLog;
 using NLog.Config;
-using ATXCommon.Serializables;
-using ATXCommon;
 using NLog.Targets;
+using ATXCommon;
+using ATXCommon.Serializables;
 using RoboSharp;
 
 namespace AutoTx
