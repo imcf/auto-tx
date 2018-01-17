@@ -106,6 +106,9 @@ namespace AutoTx
         /// </summary>
         /// <param name="spaceDetails">String describing the drives being low on space.</param>
         public void SendLowSpaceMail(string spaceDetails) {
+            if (string.IsNullOrWhiteSpace(spaceDetails))
+                return;
+
             var delta = (int)(DateTime.Now - _status.LastStorageNotification).TotalMinutes;
             if (delta < _config.StorageNotificationDelta)
                 return;

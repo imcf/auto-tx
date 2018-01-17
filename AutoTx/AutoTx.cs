@@ -485,7 +485,7 @@ namespace AutoTx
         /// </summary>
         public void RunMainTasks() {
             // mandatory tasks, run on every call:
-            CheckFreeDiskSpace();
+            SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
 
             var delta = (int)(DateTime.Now - _lastUserDirCheck).TotalSeconds;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -64,6 +65,24 @@ namespace ATXCommon
                 Log.Warn("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Check all configured disks for their free space and send a notification
+        /// if necessary (depending on the configured delta time).
+        /// </summary>
+        public static string CheckFreeDiskSpace(List<Serializables.DriveToCheck> drives) {
+            var msg = "";
+            foreach (var driveToCheck in drives) {
+                var freeSpace = SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName);
+                if (freeSpace >= driveToCheck.SpaceThreshold)
+                    continue;
+
+                msg += "Drive '" + driveToCheck.DriveName +
+                       "' - free space: " + freeSpace +
+                       "  (threshold: " + driveToCheck.SpaceThreshold + ")\n";
+            }
+            return msg;
         }
 
         /// <summary>
