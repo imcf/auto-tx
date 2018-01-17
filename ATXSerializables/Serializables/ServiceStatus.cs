@@ -155,7 +155,7 @@ namespace ATXCommon.Serializables
             catch (Exception ex) {
                 Log.Error("Error in Serialize(): {0}", ex.Message);
             }
-            Log.Debug("Finished serializing [{0}].", _storageFile);
+            Log.Trace("Finished serializing [{0}].", _storageFile);
         }
 
         public static ServiceStatus Deserialize(string file, ServiceConfig config) {
