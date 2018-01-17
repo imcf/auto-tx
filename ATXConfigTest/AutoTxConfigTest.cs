@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using ATXSerializables;
+using ATXCommon.Serializables;
 
 namespace ATXConfigTest
 {

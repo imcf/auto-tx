@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace ATXSerializables
+namespace ATXCommon.Serializables
 {
     /// <summary>
     /// Helper class for the nested SpaceMonitoring sections.

@@ -4,7 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace ATXSerializables
+namespace ATXCommon.Serializables
 {
     /// <summary>
     /// configuration class based on xml

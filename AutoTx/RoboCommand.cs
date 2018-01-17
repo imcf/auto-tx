@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Management;
+using ATXCommon;
 using RoboSharp;
 
 namespace AutoTx
@@ -22,7 +23,7 @@ namespace AutoTx
                 return;
 
             _status.CurrentTransferSrc = sourcePath;
-            _status.CurrentTransferSize = GetDirectorySize(sourcePath);
+            _status.CurrentTransferSize = FsUtils.GetDirectorySize(sourcePath);
 
             // the user name is expected to be the last part of the path:
             _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
