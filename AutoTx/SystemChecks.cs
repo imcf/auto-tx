@@ -22,7 +22,7 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                writeLog("Error in GetFreeMemory: " + ex.Message);
+                Log.Warn("Error in GetFreeMemory: {0}", ex.Message);
             }
             return -1;
         }
@@ -42,7 +42,7 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                writeLog("Error in GetCpuUsage: " + ex.Message);
+                Log.Warn("Error in GetCpuUsage: {0}", ex.Message);
             }
             return -1;
         }
@@ -58,7 +58,7 @@ namespace AutoTx
                 return dInfo.TotalFreeSpace / MegaBytes;
             }
             catch (Exception ex) {
-                writeLog("Error in GetFreeDriveSpace(" + drive + "): " + ex.Message);
+                Log.Warn("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
             }
             return 0;
         }
@@ -95,7 +95,7 @@ namespace AutoTx
                     }
                 }
                 catch (Exception ex) {
-                    writeLog("Error in checkProcesses() " + ex.Message);
+                    Log.Warn("Error in checkProcesses(): {0}", ex.Message);
                 }
             }
             return "";

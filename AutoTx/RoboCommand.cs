@@ -72,11 +72,11 @@ namespace AutoTx
                 _roboCommand.RetryOptions.RetryCount = 0;
                 _roboCommand.RetryOptions.RetryWaitTime = 2;
                 _roboCommand.Start();
-                writeLogDebug("Transfer started, total size: " + 
-                    _status.CurrentTransferSize / MegaBytes + " MB");
+                Log.Info("Transfer started, total size: {0} MB",
+                    _status.CurrentTransferSize / MegaBytes);
             }
             catch (ManagementException ex) {
-                writeLog("Error in StartTransfer(): " + ex.Message);
+                Log.Error("Error in StartTransfer(): {0}", ex.Message);
             }
         }
 
@@ -88,10 +88,10 @@ namespace AutoTx
             if (_transferState != TxState.Active)
                 return;
 
-            writeLog("Pausing the active transfer...");
+            Log.Info("Pausing the active transfer...");
             _roboCommand.Pause();
             _transferState = TxState.Paused;
-            writeLogDebug("Transfer paused");
+            Log.Debug("Transfer paused");
         }
 
         /// <summary>
@@ -102,10 +102,10 @@ namespace AutoTx
             if (_transferState != TxState.Paused)
                 return;
 
-            writeLog("Resuming the paused transfer...");
+            Log.Info("Resuming the paused transfer...");
             _roboCommand.Resume();
             _transferState = TxState.Active;
-            writeLogDebug("Transfer resumed");
+            Log.Debug("Transfer resumed");
         }
 
         #region robocommand callbacks
@@ -123,7 +123,7 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                writeLog("Error in RsFileProcessed() " + ex.Message);
+                Log.Error("Error in RsFileProcessed(): {0}", ex.Message);
             }
         }
 
@@ -135,7 +135,7 @@ namespace AutoTx
                 return;
 
             _roboCommand.Stop();
-            writeLogDebug("Transfer stopped");
+            Log.Debug("Transfer stopped");
             _transferState = TxState.Stopped;
             _roboCommand.Dispose();
             _roboCommand = new RoboCommand();
@@ -153,7 +153,7 @@ namespace AutoTx
                 return;
 
             _txProgress = progress;
-            writeLogDebug("Transfer progress " + progress + "%");
+            Log.Debug("Transfer progress {0}%", progress);
         }
 
         #endregion

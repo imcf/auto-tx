@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
+using NLog;
+using NLog.Config;
 
 namespace ATXCommon.Serializables
 {
@@ -13,6 +15,7 @@ namespace ATXCommon.Serializables
     public class ServiceConfig
     {
         [XmlIgnore] public string ValidationWarnings;
+        [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public ServiceConfig() {
             ValidationWarnings = "";
@@ -136,11 +139,13 @@ namespace ATXCommon.Serializables
         }
 
         public static ServiceConfig Deserialize(string file) {
+            Log.Debug("Trying to read service configuration XML file: [{0}]", file);
             var xs = new XmlSerializer(typeof(ServiceConfig));
             var reader = File.OpenText(file);
             var config = (ServiceConfig) xs.Deserialize(reader);
             reader.Close();
             ValidateConfiguration(config);
+            Log.Debug("Finished deserializing service configuration XML file.");
             return config;
         }
 
@@ -181,8 +186,11 @@ namespace ATXCommon.Serializables
 
             // NON-CRITICAL stuff just adds messages to ValidationWarnings:
             // DestinationDirectory
-            if (!c.DestinationDirectory.StartsWith(@"\\"))
-                c.ValidationWarnings += " - <DestinationDirectory> is not a UNC path!\n";
+            if (!c.DestinationDirectory.StartsWith(@"\\")) {
+                var msg = "<DestinationDirectory> is not a UNC path!\n";
+                c.ValidationWarnings += " - " + msg;
+                Log.Warn(msg);
+            }
         }
 
         public string Summary() {

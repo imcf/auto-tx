@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
+using NLog;
 
 namespace ATXCommon.Serializables
 {
@@ -10,6 +11,7 @@ namespace ATXCommon.Serializables
         [XmlIgnore] string _storageFile; // remember where we came from
         [XmlIgnore] private ServiceConfig _config;
         [XmlIgnore] public string ValidationWarnings;
+        [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private DateTime _lastStatusUpdate;
         private DateTime _lastStorageNotification;
@@ -63,7 +65,7 @@ namespace ATXCommon.Serializables
             get { return _limitReason; }
             set {
                 _limitReason = value;
-                // log("LimitReason was updated (" + value + "), calling Serialize()...");
+                Log.Trace("LimitReason was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -72,7 +74,7 @@ namespace ATXCommon.Serializables
             get { return _currentTransferSrc; }
             set {
                 _currentTransferSrc = value;
-                // log("CurrentTransferSrc was updated (" + value + "), calling Serialize()...");
+                Log.Trace("CurrentTransferSrc was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -81,7 +83,7 @@ namespace ATXCommon.Serializables
             get { return _currentTargetTmp; }
             set {
                 _currentTargetTmp = value;
-                // log("CurrentTargetTmp was updated (" + value + "), calling Serialize()...");
+                Log.Trace("CurrentTargetTmp was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -90,7 +92,7 @@ namespace ATXCommon.Serializables
             get { return _serviceSuspended; }
             set {
                 _serviceSuspended = value;
-                // log("ServiceSuspended was updated (" + value + "), calling Serialize()...");
+                Log.Trace("ServiceSuspended was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -99,7 +101,7 @@ namespace ATXCommon.Serializables
             get { return _transferInProgress; }
             set {
                 _transferInProgress = value;
-                // log("FilecopyFinished was updated (" + value + "), calling Serialize()...");
+                Log.Trace("FilecopyFinished was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -119,7 +121,7 @@ namespace ATXCommon.Serializables
             get { return _currentTransferSize; }
             set {
                 _currentTransferSize = value;
-                // log("CurrentTransferSize was updated (" + value + "), calling Serialize()...");
+                Log.Trace("CurrentTransferSize was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -137,9 +139,10 @@ namespace ATXCommon.Serializables
              * to test for this (plus, we can't serialize anyway without it).
              */
             if (_storageFile == null) {
-                // log("File name for XML serialization is not set, doing nothing.");
+                Log.Trace("File name for XML serialization is not set, doing nothing!");
                 return;
             }
+            Log.Trace("Serializing status...");
             // update the timestamp:
             LastStatusUpdate = DateTime.Now;
             try {
@@ -150,23 +153,13 @@ namespace ATXCommon.Serializables
                 writer.Close();
             }
             catch (Exception ex) {
-                log("Error in Serialize(): " + ex.Message);
+                Log.Error("Error in Serialize(): {0}", ex.Message);
             }
-            log("Finished serializing " + _storageFile);
-        }
-
-        static void log(string message) {
-            // use Console.WriteLine until proper logging is there (running as a system
-            // service means those messages will disappear):
-            Console.WriteLine(message);
-            /*
-            using (var sw = File.AppendText(@"C:\Tools\AutoTx\console.log")) {
-                sw.WriteLine(message);
-            }
-             */
+            Log.Debug("Finished serializing [{0}].", _storageFile);
         }
 
         public static ServiceStatus Deserialize(string file, ServiceConfig config) {
+            Log.Debug("Trying to deserialize status XML file [{0}].", file);
             ServiceStatus status;
 
             var xs = new XmlSerializer(typeof(ServiceStatus));
@@ -174,10 +167,12 @@ namespace ATXCommon.Serializables
                 var reader = File.OpenText(file);
                 status = (ServiceStatus) xs.Deserialize(reader);
                 reader.Close();
+                Log.Debug("Finished deserializing service status XML file.");
             }
             catch (Exception) {
                 // if reading the status XML fails, we return an empty (new) one
                 status = new ServiceStatus();
+                Log.Warn("Deserializing [{0}] failed, creating new status using defauls.", file);
             }
             status._config = config;
             ValidateStatus(status);

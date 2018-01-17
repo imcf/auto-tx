@@ -18,16 +18,16 @@ namespace AutoTx
         public void SendEmail(string recipient, string subject, string body) {
             subject = _config.EmailPrefix + subject;
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
-                writeLogDebug("SendEmail: " + subject + "\n" + body);
+                Log.Debug("SendEmail: {0}\n{1}", subject, body);
                 return;
             }
             if (!recipient.Contains(@"@")) {
-                writeLogDebug("Invalid recipient, trying to resolve via AD: " + recipient);
+                Log.Debug("Invalid recipient, trying to resolve via AD: {0}", recipient);
                 recipient = GetEmailAddress(recipient);
             }
             if (string.IsNullOrWhiteSpace(recipient)) {
-                writeLogDebug("Invalid or empty recipient given, NOT sending email!");
-                writeLogDebug("SendEmail: " + subject + "\n" + body);
+                Log.Info("Invalid or empty recipient given, NOT sending email!");
+                Log.Debug("SendEmail: {0}\n{1}", subject, body);
                 return;
             }
             try {
@@ -47,9 +47,8 @@ namespace AutoTx
                 smtpClient.Send(mail);
             }
             catch (Exception ex) {
-                writeLog("Error in SendEmail(): " + ex.Message + "\n" +
-                         "InnerException: " + ex.InnerException + "\n" +
-                         "StackTrace: " + ex.StackTrace);
+                Log.Error("Error in SendEmail(): {0}\nInnerException: {1}\nStackTrace: {2}",
+                    ex.Message, ex.InnerException, ex.StackTrace);
             }
         }
 
@@ -82,8 +81,8 @@ namespace AutoTx
 
             var delta = (int)(DateTime.Now - _status.LastAdminNotification).TotalMinutes;
             if (delta < _config.AdminNotificationDelta) {
-                writeLogDebug("Suppressed admin email, interval too short (" + delta + " vs. " +
-                    _config.AdminNotificationDelta + "):\n\n" + subject + "\n" + body);
+                Log.Debug("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
+                    delta, _config.AdminNotificationDelta, subject, body);
                 return;
             }
 
@@ -110,7 +109,7 @@ namespace AutoTx
             if (delta < _config.StorageNotificationDelta)
                 return;
 
-            writeLog("WARNING: " + spaceDetails);
+            Log.Warn("WARNING: {0}", spaceDetails);
             _status.LastStorageNotification = DateTime.Now;
 
             var substitutions = new List<Tuple<string, string>> {
@@ -125,7 +124,10 @@ namespace AutoTx
                 SendEmail(_config.AdminEmailAdress, subject, body);
             }
             catch (Exception ex) {
-                writeLog("Error loading email template: " + ex.Message, true);
+                // TODO / FIXME: combine log and admin-email!
+                var msg = string.Format("Error loading email template: {0}", ex.Message);
+                Log.Error(msg);
+                SendAdminEmail(msg);
             }
         }
 
@@ -158,10 +160,13 @@ namespace AutoTx
             try {
                 var body = LoadMailTemplate("Transfer-Success.txt", substitutions);
                 SendEmail(userDir, ServiceName + " - Transfer Notification", body);
-                writeLogDebug("Sent transfer completed notification to " + userDir);
+                Log.Debug("Sent transfer completed notification to {0}", userDir);
             }
             catch (Exception ex) {
-                writeLog("Error loading email template: " + ex.Message, true);
+                // TODO / FIXME: combine log and admin-email!
+                var msg = string.Format("Error loading email template: {0}", ex.Message);
+                Log.Error(msg);
+                SendAdminEmail(msg);
             }
         }
 
@@ -189,7 +194,10 @@ namespace AutoTx
                     body);
             }
             catch (Exception ex) {
-                writeLog("Error loading email template: " + ex.Message, true);
+                // TODO / FIXME: combine log and admin-email!
+                var msg = string.Format("Error loading email template: {0}", ex.Message);
+                Log.Error(msg);
+                SendAdminEmail(msg);
             }
         }
     }
