@@ -284,10 +284,10 @@ namespace AutoTx
 
             msg += "\n------ Current system parameters ------\n" +
                    "Hostname: " + Environment.MachineName + "\n" +
-                   "Free system memory: " + GetFreeMemory() + " MB" + "\n";
+                   "Free system memory: " + SystemChecks.GetFreeMemory() + " MB" + "\n";
             foreach (var driveToCheck in _config.SpaceMonitoring) {
                 msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
-                       GetFreeDriveSpace(driveToCheck.DriveName) + "\n";
+                       SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName) + "\n";
             }
 
 
@@ -441,9 +441,9 @@ namespace AutoTx
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
-            if (GetCpuUsage() >= _config.MaxCpuUsage)
+            if (SystemChecks.GetCpuUsage() >= _config.MaxCpuUsage)
                 limitReason = "CPU usage";
-            else if (GetFreeMemory() < _config.MinAvailableMemory)
+            else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
                 limitReason = "RAM usage";
             else {
                 var blacklistedProcess = CheckForBlacklistedProcesses();
@@ -463,7 +463,7 @@ namespace AutoTx
             }
             
             // set state to "Running" if no-one is logged on:
-            if (ActiveDirectory.NoUserIsLoggedOn()) {
+            if (SystemChecks.NoUserIsLoggedOn()) {
                 _status.ServiceSuspended = false;
                 if (!string.IsNullOrEmpty(_status.LimitReason)) {
                     _status.LimitReason = ""; // reset to force a message on next service suspend

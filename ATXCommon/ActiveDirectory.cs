@@ -1,7 +1,5 @@
 ﻿using System;
 using System.DirectoryServices.AccountManagement;
-using System.Linq;
-using System.Management;
 using NLog;
 
 namespace ATXCommon
@@ -9,30 +7,6 @@ namespace ATXCommon
     public static class ActiveDirectory
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        /// <summary>
-        /// Check if a user is currently logged into Windows.
-        /// 
-        /// WARNING: this DOES NOT ACCOUNT for users logged in via RDP!!
-        /// </summary>
-        /// See https://stackoverflow.com/questions/5218778/ for the RDP problem.
-        public static bool NoUserIsLoggedOn() {
-            var username = "";
-            try {
-                var searcher = new ManagementObjectSearcher("SELECT UserName " +
-                                                            "FROM Win32_ComputerSystem");
-                var collection = searcher.Get();
-                username = (string)collection.Cast<ManagementBaseObject>().First()["UserName"];
-            }
-            catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error in getCurrentUsername(): {0}", ex.Message);
-                Log.Error(msg);
-                // TODO: FIXME!
-                // SendAdminEmail(msg);
-            }
-            return username == "";
-        }
 
         /// <summary>
         /// Get the user email address from ActiveDirectory.
