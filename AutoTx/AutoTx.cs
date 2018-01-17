@@ -961,7 +961,8 @@ namespace AutoTx
         /// </summary>
         /// <param name="threshold">The number of days used as expiration threshold.</param>
         public string GraceLocationSummary(int threshold) {
-            var expired = ExpiredDirs(threshold);
+            var doneDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
+            var expired = FsUtils.ExpiredDirs(doneDir, threshold);
             var report = "";
             foreach (var userdir in expired.Keys) {
                 report += "\n - user '" + userdir + "'\n";
@@ -981,39 +982,6 @@ namespace AutoTx
                 report += "\nNotification sent to AdminEmailAdress.\n";
             }
             return report;
-        }
-
-        /// <summary>
-        /// Assemble a dictionary with information about expired directories.
-        /// </summary>
-        /// <param name="thresh">The number of days used as expiration threshold.</param>
-        /// <returns>A dictionary having usernames as keys (of those users that actually do have
-        /// expired directories), where the values are lists of tuples with the DirInfo objects,
-        /// size and age (in days) of the expired directories.</returns>
-        private Dictionary<string, List<Tuple<DirectoryInfo, long, int>>> ExpiredDirs(int thresh) {
-            var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
-            var graceDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
-            var now = DateTime.Now;
-            foreach (var userdir in graceDir.GetDirectories()) {
-                var expired = new List<Tuple<DirectoryInfo, long, int>>();
-                foreach (var subdir in userdir.GetDirectories()) {
-                    var age = FsUtils.DirNameToAge(subdir, now);
-                    if (age < thresh)
-                        continue;
-                    long size = -1;
-                    try {
-                        size = FsUtils.GetDirectorySize(subdir.FullName) / MegaBytes;
-                    }
-                    catch (Exception ex) {
-                        Log.Error("ERROR getting directory size of [{0}]: {1}",
-                            subdir.FullName, ex.Message);
-                    }
-                    expired.Add(new Tuple<DirectoryInfo, long, int>(subdir, size, age));
-                }
-                if (expired.Count > 0)
-                    collection.Add(userdir.Name, expired);
-            }
-            return collection;
         }
 
         #endregion

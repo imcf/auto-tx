@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -39,6 +40,41 @@ namespace ATXCommon
                 return -1;
             }
             return (baseTime - dirTimestamp).Days;
+        }
+
+        /// <summary>
+        /// Assemble a dictionary with information about expired directories.
+        /// </summary>
+        /// <param name="baseDir">The base directory to scan for subdirectories.</param>
+        /// <param name="thresh">The number of days used as expiration threshold.</param>
+        /// <returns>A dictionary having usernames as keys (of those users that actually do have
+        /// expired directories), where the values are lists of tuples with the DirInfo objects,
+        /// size and age (in days) of the expired directories.</returns>
+        public static Dictionary<string, List<Tuple<DirectoryInfo, long, int>>> ExpiredDirs(
+            DirectoryInfo baseDir,int thresh) {
+
+            var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
+            var now = DateTime.Now;
+            foreach (var userdir in baseDir.GetDirectories()) {
+                var expired = new List<Tuple<DirectoryInfo, long, int>>();
+                foreach (var subdir in userdir.GetDirectories()) {
+                    var age = DirNameToAge(subdir, now);
+                    if (age < thresh)
+                        continue;
+                    long size = -1;
+                    try {
+                        size = GetDirectorySize(subdir.FullName) / Conv.MegaBytes;
+                    }
+                    catch (Exception ex) {
+                        Log.Error("ERROR getting directory size of [{0}]: {1}",
+                            subdir.FullName, ex.Message);
+                    }
+                    expired.Add(new Tuple<DirectoryInfo, long, int>(subdir, size, age));
+                }
+                if (expired.Count > 0)
+                    collection.Add(userdir.Name, expired);
+            }
+            return collection;
         }
     }
 }
