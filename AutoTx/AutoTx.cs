@@ -76,7 +76,7 @@ namespace AutoTx
 
         public AutoTx() {
             InitializeComponent();
-            SetupLogging();
+            SetupFileLogging();
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
@@ -85,7 +85,7 @@ namespace AutoTx
         /// <summary>
         /// Set up NLog logging: targets, rules...
         /// </summary>
-        private void SetupLogging() {
+        private void SetupFileLogging() {
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
                 FileName = ServiceName + ".log",
@@ -100,6 +100,50 @@ namespace AutoTx
             var logRuleFile = new LoggingRule("*", LogLevel.Debug, fileTarget);
             logConfig.LoggingRules.Add(logRuleFile);
             LogManager.Configuration = logConfig;
+        }
+
+        /// <summary>
+        /// Configure logging to email targets.
+        /// 
+        /// Depending on the configuration, set up the logging via email. If no SmtpHost or no
+        /// AdminEmailAdress is configured, nothing will be done. If they're set in the config file,
+        /// a log target for messages with level "Fatal" will be configured. In addition, if the
+        /// AdminDebugEmailAdress is set, another target for "Error" level messages is configured
+        /// using this address as recipient.
+        /// </summary>
+        private void SetupMailLogging() {
+            try {
+                if (string.IsNullOrWhiteSpace(_config.SmtpHost) ||
+                    string.IsNullOrWhiteSpace(_config.AdminEmailAdress))
+                    return;
+
+                var logConfig = LogManager.Configuration;
+                var mailTargetFatal = new MailTarget {
+                    SmtpServer = _config.SmtpHost,
+                    SmtpPort = _config.SmtpPort,
+                    To = _config.AdminEmailAdress,
+                    Name = "mailfatal",
+                };
+                logConfig.AddTarget(mailTargetFatal);
+                logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatal);
+
+                if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAdress)) {
+                    var mailTargetError = new MailTarget {
+                        SmtpServer = _config.SmtpHost,
+                        SmtpPort = _config.SmtpPort,
+                        To = _config.AdminDebugEmailAdress,
+                        Name = "mailerror",
+                    };
+                    logConfig.AddTarget(mailTargetError);
+                    logConfig.AddRuleForOneLevel(LogLevel.Error, mailTargetError);
+                    Log.Info("Configured mail notification for 'Error' messages to {0}", mailTargetError.To);
+                }
+                Log.Info("Configured mail notification for 'Fatal' messages to {0}", mailTargetFatal.To);
+                LogManager.Configuration = logConfig;
+            }
+            catch (Exception ex) {
+                Log.Error("SetupMailLogging(): {0}", ex.Message);
+            }
         }
 
         /// <summary>
@@ -198,6 +242,10 @@ namespace AutoTx
         /// Check if loaded configuration is valid, print a summary to the log.
         /// </summary>
         public void CheckConfiguration() {
+            // non-critical / optional configuration parameters:
+            if (!string.IsNullOrWhiteSpace(_config.SmtpHost))
+                SetupMailLogging();
+
             var configInvalid = false;
             if (CheckSpoolingDirectories() == false) {
                 Log.Error("ERROR checking spooling directories (incoming / managed)!");
