@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -74,7 +75,7 @@ namespace ATXCommon
         public static string CheckFreeDiskSpace(List<Serializables.DriveToCheck> drives) {
             var msg = "";
             foreach (var driveToCheck in drives) {
-                var freeSpace = SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName);
+                var freeSpace = GetFreeDriveSpace(driveToCheck.DriveName);
                 if (freeSpace >= driveToCheck.SpaceThreshold)
                     continue;
 
@@ -83,6 +84,26 @@ namespace ATXCommon
                        "  (threshold: " + driveToCheck.SpaceThreshold + ")\n";
             }
             return msg;
+        }
+
+        /// <summary>
+        /// Compares all processes against the ProcessNames in the BlacklistedProcesses list.
+        /// </summary>
+        /// <returns>Returns the name of the first matching process, an empty string otherwise.</returns>
+        public static string CheckForBlacklistedProcesses(List<string> processNames) {
+            foreach (var running in Process.GetProcesses()) {
+                try {
+                    foreach (var blacklisted in processNames) {
+                        if (running.ProcessName.ToLower().Equals(blacklisted)) {
+                            return blacklisted;
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    Log.Warn("Error in checkProcesses(): {0}", ex.Message);
+                }
+            }
+            return "";
         }
 
         /// <summary>

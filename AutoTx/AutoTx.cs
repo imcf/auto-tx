@@ -446,7 +446,8 @@ namespace AutoTx
             else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
                 limitReason = "RAM usage";
             else {
-                var blacklistedProcess = CheckForBlacklistedProcesses();
+                var blacklistedProcess = SystemChecks.CheckForBlacklistedProcesses(
+                    _config.BlacklistedProcesses);
                 if (blacklistedProcess != "") {
                     limitReason = "blacklisted process '" + blacklistedProcess + "'";
                 }

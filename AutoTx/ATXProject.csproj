@@ -103,9 +103,6 @@
     <Compile Include="RoboCommand.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SystemChecks.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
