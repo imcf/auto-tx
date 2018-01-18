@@ -27,7 +27,7 @@ namespace AutoTx
 
             // the user name is expected to be the last part of the path:
             _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
-            CreateNewDirectory(ExpandCurrentTargetTmp(), false);
+            CreateNewDirectory(_status.CurrentTargetTmpFull(), false);
 
             _transferState = TxState.Active;
             _status.TransferInProgress = true;
@@ -39,7 +39,7 @@ namespace AutoTx
 
                 // copy options
                 _roboCommand.CopyOptions.Source = sourcePath;
-                _roboCommand.CopyOptions.Destination = ExpandCurrentTargetTmp();
+                _roboCommand.CopyOptions.Destination = _status.CurrentTargetTmpFull();
 
                 // limit the transfer bandwidth by waiting between packets:
                 _roboCommand.CopyOptions.InterPacketGap = _config.InterPacketGap;

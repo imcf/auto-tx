@@ -19,8 +19,8 @@ namespace ATXCommon.Serializables
         private DateTime _lastGraceNotification;
 
         private string _limitReason;
-        string _currentTransferSrc;
-        string _currentTargetTmp;
+        private string _currentTransferSrc;
+        private string _currentTargetTmp;
 
         bool _transferInProgress;
         private bool _serviceSuspended;
@@ -216,6 +216,16 @@ namespace ATXCommon.Serializables
                 LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
                 "LastGraceNotification: " +
                 LastGraceNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n";
+        }
+
+        /// <summary>
+        /// Helper method to generate the full path of the current temp directory.
+        /// </summary>
+        /// <returns>A string with the path to the last tmp dir.</returns>
+        public string CurrentTargetTmpFull() {
+            return Path.Combine(_config.DestinationDirectory,
+                _config.TmpTransferDir,
+                _currentTargetTmp);
         }
     }
 }

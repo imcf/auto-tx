@@ -510,16 +510,6 @@ namespace AutoTx
         #region transfer tasks
 
         /// <summary>
-        /// Helper method to generate the full path of the current temp directory.
-        /// </summary>
-        /// <returns>A string with the path to the last tmp dir.</returns>
-        private string ExpandCurrentTargetTmp() {
-            return Path.Combine(_config.DestinationDirectory,
-                _config.TmpTransferDir,
-                _status.CurrentTargetTmp);
-        }
-
-        /// <summary>
         /// Assemble the transfer destination path and check if it exists.
         /// </summary>
         /// <param name="dirName">The target directory to be checked on the destination.</param>
@@ -627,7 +617,8 @@ namespace AutoTx
                 Log.Debug("Finalizing transfer, cleaning up target storage location...");
                 var finalDst = DestinationPath(_status.CurrentTargetTmp);
                 if (!string.IsNullOrWhiteSpace(finalDst)) {
-                    if (MoveAllSubDirs(new DirectoryInfo(ExpandCurrentTargetTmp()), finalDst, true)) {
+                    if (MoveAllSubDirs(new DirectoryInfo(_status.CurrentTargetTmpFull()),
+                        finalDst, true)) {
                         _status.CurrentTargetTmp = "";
                     }
                 }
@@ -658,7 +649,7 @@ namespace AutoTx
                 return;
 
             Log.Debug("Resuming interrupted transfer from [{0}] to [{1}]",
-                _status.CurrentTransferSrc, ExpandCurrentTargetTmp());
+                _status.CurrentTransferSrc, _status.CurrentTargetTmpFull());
             StartTransfer(_status.CurrentTransferSrc);
         }
 
