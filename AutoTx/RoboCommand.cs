@@ -17,6 +17,7 @@ namespace AutoTx
         /// false. The currently processed path is stored in the global status
         /// variable CurrentTransferSrc.
         /// </summary>
+        /// <param name="sourcePath">The full path to a folder.</param>
         private void StartTransfer(string sourcePath) {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped)
