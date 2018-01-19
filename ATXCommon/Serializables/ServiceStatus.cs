@@ -11,7 +11,7 @@ namespace ATXCommon.Serializables
     [Serializable]
     public class ServiceStatus
     {
-        [XmlIgnore] string _storageFile; // remember where we came from
+        [XmlIgnore] private string _storageFile; // remember where we came from
         [XmlIgnore] private ServiceConfig _config;
         [XmlIgnore] public string ValidationWarnings;
         [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -25,7 +25,7 @@ namespace ATXCommon.Serializables
         private string _currentTransferSrc;
         private string _currentTargetTmp;
 
-        bool _transferInProgress;
+        private bool _transferInProgress;
         private bool _serviceSuspended;
         private bool _cleanShutdown;
 
