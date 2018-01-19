@@ -115,22 +115,22 @@ namespace AutoTx
 
                 var logConfig = LogManager.Configuration;
                 var mailTargetFatal = new MailTarget {
+                    Name = "mailfatal",
                     SmtpServer = _config.SmtpHost,
                     SmtpPort = _config.SmtpPort,
                     From = _config.EmailFrom,
                     To = _config.AdminEmailAdress,
-                    Name = "mailfatal",
                 };
                 logConfig.AddTarget(mailTargetFatal);
                 logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatal);
 
                 if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAdress)) {
                     var mailTargetError = new MailTarget {
+                        Name = "mailerror",
                         SmtpServer = _config.SmtpHost,
                         SmtpPort = _config.SmtpPort,
                         From = _config.EmailFrom,
                         To = _config.AdminDebugEmailAdress,
-                        Name = "mailerror",
                     };
                     logConfig.AddTarget(mailTargetError);
                     logConfig.AddRuleForOneLevel(LogLevel.Error, mailTargetError);
