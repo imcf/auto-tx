@@ -4,7 +4,6 @@ using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
 using NLog;
-using NLog.Config;
 
 namespace ATXCommon.Serializables
 {
