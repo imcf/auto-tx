@@ -214,6 +214,10 @@ namespace ATXCommon.Serializables
             return config;
         }
 
+
+        /// <summary>
+        /// Validate the configuration, throwing exceptions on invalid parameters.
+        /// </summary>
         private static void ValidateConfiguration(ServiceConfig c) {
             if (string.IsNullOrEmpty(c.SourceDrive) ||
                 string.IsNullOrEmpty(c.IncomingDirectory) ||
