@@ -263,6 +263,10 @@ namespace ATXCommon.Serializables
             Log.Warn(">>> Non-optimal setting detected: <{0}> [{1}] {2}", attribute, value, msg);
         }
 
+        /// <summary>
+        /// Generate a human-readable sumary of the current configuration.
+        /// </summary>
+        /// <returns>A string with details on the configuration.</returns>
         public string Summary() {
             var msg =
                 "HostAlias: " + HostAlias + "\n" +
