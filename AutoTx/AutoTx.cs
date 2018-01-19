@@ -593,7 +593,7 @@ namespace AutoTx
         private void CheckIncomingDirectories() {
             // iterate over all user-subdirectories:
             foreach (var userDir in new DirectoryInfo(_incomingPath).GetDirectories()) {
-                if (IncomingDirIsEmpty(userDir))
+                if (FsUtils.DirEmptyExcept(userDir, _config.MarkerFile))
                     continue;
 
                 Log.Info("Found new files in [{0}]", userDir.FullName);
@@ -657,38 +657,6 @@ namespace AutoTx
         #endregion
 
         #region filesystem tasks (check, move, ...)
-
-        /// <summary>
-        /// Check if a given directory is empty. If a marker file is set in the config a
-        /// file with this name will be created inside the given directory and will be
-        /// skipped itself when checking for files and directories.
-        /// </summary>
-        /// <param name="dirInfo">The directory to check.</param>
-        /// <returns>True if access is denied or the dir is empty, false otherwise.</returns>
-        private bool IncomingDirIsEmpty(DirectoryInfo dirInfo) {
-            try {
-                var filesInTree = dirInfo.GetFiles("*", SearchOption.AllDirectories);
-                if (string.IsNullOrEmpty(_config.MarkerFile))
-                    return filesInTree.Length == 0;
-
-                // check if there is ONLY the marker file:
-                if (filesInTree.Length == 1 &&
-                    filesInTree[0].Name.Equals(_config.MarkerFile))
-                    return true;
-
-                // make sure the marker file is there:
-                var markerFilePath = Path.Combine(dirInfo.FullName, _config.MarkerFile);
-                if (! File.Exists(markerFilePath))
-                    File.Create(markerFilePath);
-
-                return filesInTree.Length == 0;
-            }
-            catch (Exception e) {
-                Log.Error("Error accessing directories: {0}", e.Message);
-            }
-            // if nothing triggered before, we pretend the dir is empty:
-            return true;
-        }
 
         /// <summary>
         /// Collect individual files in a user dir in a specific sub-directory. If a marker

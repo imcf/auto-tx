@@ -76,5 +76,38 @@ namespace ATXCommon
             }
             return collection;
         }
+
+        /// <summary>
+        /// Check if a given directory is empty. If a marker file is set in the config a
+        /// file with this name will be created inside the given directory and will be
+        /// skipped itself when checking for files and directories.
+        /// </summary>
+        /// <param name="dirInfo">The directory to check.</param>
+        /// <param name="ignoredName">A filename that will be ignored.</param>
+        /// <returns>True if access is denied or the dir is empty, false otherwise.</returns>
+        public static bool DirEmptyExcept(DirectoryInfo dirInfo, string ignoredName) {
+            try {
+                var filesInTree = dirInfo.GetFiles("*", SearchOption.AllDirectories);
+                if (string.IsNullOrEmpty(ignoredName))
+                    return filesInTree.Length == 0;
+
+                // check if there is ONLY the marker file:
+                if (filesInTree.Length == 1 &&
+                    filesInTree[0].Name.Equals(ignoredName))
+                    return true;
+
+                // make sure the marker file is there:
+                var markerFilePath = Path.Combine(dirInfo.FullName, ignoredName);
+                if (!File.Exists(markerFilePath))
+                    File.Create(markerFilePath);
+
+                return filesInTree.Length == 0;
+            }
+            catch (Exception e) {
+                Log.Error("Error accessing directories: {0}", e.Message);
+            }
+            // if nothing triggered before, we pretend the dir is empty:
+            return true;
+        }
     }
 }
