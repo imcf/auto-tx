@@ -309,10 +309,6 @@ namespace AutoTx
                 SendAdminEmail(warn);
             }
 
-            if (!string.IsNullOrEmpty(_config.ValidationWarnings)) {
-                Log.Warn("WARNING: some configuration settings might not be optimal:\n{0}",
-                    _config.ValidationWarnings);
-            }
             if (!string.IsNullOrEmpty(_status.ValidationWarnings)) {
                 Log.Warn("WARNING: some status parameters were invalid and have been reset:\n{0}",
                     _status.ValidationWarnings);

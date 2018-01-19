@@ -14,11 +14,9 @@ namespace ATXCommon.Serializables
     [Serializable]
     public class ServiceConfig
     {
-        [XmlIgnore] public string ValidationWarnings;
         [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public ServiceConfig() {
-            ValidationWarnings = "";
             // set values for the optional XML elements:
             SmtpHost = "";
             SmtpPort = 25;
@@ -252,13 +250,17 @@ namespace ATXCommon.Serializables
                 throw new ConfigurationErrorsException("ServiceTimer must not be smaller than 1000 ms!");
 
 
-            // NON-CRITICAL stuff just adds messages to ValidationWarnings:
-            // DestinationDirectory
+            // NON-CRITICAL stuff is simply reported to the logs:
             if (!c.DestinationDirectory.StartsWith(@"\\")) {
-                var msg = "<DestinationDirectory> is not a UNC path!\n";
-                c.ValidationWarnings += " - " + msg;
-                Log.Warn(msg);
+                ReportNonOptimal("DestinationDirectory", c.DestinationDirectory, "is not a UNC path!");
             }
+        }
+
+        /// <summary>
+        /// Print a standardized msg about a non-optimal configuration setting to the log.
+        /// </summary>
+        private static void ReportNonOptimal(string attribute, string value, string msg) {
+            Log.Warn(">>> Non-optimal setting detected: <{0}> [{1}] {2}", attribute, value, msg);
         }
 
         public string Summary() {
