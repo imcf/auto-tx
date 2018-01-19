@@ -53,14 +53,14 @@ namespace ATXCommon
         }
 
         /// <summary>
-        /// Get the free space of a drive in megabytes.
+        /// Get the free space of a drive in bytes.
         /// </summary>
         /// /// <param name="drive">The drive name, e.g. "c:".</param>
-        /// <returns>Free space of a drive in megabytes, zero if an error occured.</returns>
+        /// <returns>Free space of a drive in bytes, zero if an error occured.</returns>
         public static long GetFreeDriveSpace(string drive) {
             try {
                 var dInfo = new DriveInfo(drive);
-                return dInfo.TotalFreeSpace / Conv.MegaBytes;
+                return dInfo.TotalFreeSpace;
             }
             catch (Exception ex) {
                 Log.Warn("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
@@ -80,8 +80,8 @@ namespace ATXCommon
                     continue;
 
                 msg += "Drive '" + driveToCheck.DriveName +
-                       "' - free space: " + freeSpace +
-                       "  (threshold: " + driveToCheck.SpaceThreshold + ")\n";
+                       "' - free space: " + Conv.BytesToString(freeSpace) +
+                       "  (threshold: " + Conv.BytesToString(driveToCheck.SpaceThreshold) + ")\n";
             }
             return msg;
         }

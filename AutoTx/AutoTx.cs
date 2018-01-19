@@ -289,7 +289,7 @@ namespace AutoTx
                    "Free system memory: " + SystemChecks.GetFreeMemory() + " MB" + "\n";
             foreach (var driveToCheck in _config.SpaceMonitoring) {
                 msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
-                       SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName) + "\n";
+                       Conv.BytesToString(SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName)) + "\n";
             }
 
 
@@ -920,8 +920,8 @@ namespace AutoTx
             foreach (var userdir in expired.Keys) {
                 report += "\n - user '" + userdir + "'\n";
                 foreach (var subdir in expired[userdir]) {
-                    report += string.Format("   - {0} [age: {2} days, size: {1} MB]\n",
-                        subdir.Item1, subdir.Item2, subdir.Item3);
+                    report += string.Format("   - {0} [age: {2} days, size: {1}]\n",
+                        subdir.Item1, Conv.BytesToString(subdir.Item2), subdir.Item3);
                 }
             }
             if (string.IsNullOrEmpty(report))

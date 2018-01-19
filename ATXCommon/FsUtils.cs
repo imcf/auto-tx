@@ -51,9 +51,9 @@ namespace ATXCommon
         /// <param name="thresh">The number of days used as expiration threshold.</param>
         /// <returns>A dictionary having usernames as keys (of those users that actually do have
         /// expired directories), where the values are lists of tuples with the DirInfo objects,
-        /// size and age (in days) of the expired directories.</returns>
-        public static Dictionary<string, List<Tuple<DirectoryInfo, long, int>>> ExpiredDirs(
-            DirectoryInfo baseDir,int thresh) {
+        /// size (in bytes) and age (in days) of the expired directories.</returns>
+        public static Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>
+            ExpiredDirs(DirectoryInfo baseDir,int thresh) {
 
             var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
             var now = DateTime.Now;
@@ -65,7 +65,7 @@ namespace ATXCommon
                         continue;
                     long size = -1;
                     try {
-                        size = GetDirectorySize(subdir.FullName) / Conv.MegaBytes;
+                        size = GetDirectorySize(subdir.FullName);
                     }
                     catch (Exception ex) {
                         Log.Error("ERROR getting directory size of [{0}]: {1}",

@@ -283,7 +283,9 @@ namespace ATXCommon.Serializables
             }
             foreach (var driveToCheck in SpaceMonitoring) {
                 msg += "Drive to check free space: " + driveToCheck.DriveName +
-                       " (threshold: " + driveToCheck.SpaceThreshold + ")" + "\n";
+                       " (threshold: " +
+                       Conv.BytesToString(driveToCheck.SpaceThreshold * Conv.MegaBytes) +
+                       ")" + "\n";
             }
             if (string.IsNullOrEmpty(SmtpHost)) {
                 msg += "SmtpHost: ====== Not configured, disabling email! ======" + "\n";
