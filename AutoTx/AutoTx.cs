@@ -116,7 +116,7 @@ namespace AutoTx
 
                 var subject = string.Format("{0} - {1} - Admin Notification",
                     ServiceName, Environment.MachineName);
-                var body = string.Format("Notification from '{0}' ({1})\n\n{2}",
+                var body = string.Format("Notification from '{0}' [{1}] (via NLog)\n\n{2}",
                     _config.HostAlias, Environment.MachineName, LogFormatDefault);
 
                 var logConfig = LogManager.Configuration;
