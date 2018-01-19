@@ -71,6 +71,8 @@ namespace AutoTx
         public AutoTx() {
             InitializeComponent();
             SetupFileLogging();
+            Log.Info("==========================================================================");
+            Log.Info("Attempting to start {0} service...", ServiceName);
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
