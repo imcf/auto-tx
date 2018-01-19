@@ -31,6 +31,71 @@ namespace ATXCommon.Serializables
         private long _currentTransferSize;
 
 
+        #region constructor, serializer and deserializer
+
+        /// <summary>
+        /// The constructor, setting default values.
+        /// </summary>
+        public ServiceStatus() {
+            _currentTransferSrc = "";
+            _currentTargetTmp = "";
+            _transferInProgress = false;
+        }
+
+        public void Serialize() {
+            /* During de-serialization, the setter methods get called as well but
+             * we should not serialize until the deserialization has completed.
+             * As the storage file name will only be set after this, it is sufficient
+             * to test for this (plus, we can't serialize anyway without it).
+             */
+            if (_storageFile == null) {
+                Log.Trace("File name for XML serialization is not set, doing nothing!");
+                return;
+            }
+            Log.Trace("Serializing status...");
+            // update the timestamp:
+            LastStatusUpdate = DateTime.Now;
+            try {
+                var xs = new XmlSerializer(GetType());
+                var writer = File.CreateText(_storageFile);
+                xs.Serialize(writer, this);
+                writer.Flush();
+                writer.Close();
+            }
+            catch (Exception ex) {
+                Log.Error("Error in Serialize(): {0}", ex.Message);
+            }
+            Log.Trace("Finished serializing [{0}].", _storageFile);
+        }
+
+        public static ServiceStatus Deserialize(string file, ServiceConfig config) {
+            Log.Trace("Trying to deserialize status XML file [{0}].", file);
+            ServiceStatus status;
+
+            var xs = new XmlSerializer(typeof(ServiceStatus));
+            try {
+                var reader = File.OpenText(file);
+                status = (ServiceStatus) xs.Deserialize(reader);
+                reader.Close();
+                Log.Trace("Finished deserializing service status XML file.");
+            }
+            catch (Exception) {
+                // if reading the status XML fails, we return an empty (new) one
+                status = new ServiceStatus();
+                Log.Warn("Deserializing [{0}] failed, creating new status using defauls.", file);
+            }
+            status._config = config;
+            ValidateStatus(status);
+            // now set the storage filename:
+            status._storageFile = file;
+            return status;
+        }
+
+        #endregion constructor, serializer and deserializer
+
+        
+        #region getter / setter methods
+
         /// <summary>
         /// Timestamp indicating when the status has been updated last ("heartbeat").
         /// </summary>
@@ -161,67 +226,31 @@ namespace ATXCommon.Serializables
             }
         }
 
-        public ServiceStatus() {
-            _currentTransferSrc = "";
-            _currentTargetTmp = "";
-            _transferInProgress = false;
+        #endregion getter / setter methods
+        
+
+        /// <summary>
+        /// Helper method to generate the full path of the current temp directory.
+        /// </summary>
+        /// <returns>A string with the path to the last tmp dir.</returns>
+        public string CurrentTargetTmpFull() {
+            return Path.Combine(_config.DestinationDirectory,
+                _config.TmpTransferDir,
+                _currentTargetTmp);
         }
+        
 
-        public void Serialize() {
-            /* During de-serialization, the setter methods get called as well but
-             * we should not serialize until the deserialization has completed.
-             * As the storage file name will only be set after this, it is sufficient
-             * to test for this (plus, we can't serialize anyway without it).
-             */
-            if (_storageFile == null) {
-                Log.Trace("File name for XML serialization is not set, doing nothing!");
-                return;
-            }
-            Log.Trace("Serializing status...");
-            // update the timestamp:
-            LastStatusUpdate = DateTime.Now;
-            try {
-                var xs = new XmlSerializer(GetType());
-                var writer = File.CreateText(_storageFile);
-                xs.Serialize(writer, this);
-                writer.Flush();
-                writer.Close();
-            }
-            catch (Exception ex) {
-                Log.Error("Error in Serialize(): {0}", ex.Message);
-            }
-            Log.Trace("Finished serializing [{0}].", _storageFile);
-        }
+        #region validate and report
 
-        public static ServiceStatus Deserialize(string file, ServiceConfig config) {
-            Log.Trace("Trying to deserialize status XML file [{0}].", file);
-            ServiceStatus status;
-
-            var xs = new XmlSerializer(typeof(ServiceStatus));
-            try {
-                var reader = File.OpenText(file);
-                status = (ServiceStatus) xs.Deserialize(reader);
-                reader.Close();
-                Log.Trace("Finished deserializing service status XML file.");
-            }
-            catch (Exception) {
-                // if reading the status XML fails, we return an empty (new) one
-                status = new ServiceStatus();
-                Log.Warn("Deserializing [{0}] failed, creating new status using defauls.", file);
-            }
-            status._config = config;
-            ValidateStatus(status);
-            // now set the storage filename:
-            status._storageFile = file;
-            return status;
-        }
-
+        /// <summary>
+        /// Validate the status and reset attributes with invalid values.
+        /// </summary>
         private static void ValidateStatus(ServiceStatus s) {
             // CurrentTransferSrc
             if (s.CurrentTransferSrc.Length > 0
                 && !Directory.Exists(s.CurrentTransferSrc)) {
-                    ReportInvalidStatus("CurrentTransferSrc", s.CurrentTransferSrc,
-                        "invalid transfer source path");
+                ReportInvalidStatus("CurrentTransferSrc", s.CurrentTransferSrc,
+                    "invalid transfer source path");
                 s.CurrentTransferSrc = "";
             }
 
@@ -229,8 +258,8 @@ namespace ATXCommon.Serializables
             var currentTargetTmpPath = s.CurrentTargetTmpFull();
             if (s.CurrentTargetTmp.Length > 0
                 && !Directory.Exists(currentTargetTmpPath)) {
-                    ReportInvalidStatus("CurrentTargetTmpPath", currentTargetTmpPath,
-                        "invalid temporary path of an unfinished transfer");
+                ReportInvalidStatus("CurrentTargetTmpPath", currentTargetTmpPath,
+                    "invalid temporary path of an unfinished transfer");
                 s.CurrentTargetTmp = "";
             }
         }
@@ -263,14 +292,6 @@ namespace ATXCommon.Serializables
                 LastGraceNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n";
         }
 
-        /// <summary>
-        /// Helper method to generate the full path of the current temp directory.
-        /// </summary>
-        /// <returns>A string with the path to the last tmp dir.</returns>
-        public string CurrentTargetTmpFull() {
-            return Path.Combine(_config.DestinationDirectory,
-                _config.TmpTransferDir,
-                _currentTargetTmp);
-        }
+        #endregion validate and report
     }
 }
