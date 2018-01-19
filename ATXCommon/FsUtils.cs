@@ -35,6 +35,8 @@ namespace ATXCommon
                     CultureInfo.InvariantCulture);
             }
             catch (Exception ex) {
+                // TODO: discuss if this should be an "Error" message to trigger a mail
+                // notification to the AdminDebug address:
                 Log.Warn("Unable to parse time from name [{0}], skipping: {1}",
                     dir.Name, ex.Message);
                 return -1;
