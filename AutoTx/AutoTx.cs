@@ -20,6 +20,8 @@ namespace AutoTx
         #region global variables
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}";
+        // private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
 
         // naming convention: variables ending with "Path" are strings, variables
         // ending with "Dir" are DirectoryInfo objects
@@ -89,8 +91,7 @@ namespace AutoTx
                 ArchiveFileName = ServiceName + ".{#}.log",
                 MaxArchiveFiles = 9,
                 KeepFileOpen = true,
-                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}",
-                // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
+                Layout = LogFormatDefault,
             };
             logConfig.AddTarget("file", fileTarget);
             var logRuleFile = new LoggingRule("*", LogLevel.Debug, fileTarget);
@@ -113,6 +114,11 @@ namespace AutoTx
                     string.IsNullOrWhiteSpace(_config.AdminEmailAdress))
                     return;
 
+                var subject = string.Format("{0} - {1} - Admin Notification",
+                    ServiceName, Environment.MachineName);
+                var body = string.Format("Notification from '{0}' ({1})\n\n{2}",
+                    _config.HostAlias, Environment.MachineName, LogFormatDefault);
+
                 var logConfig = LogManager.Configuration;
                 var mailTargetFatal = new MailTarget {
                     Name = "mailfatal",
@@ -120,6 +126,8 @@ namespace AutoTx
                     SmtpPort = _config.SmtpPort,
                     From = _config.EmailFrom,
                     To = _config.AdminEmailAdress,
+                    Subject = subject,
+                    Body = body,
                 };
                 logConfig.AddTarget(mailTargetFatal);
                 logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatal);
@@ -131,6 +139,8 @@ namespace AutoTx
                         SmtpPort = _config.SmtpPort,
                         From = _config.EmailFrom,
                         To = _config.AdminDebugEmailAdress,
+                        Subject = subject,
+                        Body = body,
                     };
                     logConfig.AddTarget(mailTargetError);
                     logConfig.AddRuleForOneLevel(LogLevel.Error, mailTargetError);
