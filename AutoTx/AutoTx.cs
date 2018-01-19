@@ -117,6 +117,7 @@ namespace AutoTx
                 var mailTargetFatal = new MailTarget {
                     SmtpServer = _config.SmtpHost,
                     SmtpPort = _config.SmtpPort,
+                    From = _config.EmailFrom,
                     To = _config.AdminEmailAdress,
                     Name = "mailfatal",
                 };
@@ -127,6 +128,7 @@ namespace AutoTx
                     var mailTargetError = new MailTarget {
                         SmtpServer = _config.SmtpHost,
                         SmtpPort = _config.SmtpPort,
+                        From = _config.EmailFrom,
                         To = _config.AdminDebugEmailAdress,
                         Name = "mailerror",
                     };
