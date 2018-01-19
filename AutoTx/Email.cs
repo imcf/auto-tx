@@ -80,7 +80,7 @@ namespace AutoTx
             if (_config.SendAdminNotification == false)
                 return;
 
-            var delta = (int)(DateTime.Now - _status.LastAdminNotification).TotalMinutes;
+            var delta = TimeUtils.MinutesSince(_status.LastAdminNotification);
             if (delta < _config.AdminNotificationDelta) {
                 Log.Debug("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
                     delta, _config.AdminNotificationDelta, subject, body);
@@ -109,9 +109,11 @@ namespace AutoTx
             if (string.IsNullOrWhiteSpace(spaceDetails))
                 return;
 
-            var delta = (int)(DateTime.Now - _status.LastStorageNotification).TotalMinutes;
-            if (delta < _config.StorageNotificationDelta)
+            var delta = TimeUtils.MinutesSince(_status.LastStorageNotification);
+            if (delta < _config.StorageNotificationDelta) {
+                Log.Trace("Only {0} minutes since last low-space-notification, skipping.", delta);
                 return;
+            }
 
             Log.Warn("WARNING: {0}", spaceDetails);
             _status.LastStorageNotification = DateTime.Now;

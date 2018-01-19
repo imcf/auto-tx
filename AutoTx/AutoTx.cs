@@ -489,8 +489,7 @@ namespace AutoTx
             SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
 
-            var delta = (int)(DateTime.Now - _lastUserDirCheck).TotalSeconds;
-            if (delta >= 120)
+            if (TimeUtils.SecondsSince(_lastUserDirCheck) >= 120)
                 CreateIncomingDirectories();
 
             // tasks depending on the service state:
@@ -934,7 +933,7 @@ namespace AutoTx
             if (string.IsNullOrEmpty(report))
                 return "";
             report = "Expired folders in grace location:\n" + report;
-            var delta = (int)(DateTime.Now - _status.LastGraceNotification).TotalMinutes;
+            var delta = TimeUtils.MinutesSince(_status.LastGraceNotification);
             report += "\nTime since last grace notification: " + delta + "\n";
             if (delta >= _config.GraceNotificationDelta) {
                 SendAdminEmail(report, "Grace location cleanup required.");
