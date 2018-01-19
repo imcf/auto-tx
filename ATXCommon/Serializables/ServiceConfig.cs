@@ -9,7 +9,7 @@ using NLog.Config;
 namespace ATXCommon.Serializables
 {
     /// <summary>
-    /// configuration class based on xml
+    /// AutoTx service configuration class.
     /// </summary>
     [Serializable]
     public class ServiceConfig
@@ -79,13 +79,35 @@ namespace ATXCommon.Serializables
         /// </summary>
         public string TmpTransferDir { get; set; }
 
+        /// <summary>
+        /// The email address to be used as "From:" when sending mail notifications.
+        /// </summary>
         public string EmailFrom { get; set; }
 
+        /// <summary>
+        /// The interval (in ms) for checking for new files and system parameters.
+        /// </summary>
         public int ServiceTimer { get; set; }
 
+        /// <summary>
+        /// Maximum allowed CPU usage across all cores in percent. Running transfers will be paused
+        /// if this limit is exceeded.
+        /// </summary>
         public int MaxCpuUsage { get; set; }
+        
+        /// <summary>
+        /// Minimum amount of free RAM (in MB) required for the service to operate.
+        /// </summary>
         public int MinAvailableMemory { get; set; }
+
+        /// <summary>
+        /// Minimum amount of time in minutes between two mail notifications to the admin address.
+        /// </summary>
         public int AdminNotificationDelta { get; set; }
+
+        /// <summary>
+        /// Minimum amount of time in minutes between two low-storage-space notifications.
+        /// </summary>
         public int StorageNotificationDelta { get; set; }
 
         /// <summary>
@@ -94,8 +116,19 @@ namespace ATXCommon.Serializables
         /// </summary>
         public int GracePeriod { get; set; }
 
+        /// <summary>
+        /// Flag whether to send explicit mail notifications to the admin on selected events.
+        /// </summary>
         public bool SendAdminNotification { get; set; }
+        
+        /// <summary>
+        /// Flag whether to send a mail notification to the user upon completed transfers.
+        /// </summary>
         public bool SendTransferNotification { get; set; }
+
+        /// <summary>
+        /// Switch on debug log messages.
+        /// </summary>
         public bool Debug { get; set; }
 
         [XmlArray]
@@ -111,17 +144,52 @@ namespace ATXCommon.Serializables
 
         #region optional configuration parameters
 
+        /// <summary>
+        /// SMTP server used to send mails (if configured) and Fatal/Error log messages.
+        /// 
+        /// No mails will be sent if this is omitted.
+        /// </summary>
         public string SmtpHost { get; set; }
+
+        /// <summary>
+        /// SMTP username to authenticate when sending emails (if required).
+        /// </summary>
         public string SmtpUserCredential { get; set; }
+
+        /// <summary>
+        /// SMTP password to authenticate when sending emails (if required).
+        /// </summary>
         public string SmtpPasswortCredential { get; set; }
+
+        /// <summary>
+        /// SMTP port for sending emails (25 will be used if this entry is omitted).
+        /// </summary>
         public int SmtpPort { get; set; }
 
+        /// <summary>
+        /// A string to be added as a prefix to the subject when sending emails.
+        /// </summary>
         public string EmailPrefix { get; set; }
+
+        /// <summary>
+        /// The mail recipient address for admin notifications (including "Fatal" log messages).
+        /// </summary>
         public string AdminEmailAdress { get; set; }
+        
+        /// <summary>
+        /// The mail recipient address for debug notifications (including "Error" log messages).
+        /// </summary>
         public string AdminDebugEmailAdress { get; set; }
 
+        /// <summary>
+        /// Minimum time in minutes between two mails about expired folders in the grace location.
+        /// </summary>
         public int GraceNotificationDelta { get; set; }
 
+        /// <summary>
+        /// RoboCopy parameter for limiting the bandwidth (mostly for testing purposes).
+        /// </summary>
+        /// See the RoboCopy documentation for more details.
         public int InterPacketGap { get; set; }
 
         /// <summary>

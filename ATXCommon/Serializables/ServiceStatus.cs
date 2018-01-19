@@ -5,6 +5,9 @@ using NLog;
 
 namespace ATXCommon.Serializables
 {
+    /// <summary>
+    /// AutoTx service status class.
+    /// </summary>
     [Serializable]
     public class ServiceStatus
     {
@@ -28,12 +31,19 @@ namespace ATXCommon.Serializables
 
         private long _currentTransferSize;
 
+
+        /// <summary>
+        /// Timestamp indicating when the status has been updated last ("heartbeat").
+        /// </summary>
         [XmlElement("LastStatusUpdate", DataType = "dateTime")]
         public DateTime LastStatusUpdate {
             get { return _lastStatusUpdate; }
             set { _lastStatusUpdate = value; }
         }
 
+        /// <summary>
+        /// Timestamp indicating when the last storage notification has been sent.
+        /// </summary>
         [XmlElement("LastStorageNotification", DataType = "dateTime")]
         public DateTime LastStorageNotification {
             get { return _lastStorageNotification; }
@@ -43,6 +53,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// Timestamp indicating when the last admin notification has been sent.
+        /// </summary>
         [XmlElement("LastAdminNotification", DataType = "dateTime")]
         public DateTime LastAdminNotification {
             get { return _lastAdminNotification; }
@@ -52,6 +65,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// Timestamp indicating when the last notification on expired folders has been sent.
+        /// </summary>
         [XmlElement("LastGraceNotification", DataType = "dateTime")]
         public DateTime LastGraceNotification {
             get { return _lastGraceNotification; }
@@ -61,6 +77,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// String indicating why the service is currently suspended (empty if not suspended).
+        /// </summary>
         public string LimitReason {
             get { return _limitReason; }
             set {
@@ -70,6 +89,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// The full path to the folder currently being transferred.
+        /// </summary>
         public string CurrentTransferSrc {
             get { return _currentTransferSrc; }
             set {
@@ -79,6 +101,11 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// The name of the temporary folder being used for the currently running transfer,
+        /// relative to "DestinationDirectory\TmpTransferDir" (i.e. the target username). See also
+        /// <seealso cref="CurrentTargetTmpFull"/> on details for assembling the full path.
+        /// </summary>
         public string CurrentTargetTmp {
             get { return _currentTargetTmp; }
             set {
@@ -88,6 +115,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// Flag indicating whether the service is currently suspended.
+        /// </summary>
         public bool ServiceSuspended {
             get { return _serviceSuspended; }
             set {
@@ -97,6 +127,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// Flag indicating whether a transfer is currently running.
+        /// </summary>
         public bool TransferInProgress {
             get { return _transferInProgress; }
             set {
@@ -117,6 +150,9 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// The full size of the current transfer in bytes.
+        /// </summary>
         public long CurrentTransferSize {
             get { return _currentTransferSize; }
             set {
@@ -202,6 +238,10 @@ namespace ATXCommon.Serializables
             }
         }
 
+        /// <summary>
+        /// Generate a human-readable sumary of the current transfer.
+        /// </summary>
+        /// <returns>A string with details on the transfer.</returns>
         public string Summary() {
             return
                 "CurrentTransferSrc: " + CurrentTransferSrc + "\n" +
