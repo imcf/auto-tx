@@ -13,7 +13,6 @@ namespace ATXCommon.Serializables
     {
         [XmlIgnore] private string _storageFile; // remember where we came from
         [XmlIgnore] private ServiceConfig _config;
-        [XmlIgnore] public string ValidationWarnings;
         [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private DateTime _lastStatusUpdate;
@@ -221,21 +220,27 @@ namespace ATXCommon.Serializables
             // CurrentTransferSrc
             if (s.CurrentTransferSrc.Length > 0
                 && !Directory.Exists(s.CurrentTransferSrc)) {
-                s.ValidationWarnings += " - found non-existing source path of an unfinished " +
-                                        "transfer: " + s.CurrentTransferSrc + "\n";
+                    ReportInvalidStatus("CurrentTransferSrc", s.CurrentTransferSrc,
+                        "invalid transfer source path");
                 s.CurrentTransferSrc = "";
             }
 
             // CurrentTargetTmp
-            var currentTargetTmpPath = Path.Combine(s._config.DestinationDirectory,
-                s._config.TmpTransferDir,
-                s.CurrentTargetTmp);
+            var currentTargetTmpPath = s.CurrentTargetTmpFull();
             if (s.CurrentTargetTmp.Length > 0
                 && !Directory.Exists(currentTargetTmpPath)) {
-                s.ValidationWarnings += " - found non-existing temporary path of an " +
-                                        "unfinished transfer: " + currentTargetTmpPath + "\n";
+                    ReportInvalidStatus("CurrentTargetTmpPath", currentTargetTmpPath,
+                        "invalid temporary path of an unfinished transfer");
                 s.CurrentTargetTmp = "";
             }
+        }
+
+        /// <summary>
+        /// Print a standardized msg about an invalid status attribute to the log.
+        /// </summary>
+        private static void ReportInvalidStatus(string attribute, string value, string msg) {
+            Log.Warn(">>> Invalid status parameter detected, resetting:\n - <{0}> [{1}] {2}.",
+                attribute, value, msg);
         }
 
         /// <summary>
