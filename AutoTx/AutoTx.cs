@@ -421,13 +421,19 @@ namespace AutoTx
             try {
                 RunMainTasks();
                 GC.Collect();
+                // if everything went fine, reset the timer interval to its default value, so the
+                // service can even recover from temporary problems itself (see below):
+                _mainTimer.Interval = _config.ServiceTimer;
             }
             catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error in OnTimedEvent(): {0}", ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
-                Log.Debug("Extended Error Info (StackTrace): {0}", ex.StackTrace);
+                // in case an Exception is reaching this level there is a good chance it is a
+                // permanent / recurring problem, therefore we increase the timer interval each
+                // time by a factor of ten (to avoid triggering the same issue every second and
+                // flooding the admins with emails):
+                _mainTimer.Interval *= 10;
+                Log.Error("Unhandled exception in OnTimedEvent(): {0}\n\n" +
+                    "Trying exponential backoff, increasing timer interval to {1} ms.\n\n" +
+                    "StackTrace: {2}", ex.Message, _mainTimer.Interval, ex.StackTrace);
             }
             finally {
                 // make sure to enable the timer again:
