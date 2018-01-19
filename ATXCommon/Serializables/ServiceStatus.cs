@@ -159,7 +159,7 @@ namespace ATXCommon.Serializables
         }
 
         public static ServiceStatus Deserialize(string file, ServiceConfig config) {
-            Log.Debug("Trying to deserialize status XML file [{0}].", file);
+            Log.Trace("Trying to deserialize status XML file [{0}].", file);
             ServiceStatus status;
 
             var xs = new XmlSerializer(typeof(ServiceStatus));
@@ -167,7 +167,7 @@ namespace ATXCommon.Serializables
                 var reader = File.OpenText(file);
                 status = (ServiceStatus) xs.Deserialize(reader);
                 reader.Close();
-                Log.Debug("Finished deserializing service status XML file.");
+                Log.Trace("Finished deserializing service status XML file.");
             }
             catch (Exception) {
                 // if reading the status XML fails, we return an empty (new) one
