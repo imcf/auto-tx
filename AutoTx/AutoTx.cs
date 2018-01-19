@@ -23,8 +23,8 @@ namespace AutoTx
 
         // naming convention: variables ending with "Path" are strings, variables
         // ending with "Dir" are DirectoryInfo objects
-        private string _configPath;
-        private string _statusPath;
+        private string _pathToConfig;
+        private string _pathToStatus;
         private string _incomingPath;
         private string _managedPath;
 
@@ -164,8 +164,8 @@ namespace AutoTx
             try {
                 _transferState = TxState.Stopped;
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                _configPath = Path.Combine(baseDir, "configuration.xml");
-                _statusPath = Path.Combine(baseDir, "status.xml");
+                _pathToConfig = Path.Combine(baseDir, "configuration.xml");
+                _pathToStatus = Path.Combine(baseDir, "status.xml");
 
                 LoadConfigXml();
                 LoadStatusXml();
@@ -190,14 +190,14 @@ namespace AutoTx
         /// </summary>
         private void LoadConfigXml() {
             try {
-                _config = ServiceConfig.Deserialize(_configPath);
+                _config = ServiceConfig.Deserialize(_pathToConfig);
                 _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
                 _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
-                Log.Debug("Loaded config from [{0}]", _configPath);
+                Log.Debug("Loaded config from [{0}]", _pathToConfig);
             }
             catch (ConfigurationErrorsException ex) {
                 Log.Error("ERROR validating configuration file [{0}]: {1}",
-                    _configPath, ex.Message);
+                    _pathToConfig, ex.Message);
                 throw new Exception("Error validating configuration.");
             }
             catch (Exception ex) {
@@ -216,14 +216,14 @@ namespace AutoTx
         /// </summary>
         private void LoadStatusXml() {
             try {
-                Log.Debug("Trying to load status from [{0}]", _statusPath);
-                _status = ServiceStatus.Deserialize(_statusPath, _config);
-                Log.Debug("Loaded status from [{0}]", _statusPath);
+                Log.Debug("Trying to load status from [{0}]", _pathToStatus);
+                _status = ServiceStatus.Deserialize(_pathToStatus, _config);
+                Log.Debug("Loaded status from [{0}]", _pathToStatus);
             }
             catch (Exception ex) {
                 // FIXME: combine log and admin-email!
                 var msg = string.Format("Error loading status XML from [{0}]: {1} {2}",
-                    _statusPath, ex.Message, ex.StackTrace);
+                    _pathToStatus, ex.Message, ex.StackTrace);
                 Log.Error(msg);
                 SendAdminEmail(msg);
                 // this should terminate the service process:
