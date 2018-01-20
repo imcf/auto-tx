@@ -360,7 +360,7 @@ namespace AutoTx
         /// the OnShutdown() method is used!
         /// </summary>
         protected override void OnStop() {
-            Log.Warn(ServiceName + " service stop requested...");
+            Log.Warn("{0} service stop requested...", ServiceName);
             if (_transferState != TxState.Stopped) {
                 _transferState = TxState.DoNothing;
                 // Stop() is calling Process.Kill() (immediately forcing a termination of the
