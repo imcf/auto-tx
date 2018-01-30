@@ -438,8 +438,12 @@ namespace AutoTx
                 // time by a factor of ten (to avoid triggering the same issue every second and
                 // flooding the admins with emails):
                 _mainTimer.Interval *= 10;
+                // make sure the interval doesn't exceed half a day:
+                const int maxInterval = 1000 * 60 * 60 * 12;
+                if (_mainTimer.Interval > maxInterval)
+                    _mainTimer.Interval = maxInterval;
                 Log.Error("Unhandled exception in OnTimedEvent(): {0}\n\n" +
-                    "Trying exponential backoff, increasing timer interval to {1} ms.\n\n" +
+                    "Trying exponential backoff, setting timer interval to {1} ms.\n\n" +
                     "StackTrace: {2}", ex.Message, _mainTimer.Interval, ex.StackTrace);
             }
             finally {
@@ -879,3 +883,4 @@ namespace AutoTx
 
     }
 }
+
