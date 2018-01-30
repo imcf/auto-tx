@@ -350,10 +350,8 @@ namespace AutoTx
                 _mainTimer.Enabled = true;
             }
             catch (Exception ex) {
-                // FIXME: combine log and admin-email!
-                var msg = string.Format("Error in OnStart(): {0}", ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
+                Log.Error("Error in OnStart(): {0}", ex.Message);
+                throw;
             }
 
             // read the build timestamp from the resources:
@@ -384,10 +382,7 @@ namespace AutoTx
                     _roboCommand.Stop();
                 }
                 catch (Exception ex) {
-                    // FIXME: combine log and admin-email!
-                    var msg = string.Format("Error terminating the RoboCopy process: {0}", ex.Message);
-                    Log.Error(msg);
-                    SendAdminEmail(msg);
+                    Log.Error("Error terminating the RoboCopy process: {0}", ex.Message);
                 }
                 _status.TransferInProgress = true;
                 Log.Info("Not all files were transferred - will resume upon next start");
@@ -717,7 +712,6 @@ namespace AutoTx
         /// </summary>
         private void MoveToManagedLocation(DirectoryInfo userDir) {
             string errMsg;
-            string logMsg;  // TODO / FIXME: cleanup var after fixing mail-logging
             try {
                 // first check for individual files and collect them:
                 CollectOrphanedFiles(userDir);
@@ -728,10 +722,7 @@ namespace AutoTx
 
                 // if the user has no directory on the destination move to UNMATCHED instead:
                 if (string.IsNullOrWhiteSpace(DestinationPath(userDir.Name))) {
-                    // TODO / FIXME: combine log and admin-email!
-                    logMsg = string.Format("Found unmatched incoming dir: {0}", userDir.Name);
-                    Log.Error(logMsg);
-                    SendAdminEmail(logMsg);
+                    Log.Error("Found unmatched incoming dir: {0}", userDir.Name);
                     target = "UNMATCHED";
                 }
                 
@@ -749,10 +740,7 @@ namespace AutoTx
             catch (Exception ex) {
                 errMsg = ex.Message;
             }
-            // TODO / FIXME: combine log and admin-email!
-            logMsg = string.Format("MoveToManagedLocation({0}) failed: {1}", userDir.FullName, errMsg);
-            Log.Error(logMsg);
-            SendAdminEmail(logMsg);
+            Log.Error("MoveToManagedLocation({0}) failed: {1}", userDir.FullName, errMsg);
         }
 
         /// <summary>
@@ -787,10 +775,7 @@ namespace AutoTx
             catch (Exception ex) {
                 errMsg = ex.Message;
             }
-            // TODO / FIXME: combine log and admin-email!
-            var msg = string.Format("MoveToGraceLocation() failed: {0}", errMsg);
-            Log.Error(msg);
-            SendAdminEmail(msg);
+            Log.Error("MoveToGraceLocation() failed: {0}", errMsg);
         }
 
         /// <summary>
@@ -836,11 +821,8 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error moving directories: [{0}] > [{1}]\n{2}",
+                Log.Error("Error moving directories: [{0}] > [{1}]\n{2}",
                     sourceDir.FullName, destPath, ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
                 return false;
             }
             return true;
