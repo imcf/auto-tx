@@ -199,17 +199,13 @@ namespace AutoTx
                 _roboCommand = new RoboCommand();
             }
             catch (Exception ex) {
-                // FIXME: combine log and admin-email!
-                var msg = string.Format("Error in LoadSettings(): {0}\n{1}", ex.Message, ex.StackTrace);
-                Log.Error(msg);
-                SendAdminEmail(msg);
+                Log.Error("LoadSettings() failed: {0}\n{1}", ex.Message, ex.StackTrace);
                 throw new Exception("Error in LoadSettings.");
             }
             // NOTE: this is explicitly called *outside* the try-catch block so an Exception
             // thrown by the checker will not be silenced but cause the startup to fail:
             CheckConfiguration();
         }
-
 
         /// <summary>
         /// Load the configuration xml file.
@@ -227,15 +223,11 @@ namespace AutoTx
                 throw new Exception("Error validating configuration.");
             }
             catch (Exception ex) {
-                // FIXME: combine log and admin-email!
-                var msg = string.Format("Error loading configuration XML: {0}", ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
+                Log.Error("loading configuration XML failed: {0}", ex.Message);
                 // this should terminate the service process:
                 throw new Exception("Error loading config.");
             }
         }
-
 
         /// <summary>
         /// Load the status xml file.
@@ -247,16 +239,12 @@ namespace AutoTx
                 Log.Debug("Loaded status from [{0}]", _pathToStatus);
             }
             catch (Exception ex) {
-                // FIXME: combine log and admin-email!
-                var msg = string.Format("Error loading status XML from [{0}]: {1} {2}",
+                Log.Error("loading status XML from [{0}] failed: {1} {2}",
                     _pathToStatus, ex.Message, ex.StackTrace);
-                Log.Error(msg);
-                SendAdminEmail(msg);
                 // this should terminate the service process:
                 throw new Exception("Error loading status.");
             }
         }
-
 
         /// <summary>
         /// Check if loaded configuration is valid, print a summary to the log.
@@ -280,12 +268,8 @@ namespace AutoTx
             // then set it to false while the service is running until it is properly
             // shut down via the OnStop() method:
             if (_status.CleanShutdown == false) {
-                // FIXME: combine log and admin-email!
-                var msg = string.Format("WARNING: {0} was not shut down properly last time!\n\n" +
-                         "This could indicate the computer has crashed or was forcefully shut off.",
-                    ServiceName);
-                Log.Warn(msg);
-                SendAdminEmail(msg);
+                Log.Error("WARNING: {0} was not shut down properly last time!\n\nThis could " +
+                    "indicate the computer has crashed or was forcefully shut off.", ServiceName);
             }
             _status.CleanShutdown = false;
 
@@ -327,10 +311,7 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                // FIXME: combine log and admin-email!
-                var warn = string.Format("GraceLocationSummary() failed: {0}", ex.Message);
-                Log.Warn(warn);
-                SendAdminEmail(warn);
+                Log.Error("GraceLocationSummary() failed: {0}", ex.Message);
             }
 
             Log.Debug(msg);
