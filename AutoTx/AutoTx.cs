@@ -255,7 +255,7 @@ namespace AutoTx
                 SetupMailLogging();
 
             var configInvalid = false;
-            if (CheckSpoolingDirectories() == false) {
+            if (FsUtils.CheckSpoolingDirectories(_incomingPath, _managedPath) == false) {
                 Log.Error("ERROR checking spooling directories (incoming / managed)!");
                 configInvalid = true;
             }
@@ -783,19 +783,6 @@ namespace AutoTx
                 return false;
             }
             return true;
-        }
-
-        /// <summary>
-        /// Ensure the required spooling directories (managed/incoming) exist.
-        /// </summary>
-        /// <returns>True if all dirs exist or were created successfully.</returns>
-        private bool CheckSpoolingDirectories() {
-            var retval = FsUtils.CheckForDirectory(_incomingPath);
-            retval &= FsUtils.CheckForDirectory(_managedPath);
-            retval &= FsUtils.CheckForDirectory(Path.Combine(_managedPath, "PROCESSING"));
-            retval &= FsUtils.CheckForDirectory(Path.Combine(_managedPath, "DONE"));
-            retval &= FsUtils.CheckForDirectory(Path.Combine(_managedPath, "UNMATCHED"));
-            return retval;
         }
 
         /// <summary>

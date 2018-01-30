@@ -185,5 +185,20 @@ namespace ATXCommon
                 Log.Error("Error collecting orphaned files: {0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
+
+        /// <summary>
+        /// Ensure the required spooling directories (managed/incoming) exist.
+        /// </summary>
+        /// <param name="incoming">The path to the incoming location.</param>
+        /// <param name="managed">The path to the managed location.</param>
+        /// <returns>True if all dirs exist or were created successfully.</returns>
+        public static bool CheckSpoolingDirectories(string incoming, string managed) {
+            var retval = CheckForDirectory(incoming);
+            retval &= CheckForDirectory(managed);
+            retval &= CheckForDirectory(Path.Combine(managed, "PROCESSING"));
+            retval &= CheckForDirectory(Path.Combine(managed, "DONE"));
+            retval &= CheckForDirectory(Path.Combine(managed, "UNMATCHED"));
+            return retval;
+        }
     }
 }
