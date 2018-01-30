@@ -28,7 +28,7 @@ namespace AutoTx
 
             // the user name is expected to be the last part of the path:
             _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
-            CreateNewDirectory(_status.CurrentTargetTmpFull(), false);
+            FsUtils.CreateNewDirectory(_status.CurrentTargetTmpFull(), false);
 
             _transferState = TxState.Active;
             _status.TransferInProgress = true;

@@ -12,6 +12,49 @@ namespace ATXCommon
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
+        /// Create a directory with the given name if it doesn't exist yet, otherwise
+        /// (optionally) create a new one using a date suffix to distinguish it from
+        /// the existing one.
+        /// </summary>
+        /// <param name="dirPath">The full path of the directory to be created.</param>
+        /// <param name="unique">Add a time-suffix to the name if the directory exists.</param>
+        /// <returns>The name of the (created or pre-existing) directory. This will only
+        /// differ from the input parameter "dirPath" if the "unique" parameter is set
+        /// to true (then it will give the newly generated name) or if an error occured
+        /// (in which case it will return an empty string).</returns>
+        public static string CreateNewDirectory(string dirPath, bool unique) {
+            try {
+                if (Directory.Exists(dirPath)) {
+                    // if unique was not requested, return the name of the existing dir:
+                    if (unique == false)
+                        return dirPath;
+
+                    dirPath = dirPath + "_" + TimeUtils.Timestamp();
+                }
+                Directory.CreateDirectory(dirPath);
+                Log.Debug("Created directory: [{0}]", dirPath);
+                return dirPath;
+            }
+            catch (Exception ex) {
+                Log.Error("Error in CreateNewDirectory({0}): {1}", dirPath, ex.Message);
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Helper method to check if a directory exists, trying to create it if not.
+        /// </summary>
+        /// <param name="path">The full path of the directory to check / create.</param>
+        /// <returns>True if existing or creation was successful, false otherwise.</returns>
+        public static bool CheckForDirectory(string path) {
+            if (string.IsNullOrWhiteSpace(path)) {
+                Log.Error("ERROR: CheckForDirectory() parameter must not be empty!");
+                return false;
+            }
+            return FsUtils.CreateNewDirectory(path, false) == path;
+        }
+
+        /// <summary>
         /// Recursively sum up size of all files under a given path.
         /// </summary>
         /// <param name="path">Full path of the directory.</param>
@@ -110,6 +153,37 @@ namespace ATXCommon
             }
             // if nothing triggered before, we pretend the dir is empty:
             return true;
+        }
+
+        /// <summary>
+        /// Collect individual files in the root of a given directory tree in a specific
+        /// sub-directory. A file name given as "ignoredName" will be skipped in the checks.
+        /// </summary>
+        /// <param name="userDir">The user directory to check for individual files.</param>
+        /// <param name="ignoredName">A filename that will be ignored.</param>
+        public static void CollectOrphanedFiles(DirectoryInfo userDir, string ignoredName) {
+            var fileList = userDir.GetFiles();
+            var orphanedDir = Path.Combine(userDir.FullName, "orphaned");
+            try {
+                if (fileList.Length > 1 ||
+                    (string.IsNullOrEmpty(ignoredName) && fileList.Length > 0)) {
+                    if (Directory.Exists(orphanedDir)) {
+                        Log.Info("Orphaned directory already exists, skipping individual files.");
+                        return;
+                    }
+                    Log.Debug("Found individual files, collecting them in 'orphaned' folder.");
+                    CreateNewDirectory(orphanedDir, false);
+                }
+                foreach (var file in fileList) {
+                    if (file.Name.Equals(ignoredName))
+                        continue;
+                    Log.Debug("Collecting orphan: [{0}]", file.Name);
+                    file.MoveTo(Path.Combine(orphanedDir, file.Name));
+                }
+            }
+            catch (Exception ex) {
+                Log.Error("Error collecting orphaned files: {0}\n{1}", ex.Message, ex.StackTrace);
+            }
         }
     }
 }

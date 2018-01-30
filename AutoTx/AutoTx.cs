@@ -677,44 +677,16 @@ namespace AutoTx
         #region filesystem tasks (check, move, ...)
 
         /// <summary>
-        /// Collect individual files in a user dir in a specific sub-directory. If a marker
-        /// file is set in the configuration, this will be skipped in the checks.
-        /// </summary>
-        /// <param name="userDir">The user directory to check for individual files.</param>
-        private void CollectOrphanedFiles(DirectoryInfo userDir) {
-            var fileList = userDir.GetFiles();
-            var orphanedDir = Path.Combine(userDir.FullName, "orphaned");
-            try {
-                if (fileList.Length > 1 ||
-                    (string.IsNullOrEmpty(_config.MarkerFile) && fileList.Length > 0)) {
-                    if (Directory.Exists(orphanedDir)) {
-                        Log.Info("Orphaned directory already exists, skipping individual files.");
-                        return;
-                    }
-                    Log.Debug("Found individual files, collecting them in 'orphaned' folder.");
-                    CreateNewDirectory(orphanedDir, false);
-                }
-                foreach (var file in fileList) {
-                    if (file.Name.Equals(_config.MarkerFile))
-                        continue;
-                    Log.Debug("Collecting orphan: [{0}]", file.Name);
-                    file.MoveTo(Path.Combine(orphanedDir, file.Name));
-                }
-            }
-            catch (Exception ex) {
-                Log.Error("Error collecting orphaned files: {0}\n{1}", ex.Message, ex.StackTrace);
-            }
-        }
-
-        /// <summary>
         /// Check the incoming directory for files and directories, move them over
         /// to the "processing" location (a sub-directory of ManagedDirectory).
         /// </summary>
+        /// CAUTION: this method is called as a consequence of the main timer being triggered, so
+        /// be aware that any message dispatched here could potentially show up every second!
         private void MoveToManagedLocation(DirectoryInfo userDir) {
             string errMsg;
             try {
                 // first check for individual files and collect them:
-                CollectOrphanedFiles(userDir);
+                FsUtils.CollectOrphanedFiles(userDir, _config.MarkerFile);
 
                 // the default subdir inside the managed directory, where folders will be
                 // picked up later by the actual transfer method:
@@ -793,7 +765,7 @@ namespace AutoTx
             try {
                 // make sure the target directory that should hold all subdirectories to
                 // be moved is existing:
-                if (string.IsNullOrEmpty(CreateNewDirectory(destPath, false))) {
+                if (string.IsNullOrEmpty(FsUtils.CreateNewDirectory(destPath, false))) {
                     Log.Warn("WARNING: destination path doesn't exist: {0}", destPath);
                     return false;
                 }
@@ -829,61 +801,15 @@ namespace AutoTx
         }
 
         /// <summary>
-        /// Create a directory with the given name if it doesn't exist yet, otherwise
-        /// (optionally) create a new one using a date suffix to distinguish it from
-        /// the existing one.
-        /// </summary>
-        /// <param name="dirPath">The full path of the directory to be created.</param>
-        /// <param name="unique">Add a time-suffix to the name if the directory exists.</param>
-        /// <returns>The name of the (created or pre-existing) directory. This will only
-        /// differ from the input parameter "dirPath" if the "unique" parameter is set
-        /// to true (then it will give the newly generated name) or if an error occured
-        /// (in which case it will return an empty string).</returns>
-        private string CreateNewDirectory(string dirPath, bool unique) {
-            try {
-                if (Directory.Exists(dirPath)) {
-                    // if unique was not requested, return the name of the existing dir:
-                    if (unique == false)
-                        return dirPath;
-                    
-                    dirPath = dirPath + "_" + TimeUtils.Timestamp();
-                }
-                Directory.CreateDirectory(dirPath);
-                Log.Debug("Created directory: [{0}]", dirPath);
-                return dirPath;
-            }
-            catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error in CreateNewDirectory({0}): {1}", dirPath, ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
-            }
-            return "";
-        }
-
-        /// <summary>
-        /// Helper method to check if a directory exists, trying to create it if not.
-        /// </summary>
-        /// <param name="path">The full path of the directory to check / create.</param>
-        /// <returns>True if existing or creation was successful, false otherwise.</returns>
-        private bool CheckForDirectory(string path) {
-            if (string.IsNullOrWhiteSpace(path)) {
-                Log.Error("ERROR: CheckForDirectory() parameter must not be empty!");
-                return false;
-            }
-            return CreateNewDirectory(path, false) == path;
-        }
-
-        /// <summary>
         /// Ensure the required spooling directories (managed/incoming) exist.
         /// </summary>
         /// <returns>True if all dirs exist or were created successfully.</returns>
         private bool CheckSpoolingDirectories() {
-            var retval = CheckForDirectory(_incomingPath);
-            retval &= CheckForDirectory(_managedPath);
-            retval &= CheckForDirectory(Path.Combine(_managedPath, "PROCESSING"));
-            retval &= CheckForDirectory(Path.Combine(_managedPath, "DONE"));
-            retval &= CheckForDirectory(Path.Combine(_managedPath, "UNMATCHED"));
+            var retval = FsUtils.CheckForDirectory(_incomingPath);
+            retval &= FsUtils.CheckForDirectory(_managedPath);
+            retval &= FsUtils.CheckForDirectory(Path.Combine(_managedPath, "PROCESSING"));
+            retval &= FsUtils.CheckForDirectory(Path.Combine(_managedPath, "DONE"));
+            retval &= FsUtils.CheckForDirectory(Path.Combine(_managedPath, "UNMATCHED"));
             return retval;
         }
 
@@ -911,7 +837,7 @@ namespace AutoTx
                 if (!_remoteUserDirs.Contains(userDir))
                     continue;
 
-                CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
+                FsUtils.CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
             }
             _lastUserDirCheck = DateTime.Now;
         }
