@@ -10,6 +10,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using ATXCommon;
+using ATXCommon.NLog;
 using ATXCommon.Serializables;
 using RoboSharp;
 
@@ -120,6 +121,8 @@ namespace AutoTx
                     _config.HostAlias, Environment.MachineName, LogFormatDefault);
 
                 var logConfig = LogManager.Configuration;
+
+                // "Fatal" target
                 var mailTargetFatal = new MailTarget {
                     Name = "mailfatal",
                     SmtpServer = _config.SmtpHost,
@@ -129,9 +132,14 @@ namespace AutoTx
                     Subject = subject,
                     Body = body,
                 };
-                logConfig.AddTarget(mailTargetFatal);
-                logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatal);
+                var mailTargetFatalLimited = new RateLimitWrapper {
+                    Name = "mailfatallimited",
+                    WrappedTarget = mailTargetFatal
+                };
+                logConfig.AddTarget(mailTargetFatalLimited);
+                logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatalLimited);
 
+                // "Error" target
                 if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAdress)) {
                     var mailTargetError = new MailTarget {
                         Name = "mailerror",
@@ -142,8 +150,12 @@ namespace AutoTx
                         Subject = subject,
                         Body = body,
                     };
-                    logConfig.AddTarget(mailTargetError);
-                    logConfig.AddRuleForOneLevel(LogLevel.Error, mailTargetError);
+                    var mailTargetErrorLimited = new RateLimitWrapper {
+                        Name = "mailerrorlimited",
+                        WrappedTarget = mailTargetError
+                    };
+                    logConfig.AddTarget(mailTargetErrorLimited);
+                    logConfig.AddRuleForOneLevel(LogLevel.Error, mailTargetErrorLimited);
                     Log.Info("Configured mail notification for 'Error' messages to {0}", mailTargetError.To);
                 }
                 Log.Info("Configured mail notification for 'Fatal' messages to {0}", mailTargetFatal.To);

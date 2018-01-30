@@ -49,6 +49,7 @@
     <Compile Include="ActiveDirectory.cs" />
     <Compile Include="Conv.cs" />
     <Compile Include="FsUtils.cs" />
+    <Compile Include="NLog\RateLimitWrapper.cs" />
     <Compile Include="Serializables\DriveToCheck.cs" />
     <Compile Include="Serializables\ServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
