@@ -82,7 +82,7 @@ namespace AutoTx
 
             var delta = TimeUtils.MinutesSince(_status.LastAdminNotification);
             if (delta < _config.AdminNotificationDelta) {
-                Log.Debug("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
+                Log.Warn("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
                     delta, _config.AdminNotificationDelta, subject, body);
                 return;
             }
