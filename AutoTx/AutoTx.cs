@@ -300,7 +300,7 @@ namespace AutoTx
 
             msg += "\n------ Grace location status (threshold: " + _config.GracePeriod + ") ------\n";
             try {
-                var tmp = GraceLocationSummary(_config.GracePeriod);
+                var tmp = SendGraceLocationSummary(_config.GracePeriod);
                 if (string.IsNullOrEmpty(tmp)) {
                     msg += " -- NO EXPIRED folders in grace location! --\n";
                 } else {
@@ -721,7 +721,7 @@ namespace AutoTx
                         sourceDirectory.Parent.Delete();
                     // check age and size of existing folders in the grace location after
                     // a transfer has completed, trigger a notification if necessary:
-                    Log.Debug(GraceLocationSummary(_config.GracePeriod));
+                    Log.Debug(SendGraceLocationSummary(_config.GracePeriod));
                     return;
                 }
                 errMsg = "unable to move " + sourceDirectory.FullName;
@@ -759,39 +759,6 @@ namespace AutoTx
                 FsUtils.CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
             }
             _lastUserDirCheck = DateTime.Now;
-        }
-
-        /// <summary>
-        /// Generate a report on expired folders in the grace location.
-        /// 
-        /// Check all user-directories in the grace location for subdirectories whose timestamp
-        /// (the directory name) exceeds the configured grace period and generate a summary
-        /// containing the age and size of those directories. The summary will be sent to the admin
-        /// if the configured GraceNotificationDelta has passed since the last email.
-        /// </summary>
-        /// <param name="threshold">The number of days used as expiration threshold.</param>
-        public string GraceLocationSummary(int threshold) {
-            var doneDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
-            var expired = FsUtils.ExpiredDirs(doneDir, threshold);
-            var report = "";
-            foreach (var userdir in expired.Keys) {
-                report += "\n - user '" + userdir + "'\n";
-                foreach (var subdir in expired[userdir]) {
-                    report += string.Format("   - {0} [age: {2} days, size: {1}]\n",
-                        subdir.Item1, Conv.BytesToString(subdir.Item2), subdir.Item3);
-                }
-            }
-            if (string.IsNullOrEmpty(report))
-                return "";
-            report = "Expired folders in grace location:\n" + report;
-            var delta = TimeUtils.MinutesSince(_status.LastGraceNotification);
-            report += "\nTime since last grace notification: " + delta + "\n";
-            if (delta >= _config.GraceNotificationDelta) {
-                SendAdminEmail(report, "Grace location cleanup required.");
-                _status.LastGraceNotification = DateTime.Now;
-                report += "\nNotification sent to AdminEmailAdress.\n";
-            }
-            return report;
         }
 
         #endregion

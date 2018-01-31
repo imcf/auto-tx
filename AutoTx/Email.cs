@@ -218,5 +218,29 @@ namespace AutoTx
                 SendAdminEmail(msg);
             }
         }
+
+        /// <summary>
+        /// Send a report on expired folders in the grace location if applicable.
+        /// 
+        /// Create a summary of expired folders and send it to the admin address
+        /// if the configured GraceNotificationDelta has passed since the last email.
+        /// </summary>
+        /// <param name="threshold">The number of days used as expiration threshold.</param>
+        /// <returns>The summary report, empty if no expired folders exist.</returns>
+        private string SendGraceLocationSummary(int threshold) {
+            var report = FsUtils.GraceLocationSummary(
+                new DirectoryInfo(Path.Combine(_managedPath, "DONE")), threshold);
+            if (string.IsNullOrEmpty(report))
+                return "";
+
+            var delta = TimeUtils.MinutesSince(_status.LastGraceNotification);
+            report += "\nTime since last grace notification: " + delta + "\n";
+            if (delta < _config.GraceNotificationDelta)
+                return report;
+
+            _status.LastGraceNotification = DateTime.Now;
+            SendAdminEmail(report, "Grace location cleanup required.");
+            return report + "\nNotification sent to AdminEmailAdress.\n";
+        }
     }
 }

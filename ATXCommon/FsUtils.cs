@@ -123,6 +123,31 @@ namespace ATXCommon
         }
 
         /// <summary>
+        /// Generate a report on expired folders in the grace location.
+        /// 
+        /// Check all user-directories in the grace location for subdirectories whose timestamp
+        /// (the directory name) exceeds the configured grace period and generate a summary
+        /// containing the age and size of those directories.
+        /// </summary>
+        /// <param name="graceLocation">The location to scan for expired folders.</param>
+        /// <param name="threshold">The number of days used as expiration threshold.</param>
+        public static string GraceLocationSummary(DirectoryInfo graceLocation, int threshold) {
+            var expired = ExpiredDirs(graceLocation, threshold);
+            var report = "";
+            foreach (var userdir in expired.Keys) {
+                report += "\n - user '" + userdir + "'\n";
+                foreach (var subdir in expired[userdir]) {
+                    report += string.Format("   - {0} [age: {2} days, size: {1}]\n",
+                        subdir.Item1, Conv.BytesToString(subdir.Item2), subdir.Item3);
+                }
+            }
+            if (string.IsNullOrEmpty(report))
+                return "";
+
+            return "Expired folders in grace location:\n" + report;
+        }
+
+        /// <summary>
         /// Check if a given directory is empty. If a marker file is set in the config a
         /// file with this name will be created inside the given directory and will be
         /// skipped itself when checking for files and directories.
