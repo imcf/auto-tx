@@ -200,5 +200,56 @@ namespace ATXCommon
             retval &= CheckForDirectory(Path.Combine(managed, "UNMATCHED"));
             return retval;
         }
+
+        /// <summary>
+        /// Move all subdirectories of a given path into a destination directory. The destination
+        /// will be created if it doesn't exist yet. If a subdirectory of the same name already
+        /// exists in the destination, a timestamp-suffix is added to the new one.
+        /// </summary>
+        /// <param name="sourceDir">The source path as DirectoryInfo object.</param>
+        /// <param name="destPath">The destination path as a string.</param>
+        /// <param name="resetAcls">Whether to reset the ACLs on the moved subdirectories.</param>
+        /// <returns>True on success, false otherwise.</returns>
+        public static bool MoveAllSubDirs(DirectoryInfo sourceDir, string destPath, bool resetAcls = false) {
+            // TODO: check whether _transferState should be adjusted while moving dirs!
+            Log.Debug("MoveAllSubDirs: [{0}] to [{1}]", sourceDir.FullName, destPath);
+            try {
+                // make sure the target directory that should hold all subdirectories to
+                // be moved is existing:
+                if (string.IsNullOrEmpty(FsUtils.CreateNewDirectory(destPath, false))) {
+                    Log.Warn("WARNING: destination path doesn't exist: {0}", destPath);
+                    return false;
+                }
+
+                foreach (var subDir in sourceDir.GetDirectories()) {
+                    var target = Path.Combine(destPath, subDir.Name);
+                    // make sure NOT to overwrite the subdirectories:
+                    if (Directory.Exists(target))
+                        target += "_" + TimeUtils.Timestamp();
+                    Log.Debug(" - [{0}] > [{1}]", subDir.Name, target);
+                    subDir.MoveTo(target);
+
+                    if (!resetAcls)
+                        continue;
+
+                    try {
+                        var acl = Directory.GetAccessControl(target);
+                        acl.SetAccessRuleProtection(false, false);
+                        Directory.SetAccessControl(target, acl);
+                        Log.Debug("Successfully reset inherited ACLs on [{0}]", target);
+                    }
+                    catch (Exception ex) {
+                        Log.Error("Error resetting inherited ACLs on [{0}]:\n{1}",
+                            target, ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                Log.Error("Error moving directories: [{0}] > [{1}]\n{2}",
+                    sourceDir.FullName, destPath, ex.Message);
+                return false;
+            }
+            return true;
+        }
     }
 }
