@@ -7,7 +7,7 @@
     <ProjectGuid>{81E0A5AC-0E0D-4F98-B399-41A58612EF33}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ATXConfigTest</RootNamespace>
+    <RootNamespace>ATxConfigTest</RootNamespace>
     <AssemblyName>AutoTxConfigTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

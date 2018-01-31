@@ -4,7 +4,7 @@ using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
 
-namespace ATXConfigTest
+namespace ATxConfigTest
 {
     internal class AutoTxConfigTest
     {
