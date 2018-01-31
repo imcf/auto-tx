@@ -283,13 +283,21 @@ namespace ATXCommon.Serializables
                 "TransferInProgress: " + TransferInProgress + "\n" +
                 "CurrentTransferSize: " + CurrentTransferSize + "\n" +
                 "LastStatusUpdate: " +
-                LastStatusUpdate.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                LastStatusUpdate.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
+                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStatusUpdate)) +
+                " ago)\n" +
                 "LastStorageNotification: " +
-                LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
+                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStorageNotification)) +
+                " ago)\n" +
                 "LastAdminNotification: " +
-                LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
+                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastAdminNotification)) +
+                " ago)\n" +
                 "LastGraceNotification: " +
-                LastGraceNotification.ToString("yyyy-MM-dd HH:mm:ss") + "\n";
+                LastGraceNotification.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
+                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastGraceNotification)) +
+                " ago)\n";
         }
 
         #endregion validate and report

@@ -137,8 +137,9 @@ namespace ATXCommon
             foreach (var userdir in expired.Keys) {
                 report += "\n - user '" + userdir + "'\n";
                 foreach (var subdir in expired[userdir]) {
-                    report += string.Format("   - {0} [age: {2} days, size: {1}]\n",
-                        subdir.Item1, Conv.BytesToString(subdir.Item2), subdir.Item3);
+                    report += string.Format("   - {0} [age: {2}, size: {1}]\n",
+                        subdir.Item1, Conv.BytesToString(subdir.Item2),
+                        TimeUtils.DaysToHuman(subdir.Item3));
                 }
             }
             if (string.IsNullOrEmpty(report))

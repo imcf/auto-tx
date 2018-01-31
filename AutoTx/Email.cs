@@ -95,7 +95,8 @@ namespace AutoTx
             var delta = TimeUtils.MinutesSince(_status.LastAdminNotification);
             if (delta < _config.AdminNotificationDelta) {
                 Log.Warn("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
-                    delta, _config.AdminNotificationDelta, subject, body);
+                    TimeUtils.MinutesToHuman(delta),
+                    TimeUtils.MinutesToHuman(_config.AdminNotificationDelta), subject, body);
                 return;
             }
 
@@ -123,7 +124,8 @@ namespace AutoTx
 
             var delta = TimeUtils.MinutesSince(_status.LastStorageNotification);
             if (delta < _config.StorageNotificationDelta) {
-                Log.Trace("Only {0} minutes since last low-space-notification, skipping.", delta);
+                Log.Trace("Only {0} since last low-space-notification, skipping.",
+                    TimeUtils.MinutesToHuman(delta));
                 return;
             }
 
@@ -234,7 +236,8 @@ namespace AutoTx
                 return "";
 
             var delta = TimeUtils.MinutesSince(_status.LastGraceNotification);
-            report += "\nTime since last grace notification: " + delta + "\n";
+            report += "\nTime since last grace notification: " +
+                TimeUtils.MinutesToHuman(delta) + "\n";
             if (delta < _config.GraceNotificationDelta)
                 return report;
 

@@ -322,13 +322,14 @@ namespace ATXCommon.Serializables
                 "IncomingDirectory: " + IncomingDirectory + "\n" +
                 "MarkerFile: " + MarkerFile + "\n" +
                 "ManagedDirectory: " + ManagedDirectory + "\n" +
-                "GracePeriod: " + GracePeriod + "\n" +
+                "GracePeriod: " + GracePeriod + " (" +
+                TimeUtils.DaysToHuman(GracePeriod) + ")\n" +
                 "DestinationDirectory: " + DestinationDirectory + "\n" +
                 "TmpTransferDir: " + TmpTransferDir + "\n" +
                 "EnforceInheritedACLs: " + EnforceInheritedACLs + "\n" +
-                "ServiceTimer: " + ServiceTimer + "\n" +
+                "ServiceTimer: " + ServiceTimer + " ms\n" +
                 "InterPacketGap: " + InterPacketGap + "\n" +
-                "MaxCpuUsage: " + MaxCpuUsage + "\n" +
+                "MaxCpuUsage: " + MaxCpuUsage + "%\n" +
                 "MinAvailableMemory: " + MinAvailableMemory + "\n";
             foreach (var processName in BlacklistedProcesses) {
                 msg += "BlacklistedProcess: " + processName + "\n";
@@ -347,9 +348,12 @@ namespace ATXCommon.Serializables
                     "EmailFrom: " + EmailFrom + "\n" +
                     "AdminEmailAdress: " + AdminEmailAdress + "\n" +
                     "AdminDebugEmailAdress: " + AdminDebugEmailAdress + "\n" +
-                    "StorageNotificationDelta: " + StorageNotificationDelta + "\n" +
-                    "AdminNotificationDelta: " + AdminNotificationDelta + "\n" +
-                    "GraceNotificationDelta: " + GraceNotificationDelta + "\n";
+                    "StorageNotificationDelta: " + StorageNotificationDelta + " (" +
+                    TimeUtils.MinutesToHuman(StorageNotificationDelta) + ")\n" +
+                    "AdminNotificationDelta: " + AdminNotificationDelta + " (" +
+                    TimeUtils.MinutesToHuman(AdminNotificationDelta) + ")\n" +
+                    "GraceNotificationDelta: " + GraceNotificationDelta + " (" +
+                    TimeUtils.MinutesToHuman(GraceNotificationDelta) + ")\n";
             }
             return msg;
         }

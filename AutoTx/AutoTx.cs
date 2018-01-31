@@ -417,8 +417,9 @@ namespace AutoTx
                 if (_mainTimer.Interval > maxInterval)
                     _mainTimer.Interval = maxInterval;
                 Log.Error("Unhandled exception in OnTimedEvent(): {0}\n\n" +
-                    "Trying exponential backoff, setting timer interval to {1} ms.\n\n" +
-                    "StackTrace: {2}", ex.Message, _mainTimer.Interval, ex.StackTrace);
+                    "Trying exponential backoff, setting timer interval to {1} ms ({3}).\n\n" +
+                    "StackTrace: {2}", ex.Message, _mainTimer.Interval, ex.StackTrace,
+                    TimeUtils.SecondsToHuman((int)_mainTimer.Interval / 1000));
             }
             finally {
                 // make sure to enable the timer again:
