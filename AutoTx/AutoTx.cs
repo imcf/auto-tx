@@ -6,12 +6,12 @@ using System.Linq;
 using System.ServiceProcess;
 using System.IO;
 using System.Timers;
+using ATxCommon;
+using ATxCommon.NLog;
+using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
-using ATXCommon;
-using ATXCommon.NLog;
-using ATXCommon.Serializables;
 using RoboSharp;
 
 namespace AutoTx

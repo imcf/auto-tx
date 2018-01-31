@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Management;
-using ATXCommon;
+using ATxCommon;
 using RoboSharp;
 
 namespace AutoTx

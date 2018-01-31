@@ -4,7 +4,7 @@ using System.Timers;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using ATXCommon.Serializables;
+using ATxCommon.Serializables;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NLog;
 using NLog.Config;

@@ -4,7 +4,7 @@ using NLog.Common;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
 
-namespace ATXCommon.NLog
+namespace ATxCommon.NLog
 {
     /// <summary>
     /// A wrapper target for NLog, limiting the rate of messages being logged.

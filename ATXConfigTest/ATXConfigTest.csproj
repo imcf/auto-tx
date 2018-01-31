@@ -53,9 +53,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ATXCommon\ATXCommon.csproj">
+    <ProjectReference Include="..\ATxCommon\ATxCommon.csproj">
       <Project>{166D65D5-EE10-4364-8AA3-4D86BA5CE244}</Project>
-      <Name>ATXCommon</Name>
+      <Name>ATxCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

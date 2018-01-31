@@ -7,8 +7,8 @@
     <ProjectGuid>{166D65D5-EE10-4364-8AA3-4D86BA5CE244}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ATXCommon</RootNamespace>
-    <AssemblyName>ATXCommon</AssemblyName>
+    <RootNamespace>ATxCommon</RootNamespace>
+    <AssemblyName>ATxCommon</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

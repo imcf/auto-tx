@@ -6,7 +6,7 @@ using System.Linq;
 using System.Management;
 using NLog;
 
-namespace ATXCommon
+namespace ATxCommon
 {
     public static class SystemChecks
     {

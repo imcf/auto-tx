@@ -3,7 +3,7 @@ using System.IO;
 using System.Xml.Serialization;
 using NLog;
 
-namespace ATXCommon.Serializables
+namespace ATxCommon.Serializables
 {
     /// <summary>
     /// AutoTx service status class.

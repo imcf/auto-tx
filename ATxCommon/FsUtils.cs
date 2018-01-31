@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using NLog;
 
-namespace ATXCommon
+namespace ATxCommon
 {
     public static class FsUtils
     {

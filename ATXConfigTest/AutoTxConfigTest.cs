@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
+using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
-using ATXCommon.Serializables;
 
 namespace ATXConfigTest
 {

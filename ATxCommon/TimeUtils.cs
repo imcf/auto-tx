@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ATXCommon
+namespace ATxCommon
 {
     public static class TimeUtils
     {

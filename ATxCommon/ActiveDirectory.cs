@@ -2,7 +2,7 @@
 using System.DirectoryServices.AccountManagement;
 using NLog;
 
-namespace ATXCommon
+namespace ATxCommon
 {
     public static class ActiveDirectory
     {
