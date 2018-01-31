@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
+using NLog;
 
 namespace ATXCommon.Serializables
 {
     /// <summary>
-    /// configuration class based on xml
+    /// AutoTx service configuration class.
     /// </summary>
     [Serializable]
     public class ServiceConfig
     {
-        [XmlIgnore] public string ValidationWarnings;
+        [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public ServiceConfig() {
-            ValidationWarnings = "";
             // set values for the optional XML elements:
             SmtpHost = "";
             SmtpPort = 25;
@@ -76,13 +76,35 @@ namespace ATXCommon.Serializables
         /// </summary>
         public string TmpTransferDir { get; set; }
 
+        /// <summary>
+        /// The email address to be used as "From:" when sending mail notifications.
+        /// </summary>
         public string EmailFrom { get; set; }
 
+        /// <summary>
+        /// The interval (in ms) for checking for new files and system parameters.
+        /// </summary>
         public int ServiceTimer { get; set; }
 
+        /// <summary>
+        /// Maximum allowed CPU usage across all cores in percent. Running transfers will be paused
+        /// if this limit is exceeded.
+        /// </summary>
         public int MaxCpuUsage { get; set; }
+        
+        /// <summary>
+        /// Minimum amount of free RAM (in MB) required for the service to operate.
+        /// </summary>
         public int MinAvailableMemory { get; set; }
+
+        /// <summary>
+        /// Minimum amount of time in minutes between two mail notifications to the admin address.
+        /// </summary>
         public int AdminNotificationDelta { get; set; }
+
+        /// <summary>
+        /// Minimum amount of time in minutes between two low-storage-space notifications.
+        /// </summary>
         public int StorageNotificationDelta { get; set; }
 
         /// <summary>
@@ -91,8 +113,19 @@ namespace ATXCommon.Serializables
         /// </summary>
         public int GracePeriod { get; set; }
 
+        /// <summary>
+        /// Flag whether to send explicit mail notifications to the admin on selected events.
+        /// </summary>
         public bool SendAdminNotification { get; set; }
+        
+        /// <summary>
+        /// Flag whether to send a mail notification to the user upon completed transfers.
+        /// </summary>
         public bool SendTransferNotification { get; set; }
+
+        /// <summary>
+        /// Switch on debug log messages.
+        /// </summary>
         public bool Debug { get; set; }
 
         [XmlArray]
@@ -108,17 +141,52 @@ namespace ATXCommon.Serializables
 
         #region optional configuration parameters
 
+        /// <summary>
+        /// SMTP server used to send mails (if configured) and Fatal/Error log messages.
+        /// 
+        /// No mails will be sent if this is omitted.
+        /// </summary>
         public string SmtpHost { get; set; }
+
+        /// <summary>
+        /// SMTP username to authenticate when sending emails (if required).
+        /// </summary>
         public string SmtpUserCredential { get; set; }
+
+        /// <summary>
+        /// SMTP password to authenticate when sending emails (if required).
+        /// </summary>
         public string SmtpPasswortCredential { get; set; }
+
+        /// <summary>
+        /// SMTP port for sending emails (25 will be used if this entry is omitted).
+        /// </summary>
         public int SmtpPort { get; set; }
 
+        /// <summary>
+        /// A string to be added as a prefix to the subject when sending emails.
+        /// </summary>
         public string EmailPrefix { get; set; }
+
+        /// <summary>
+        /// The mail recipient address for admin notifications (including "Fatal" log messages).
+        /// </summary>
         public string AdminEmailAdress { get; set; }
+        
+        /// <summary>
+        /// The mail recipient address for debug notifications (including "Error" log messages).
+        /// </summary>
         public string AdminDebugEmailAdress { get; set; }
 
+        /// <summary>
+        /// Minimum time in minutes between two mails about expired folders in the grace location.
+        /// </summary>
         public int GraceNotificationDelta { get; set; }
 
+        /// <summary>
+        /// RoboCopy parameter for limiting the bandwidth (mostly for testing purposes).
+        /// </summary>
+        /// See the RoboCopy documentation for more details.
         public int InterPacketGap { get; set; }
 
         /// <summary>
@@ -129,6 +197,51 @@ namespace ATXCommon.Serializables
 
         #endregion
 
+        
+        #region wrappers for derived parameters
+
+        /// <summary>
+        /// The full path to the incoming directory.
+        /// </summary>
+        [XmlIgnore]
+        public string IncomingPath {
+            get { return Path.Combine(SourceDrive, IncomingDirectory); }
+        }
+
+        /// <summary>
+        /// The full path to the managed directory.
+        /// </summary>
+        [XmlIgnore]
+        public string ManagedPath {
+            get { return Path.Combine(SourceDrive, ManagedDirectory); }
+        }
+
+        /// <summary>
+        /// The full path to the processing directory.
+        /// </summary>
+        [XmlIgnore]
+        public string ProcessingPath {
+            get { return Path.Combine(ManagedPath, "PROCESSING"); }
+        }
+
+        /// <summary>
+        /// The full path to the done directory / grace location.
+        /// </summary>
+        [XmlIgnore]
+        public string DonePath {
+            get { return Path.Combine(ManagedPath, "DONE"); }
+        }
+
+        /// <summary>
+        /// The full path to the directory for unmatched user directories.
+        /// </summary>
+        [XmlIgnore]
+        public string UnmatchedPath {
+            get { return Path.Combine(ManagedPath, "UNMATCHED"); }
+        }
+
+        #endregion
+
 
         public static void Serialize(string file, ServiceConfig c) {
             // the config is never meant to be written by us, therefore:
@@ -136,14 +249,20 @@ namespace ATXCommon.Serializables
         }
 
         public static ServiceConfig Deserialize(string file) {
+            Log.Debug("Trying to read service configuration XML file: [{0}]", file);
             var xs = new XmlSerializer(typeof(ServiceConfig));
             var reader = File.OpenText(file);
             var config = (ServiceConfig) xs.Deserialize(reader);
             reader.Close();
             ValidateConfiguration(config);
+            Log.Debug("Finished deserializing service configuration XML file.");
             return config;
         }
 
+
+        /// <summary>
+        /// Validate the configuration, throwing exceptions on invalid parameters.
+        /// </summary>
         private static void ValidateConfiguration(ServiceConfig c) {
             if (string.IsNullOrEmpty(c.SourceDrive) ||
                 string.IsNullOrEmpty(c.IncomingDirectory) ||
@@ -179,12 +298,23 @@ namespace ATXCommon.Serializables
                 throw new ConfigurationErrorsException("ServiceTimer must not be smaller than 1000 ms!");
 
 
-            // NON-CRITICAL stuff just adds messages to ValidationWarnings:
-            // DestinationDirectory
-            if (!c.DestinationDirectory.StartsWith(@"\\"))
-                c.ValidationWarnings += " - <DestinationDirectory> is not a UNC path!\n";
+            // NON-CRITICAL stuff is simply reported to the logs:
+            if (!c.DestinationDirectory.StartsWith(@"\\")) {
+                ReportNonOptimal("DestinationDirectory", c.DestinationDirectory, "is not a UNC path!");
+            }
         }
 
+        /// <summary>
+        /// Print a standardized msg about a non-optimal configuration setting to the log.
+        /// </summary>
+        private static void ReportNonOptimal(string attribute, string value, string msg) {
+            Log.Warn(">>> Non-optimal setting detected: <{0}> [{1}] {2}", attribute, value, msg);
+        }
+
+        /// <summary>
+        /// Generate a human-readable sumary of the current configuration.
+        /// </summary>
+        /// <returns>A string with details on the configuration.</returns>
         public string Summary() {
             var msg =
                 "HostAlias: " + HostAlias + "\n" +
@@ -192,20 +322,23 @@ namespace ATXCommon.Serializables
                 "IncomingDirectory: " + IncomingDirectory + "\n" +
                 "MarkerFile: " + MarkerFile + "\n" +
                 "ManagedDirectory: " + ManagedDirectory + "\n" +
-                "GracePeriod: " + GracePeriod + "\n" +
+                "GracePeriod: " + GracePeriod + " (" +
+                TimeUtils.DaysToHuman(GracePeriod) + ")\n" +
                 "DestinationDirectory: " + DestinationDirectory + "\n" +
                 "TmpTransferDir: " + TmpTransferDir + "\n" +
                 "EnforceInheritedACLs: " + EnforceInheritedACLs + "\n" +
-                "ServiceTimer: " + ServiceTimer + "\n" +
+                "ServiceTimer: " + ServiceTimer + " ms\n" +
                 "InterPacketGap: " + InterPacketGap + "\n" +
-                "MaxCpuUsage: " + MaxCpuUsage + "\n" +
+                "MaxCpuUsage: " + MaxCpuUsage + "%\n" +
                 "MinAvailableMemory: " + MinAvailableMemory + "\n";
             foreach (var processName in BlacklistedProcesses) {
                 msg += "BlacklistedProcess: " + processName + "\n";
             }
             foreach (var driveToCheck in SpaceMonitoring) {
                 msg += "Drive to check free space: " + driveToCheck.DriveName +
-                       " (threshold: " + driveToCheck.SpaceThreshold + ")" + "\n";
+                       " (threshold: " +
+                       Conv.BytesToString(driveToCheck.SpaceThreshold * Conv.MegaBytes) +
+                       ")" + "\n";
             }
             if (string.IsNullOrEmpty(SmtpHost)) {
                 msg += "SmtpHost: ====== Not configured, disabling email! ======" + "\n";
@@ -215,9 +348,12 @@ namespace ATXCommon.Serializables
                     "EmailFrom: " + EmailFrom + "\n" +
                     "AdminEmailAdress: " + AdminEmailAdress + "\n" +
                     "AdminDebugEmailAdress: " + AdminDebugEmailAdress + "\n" +
-                    "StorageNotificationDelta: " + StorageNotificationDelta + "\n" +
-                    "AdminNotificationDelta: " + AdminNotificationDelta + "\n" +
-                    "GraceNotificationDelta: " + GraceNotificationDelta + "\n";
+                    "StorageNotificationDelta: " + StorageNotificationDelta + " (" +
+                    TimeUtils.MinutesToHuman(StorageNotificationDelta) + ")\n" +
+                    "AdminNotificationDelta: " + AdminNotificationDelta + " (" +
+                    TimeUtils.MinutesToHuman(AdminNotificationDelta) + ")\n" +
+                    "GraceNotificationDelta: " + GraceNotificationDelta + " (" +
+                    TimeUtils.MinutesToHuman(GraceNotificationDelta) + ")\n";
             }
             return msg;
         }

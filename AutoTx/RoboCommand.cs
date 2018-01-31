@@ -17,6 +17,7 @@ namespace AutoTx
         /// false. The currently processed path is stored in the global status
         /// variable CurrentTransferSrc.
         /// </summary>
+        /// <param name="sourcePath">The full path to a folder.</param>
         private void StartTransfer(string sourcePath) {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped)
@@ -27,7 +28,7 @@ namespace AutoTx
 
             // the user name is expected to be the last part of the path:
             _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
-            CreateNewDirectory(ExpandCurrentTargetTmp(), false);
+            FsUtils.CreateNewDirectory(_status.CurrentTargetTmpFull(), false);
 
             _transferState = TxState.Active;
             _status.TransferInProgress = true;
@@ -39,7 +40,7 @@ namespace AutoTx
 
                 // copy options
                 _roboCommand.CopyOptions.Source = sourcePath;
-                _roboCommand.CopyOptions.Destination = ExpandCurrentTargetTmp();
+                _roboCommand.CopyOptions.Destination = _status.CurrentTargetTmpFull();
 
                 // limit the transfer bandwidth by waiting between packets:
                 _roboCommand.CopyOptions.InterPacketGap = _config.InterPacketGap;
@@ -72,11 +73,11 @@ namespace AutoTx
                 _roboCommand.RetryOptions.RetryCount = 0;
                 _roboCommand.RetryOptions.RetryWaitTime = 2;
                 _roboCommand.Start();
-                writeLogDebug("Transfer started, total size: " + 
-                    _status.CurrentTransferSize / MegaBytes + " MB");
+                Log.Info("Transfer started, total size: {0}",
+                    Conv.BytesToString(_status.CurrentTransferSize));
             }
             catch (ManagementException ex) {
-                writeLog("Error in StartTransfer(): " + ex.Message);
+                Log.Error("Error in StartTransfer(): {0}", ex.Message);
             }
         }
 
@@ -88,10 +89,10 @@ namespace AutoTx
             if (_transferState != TxState.Active)
                 return;
 
-            writeLog("Pausing the active transfer...");
+            Log.Info("Pausing the active transfer...");
             _roboCommand.Pause();
             _transferState = TxState.Paused;
-            writeLogDebug("Transfer paused");
+            Log.Debug("Transfer paused");
         }
 
         /// <summary>
@@ -102,10 +103,10 @@ namespace AutoTx
             if (_transferState != TxState.Paused)
                 return;
 
-            writeLog("Resuming the paused transfer...");
+            Log.Info("Resuming the paused transfer...");
             _roboCommand.Resume();
             _transferState = TxState.Active;
-            writeLogDebug("Transfer resumed");
+            Log.Debug("Transfer resumed");
         }
 
         #region robocommand callbacks
@@ -123,7 +124,7 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                writeLog("Error in RsFileProcessed() " + ex.Message);
+                Log.Error("Error in RsFileProcessed(): {0}", ex.Message);
             }
         }
 
@@ -135,7 +136,7 @@ namespace AutoTx
                 return;
 
             _roboCommand.Stop();
-            writeLogDebug("Transfer stopped");
+            Log.Debug("Transfer stopped");
             _transferState = TxState.Stopped;
             _roboCommand.Dispose();
             _roboCommand = new RoboCommand();
@@ -153,7 +154,7 @@ namespace AutoTx
                 return;
 
             _txProgress = progress;
-            writeLogDebug("Transfer progress " + progress + "%");
+            Log.Debug("Transfer progress {0}%", progress);
         }
 
         #endregion

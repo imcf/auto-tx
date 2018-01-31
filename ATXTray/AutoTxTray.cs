@@ -6,12 +6,17 @@ using System.IO;
 using System.Windows.Forms;
 using ATXCommon.Serializables;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using Timer = System.Timers.Timer;
 
 namespace ATXTray
 {
     public class AutoTxTray : ApplicationContext
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         private static readonly string AppTitle = Path.GetFileNameWithoutExtension(Application.ExecutablePath);
         private static readonly Timer AppTimer = new Timer(1000);
         private static bool _terminate = false;
@@ -46,6 +51,26 @@ namespace ATXTray
         private readonly ToolStripMenuItem _miTxEnqueue = new ToolStripMenuItem();
 
         public AutoTxTray() {
+            
+            #region logging configuration
+            
+            var logConfig = new LoggingConfiguration();
+            var fileTarget = new FileTarget {
+                FileName = AppTitle + ".log",
+                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
+                // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
+            };
+            logConfig.AddTarget("file", fileTarget);
+            var logRule = new LoggingRule("*", LogLevel.Debug, fileTarget);
+            logConfig.LoggingRules.Add(logRule);
+            LogManager.Configuration = logConfig;
+            
+            #endregion
+
+
+            Log.Info("{0} initializing...", AppTitle);
+            Log.Debug(" - config file: [{0}]", ConfigFile);
+            Log.Debug(" - status file: [{0}]", StatusFile);
 
             _notifyIcon.Icon = _tiStopped;
             _notifyIcon.Visible = true;
@@ -54,13 +79,16 @@ namespace ATXTray
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
 
+            Log.Trace("Trying to read service config and status files...");
             try {
                 _config = ServiceConfig.Deserialize(ConfigFile);
                 ReadStatus();
+                Log.Trace("Completed reading service config and status files.");
                 SetupContextMenu();
             }
             catch (Exception ex) {
                 var msg = "Error during initialization: " + ex.Message;
+                Log.Error(msg);
                 _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
                 // we cannot terminate the message loop (Application.Run()) while the constructor
                 // is being run as it is not active yet - therefore we simply remember that we want
@@ -71,9 +99,13 @@ namespace ATXTray
 
             AppTimer.Elapsed += AppTimerElapsed;
             AppTimer.Enabled = true;
+            Log.Trace("Enabled timer.");
+
+            Log.Info("AutoTxTray initialization completed.");
         }
 
         private void SetupContextMenu() {
+            Log.Trace("Building context menu...");
             _miExit.Text = @"Exit";
             _miExit.Click += MiExitClick;
 
@@ -108,9 +140,11 @@ namespace ATXTray
             });
 
             _notifyIcon.ContextMenuStrip = _cmStrip;
+            Log.Trace("Finished building context menu.");
         }
         
         private void AutoTxTrayExit() {
+            Log.Info("Shutting down {0}.", AppTitle);
             _notifyIcon.Visible = false;
             Application.Exit();
         }
@@ -190,6 +224,7 @@ namespace ATXTray
             if (age == _statusAge)
                 return;
 
+            Log.Debug("Status file was updated, trying to re-read...");
             _statusAge = age;
             _status = ServiceStatus.Deserialize(StatusFile, _config);
         }

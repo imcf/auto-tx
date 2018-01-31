@@ -6,11 +6,12 @@ using System.Linq;
 using System.ServiceProcess;
 using System.IO;
 using System.Timers;
-using System.DirectoryServices.AccountManagement;
-using System.Globalization;
-using System.Management;
-using ATXCommon.Serializables;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 using ATXCommon;
+using ATXCommon.NLog;
+using ATXCommon.Serializables;
 using RoboSharp;
 
 namespace AutoTx
@@ -19,24 +20,20 @@ namespace AutoTx
     {
         #region global variables
 
-        // naming convention: variables ending with "Path" are strings, variables
-        // ending with "Dir" are DirectoryInfo objects
-        private string _configPath;
-        private string _statusPath;
-        private string _incomingPath;
-        private string _managedPath;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}";
+        // private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
 
-        private string[] _remoteUserDirs;
-        private string[] _localUserDirs;
+        // naming convention: variables containing "Path" are strings, variables
+        // containing "Dir" are DirectoryInfo objects
+        private string _pathToConfig;
+        private string _pathToStatus;
 
         private List<string> _transferredFiles = new List<string>();
 
         private int _txProgress;
 
-        private const int MegaBytes = 1024 * 1024;
-        private const int GigaBytes = 1024 * 1024 * 1024;
-
-        private DateTime _lastUserDirCheck = DateTime.Now;
+        private DateTime _lastUserDirCheck = DateTime.MinValue;
 
         // the transfer state:
         private enum TxState
@@ -71,9 +68,99 @@ namespace AutoTx
 
         public AutoTx() {
             InitializeComponent();
+            SetupFileLogging();
+            Log.Info("==========================================================================");
+            Log.Info("Attempting to start {0} service...", ServiceName);
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
+        }
+
+        /// <summary>
+        /// Set up NLog logging: targets, rules...
+        /// </summary>
+        private void SetupFileLogging() {
+            var logConfig = new LoggingConfiguration();
+            var fileTarget = new FileTarget {
+                FileName = ServiceName + ".log",
+                ArchiveAboveSize = 1000000,
+                ArchiveFileName = ServiceName + ".{#}.log",
+                MaxArchiveFiles = 9,
+                KeepFileOpen = true,
+                Layout = LogFormatDefault,
+            };
+            logConfig.AddTarget("file", fileTarget);
+            var logRuleFile = new LoggingRule("*", LogLevel.Debug, fileTarget);
+            logConfig.LoggingRules.Add(logRuleFile);
+            LogManager.Configuration = logConfig;
+        }
+
+        /// <summary>
+        /// Configure logging to email targets.
+        /// 
+        /// Depending on the configuration, set up the logging via email. If no SmtpHost or no
+        /// AdminEmailAdress is configured, nothing will be done. If they're set in the config file,
+        /// a log target for messages with level "Fatal" will be configured. In addition, if the
+        /// AdminDebugEmailAdress is set, another target for "Error" level messages is configured
+        /// using this address as recipient.
+        /// </summary>
+        private void SetupMailLogging() {
+            try {
+                if (string.IsNullOrWhiteSpace(_config.SmtpHost) ||
+                    string.IsNullOrWhiteSpace(_config.AdminEmailAdress))
+                    return;
+
+                var subject = string.Format("{0} - {1} - Admin Notification",
+                    ServiceName, Environment.MachineName);
+                var body = string.Format("Notification from '{0}' [{1}] (via NLog)\n\n{2}",
+                    _config.HostAlias, Environment.MachineName, LogFormatDefault);
+
+                var logConfig = LogManager.Configuration;
+
+                // "Fatal" target
+                var mailTargetFatal = new MailTarget {
+                    Name = "mailfatal",
+                    SmtpServer = _config.SmtpHost,
+                    SmtpPort = _config.SmtpPort,
+                    From = _config.EmailFrom,
+                    To = _config.AdminEmailAdress,
+                    Subject = subject,
+                    Body = body,
+                };
+                var mailTargetFatalLimited = new RateLimitWrapper {
+                    Name = "mailfatallimited",
+                    MinLogInterval = _config.AdminNotificationDelta,
+                    WrappedTarget = mailTargetFatal
+                };
+                logConfig.AddTarget(mailTargetFatalLimited);
+                logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatalLimited);
+
+                // "Error" target
+                if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAdress)) {
+                    var mailTargetError = new MailTarget {
+                        Name = "mailerror",
+                        SmtpServer = _config.SmtpHost,
+                        SmtpPort = _config.SmtpPort,
+                        From = _config.EmailFrom,
+                        To = _config.AdminDebugEmailAdress,
+                        Subject = subject,
+                        Body = body,
+                    };
+                    var mailTargetErrorLimited = new RateLimitWrapper {
+                        Name = "mailerrorlimited",
+                        MinLogInterval = _config.AdminNotificationDelta,
+                        WrappedTarget = mailTargetError
+                    };
+                    logConfig.AddTarget(mailTargetErrorLimited);
+                    logConfig.AddRuleForOneLevel(LogLevel.Error, mailTargetErrorLimited);
+                    Log.Info("Configured mail notification for 'Error' messages to {0}", mailTargetError.To);
+                }
+                Log.Info("Configured mail notification for 'Fatal' messages to {0}", mailTargetFatal.To);
+                LogManager.Configuration = logConfig;
+            }
+            catch (Exception ex) {
+                Log.Error("SetupMailLogging(): {0}", ex.Message);
+            }
         }
 
         /// <summary>
@@ -89,7 +176,7 @@ namespace AutoTx
                 eventLog.Log = ServiceName;
             }
             catch (Exception ex) {
-                writeLog("Error in createEventLog(): " + ex.Message, true);
+                Log.Error("Error in createEventLog(): " + ex.Message, true);
             }
         }
 
@@ -100,9 +187,8 @@ namespace AutoTx
             try {
                 _transferState = TxState.Stopped;
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                _logPath = Path.Combine(baseDir, "service.log");
-                _configPath = Path.Combine(baseDir, "configuration.xml");
-                _statusPath = Path.Combine(baseDir, "status.xml");
+                _pathToConfig = Path.Combine(baseDir, "configuration.xml");
+                _pathToStatus = Path.Combine(baseDir, "status.xml");
 
                 LoadConfigXml();
                 LoadStatusXml();
@@ -110,8 +196,7 @@ namespace AutoTx
                 _roboCommand = new RoboCommand();
             }
             catch (Exception ex) {
-                writeLog("Error in LoadSettings(): " + ex.Message + "\n" +
-                    ex.StackTrace, true);
+                Log.Error("LoadSettings() failed: {0}\n{1}", ex.Message, ex.StackTrace);
                 throw new Exception("Error in LoadSettings.");
             }
             // NOTE: this is explicitly called *outside* the try-catch block so an Exception
@@ -119,55 +204,54 @@ namespace AutoTx
             CheckConfiguration();
         }
 
-
         /// <summary>
         /// Load the configuration xml file.
         /// </summary>
         private void LoadConfigXml() {
             try {
-                _config = ServiceConfig.Deserialize(_configPath);
-                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
-                _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
-                writeLogDebug("Loaded config from " + _configPath);
+                _config = ServiceConfig.Deserialize(_pathToConfig);
+                Log.Debug("Loaded config from [{0}]", _pathToConfig);
             }
             catch (ConfigurationErrorsException ex) {
-                writeLog("ERROR validating configuration file [" + _configPath +
-                    "]: " + ex.Message);
+                Log.Error("ERROR validating configuration file [{0}]: {1}",
+                    _pathToConfig, ex.Message);
                 throw new Exception("Error validating configuration.");
             }
             catch (Exception ex) {
-                writeLog("Error loading configuration XML: " + ex.Message, true);
+                Log.Error("loading configuration XML failed: {0}", ex.Message);
                 // this should terminate the service process:
                 throw new Exception("Error loading config.");
             }
         }
-
 
         /// <summary>
         /// Load the status xml file.
         /// </summary>
         private void LoadStatusXml() {
             try {
-                writeLogDebug("Trying to load status from " + _statusPath);
-                _status = ServiceStatus.Deserialize(_statusPath, _config);
-                writeLogDebug("Loaded status from " + _statusPath);
+                Log.Debug("Trying to load status from [{0}]", _pathToStatus);
+                _status = ServiceStatus.Deserialize(_pathToStatus, _config);
+                Log.Debug("Loaded status from [{0}]", _pathToStatus);
             }
             catch (Exception ex) {
-                writeLog("Error loading status XML from [" + _statusPath + "]: "
-                         + ex.Message + "\n" + ex.StackTrace, true);
+                Log.Error("loading status XML from [{0}] failed: {1} {2}",
+                    _pathToStatus, ex.Message, ex.StackTrace);
                 // this should terminate the service process:
                 throw new Exception("Error loading status.");
             }
         }
 
-
         /// <summary>
         /// Check if loaded configuration is valid, print a summary to the log.
         /// </summary>
-        public void CheckConfiguration() {
+        private void CheckConfiguration() {
+            // non-critical / optional configuration parameters:
+            if (!string.IsNullOrWhiteSpace(_config.SmtpHost))
+                SetupMailLogging();
+
             var configInvalid = false;
-            if (CheckSpoolingDirectories() == false) {
-                writeLog("ERROR checking spooling directories (incoming / managed)!");
+            if (FsUtils.CheckSpoolingDirectories(_config.IncomingPath, _config.ManagedPath) == false) {
+                Log.Error("ERROR checking spooling directories (incoming / managed)!");
                 configInvalid = true;
             }
 
@@ -179,8 +263,8 @@ namespace AutoTx
             // then set it to false while the service is running until it is properly
             // shut down via the OnStop() method:
             if (_status.CleanShutdown == false) {
-                writeLog("WARNING: " + ServiceName + " was not shut down properly last time!\n\n" +
-                         "This could indicate the computer has crashed or was forcefully shut off.", true);
+                Log.Error("WARNING: {0} was not shut down properly last time!\n\nThis could " +
+                    "indicate the computer has crashed or was forcefully shut off.", ServiceName);
             }
             _status.CleanShutdown = false;
 
@@ -205,16 +289,17 @@ namespace AutoTx
 
             msg += "\n------ Current system parameters ------\n" +
                    "Hostname: " + Environment.MachineName + "\n" +
-                   "Free system memory: " + GetFreeMemory() + " MB" + "\n";
+                   "Free system memory: " + SystemChecks.GetFreeMemory() + " MB" + "\n";
             foreach (var driveToCheck in _config.SpaceMonitoring) {
                 msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
-                       GetFreeDriveSpace(driveToCheck.DriveName) + "\n";
+                       Conv.BytesToString(SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName)) + "\n";
             }
 
 
-            msg += "\n------ Grace location status (threshold: " + _config.GracePeriod + ") ------\n";
+            msg += "\n------ Grace location status, threshold: " + _config.GracePeriod + " days " +
+                "(" + TimeUtils.DaysToHuman(_config.GracePeriod) + ") ------\n";
             try {
-                var tmp = GraceLocationSummary(_config.GracePeriod);
+                var tmp = SendGraceLocationSummary(_config.GracePeriod);
                 if (string.IsNullOrEmpty(tmp)) {
                     msg += " -- NO EXPIRED folders in grace location! --\n";
                 } else {
@@ -222,18 +307,10 @@ namespace AutoTx
                 }
             }
             catch (Exception ex) {
-                writeLog("GraceLocationSummary() failed: " + ex.Message, true);
+                Log.Error("GraceLocationSummary() failed: {0}", ex.Message);
             }
 
-            if (!string.IsNullOrEmpty(_config.ValidationWarnings)) {
-                writeLog("WARNING: some configuration settings might not be optimal:\n" +
-                         _config.ValidationWarnings);
-            }
-            if (!string.IsNullOrEmpty(_status.ValidationWarnings)) {
-                writeLog("WARNING: some status parameters were invalid and have been reset:\n" +
-                         _status.ValidationWarnings);
-            }
-            writeLogDebug(msg);
+            Log.Debug(msg);
         }
 
         #endregion
@@ -250,17 +327,18 @@ namespace AutoTx
                 _mainTimer.Enabled = true;
             }
             catch (Exception ex) {
-                writeLog("Error in OnStart(): " + ex.Message, true);
+                Log.Error("Error in OnStart(): {0}", ex.Message);
+                throw;
             }
 
             // read the build timestamp from the resources:
             var buildTimestamp = Properties.Resources.BuildDate.Trim();
             var buildCommitName = Properties.Resources.BuildCommit.Trim();
-            writeLog("-----------------------");
-            writeLog(ServiceName + " service started.");
-            writeLog("build:  [" + buildTimestamp + "]");
-            writeLog("commit: [" + buildCommitName + "]");
-            writeLog("-----------------------");
+            Log.Info("-----------------------");
+            Log.Info("{0} service started.", ServiceName);
+            Log.Info("build:  [{0}]", buildTimestamp);
+            Log.Info("commit: [{0}]", buildCommitName);
+            Log.Info("-----------------------");
         }
 
         /// <summary>
@@ -269,7 +347,7 @@ namespace AutoTx
         /// the OnShutdown() method is used!
         /// </summary>
         protected override void OnStop() {
-            writeLog(ServiceName + " service stop requested...");
+            Log.Warn("{0} service stop requested...", ServiceName);
             if (_transferState != TxState.Stopped) {
                 _transferState = TxState.DoNothing;
                 // Stop() is calling Process.Kill() (immediately forcing a termination of the
@@ -281,19 +359,19 @@ namespace AutoTx
                     _roboCommand.Stop();
                 }
                 catch (Exception ex) {
-                    writeLog("Error terminating the RoboCopy process: " + ex.Message, true);
+                    Log.Error("Error terminating the RoboCopy process: {0}", ex.Message);
                 }
                 _status.TransferInProgress = true;
-                writeLog("Not all files were transferred - will resume upon next start");
-                writeLogDebug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
+                Log.Info("Not all files were transferred - will resume upon next start");
+                Log.Debug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
                 // should we delete an incompletely transferred file on the target?
                 SendTransferInterruptedMail();
             }
             // set the shutdown status to clean:
             _status.CleanShutdown = true;
-            writeLog("-----------------------");
-            writeLog(ServiceName + " service stopped");
-            writeLog("-----------------------");
+            Log.Info("-----------------------");
+            Log.Info("{0} service stopped", ServiceName);
+            Log.Info("-----------------------");
         }
 
         /// <summary>
@@ -301,7 +379,7 @@ namespace AutoTx
         /// it doesn't call the OnStop() method, so we have to do this explicitly.
         /// </summary>
         protected override void OnShutdown() {
-            writeLog("System is shutting down, requesting the service to stop.");
+            Log.Warn("System is shutting down, requesting the service to stop.");
             OnStop();
         }
 
@@ -309,9 +387,9 @@ namespace AutoTx
         /// Is executed when the service continues
         /// </summary>
         protected override void OnContinue() {
-            writeLog("-------------------------");
-            writeLog(ServiceName + " service resuming");
-            writeLog("-------------------------");
+            Log.Info("-------------------------");
+            Log.Info("{0} service resuming", ServiceName);
+            Log.Info("-------------------------");
         }
 
         /// <summary>
@@ -327,10 +405,24 @@ namespace AutoTx
             try {
                 RunMainTasks();
                 GC.Collect();
+                // if everything went fine, reset the timer interval to its default value, so the
+                // service can even recover from temporary problems itself (see below):
+                _mainTimer.Interval = _config.ServiceTimer;
             }
             catch (Exception ex) {
-                writeLog("Error in OnTimedEvent(): " + ex.Message, true);
-                writeLogDebug("Extended Error Info (StackTrace): " + ex.StackTrace);
+                // in case an Exception is reaching this level there is a good chance it is a
+                // permanent / recurring problem, therefore we increase the timer interval each
+                // time by a factor of ten (to avoid triggering the same issue every second and
+                // flooding the admins with emails):
+                _mainTimer.Interval *= 10;
+                // make sure the interval doesn't exceed half a day:
+                const int maxInterval = 1000 * 60 * 60 * 12;
+                if (_mainTimer.Interval > maxInterval)
+                    _mainTimer.Interval = maxInterval;
+                Log.Error("Unhandled exception in OnTimedEvent(): {0}\n\n" +
+                    "Trying exponential backoff, setting timer interval to {1} ms ({3}).\n\n" +
+                    "StackTrace: {2}", ex.Message, _mainTimer.Interval, ex.StackTrace,
+                    TimeUtils.SecondsToHuman((int)_mainTimer.Interval / 1000));
             }
             finally {
                 // make sure to enable the timer again:
@@ -350,12 +442,13 @@ namespace AutoTx
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
-            if (GetCpuUsage() >= _config.MaxCpuUsage)
+            if (SystemChecks.GetCpuUsage() >= _config.MaxCpuUsage)
                 limitReason = "CPU usage";
-            else if (GetFreeMemory() < _config.MinAvailableMemory)
+            else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
                 limitReason = "RAM usage";
             else {
-                var blacklistedProcess = CheckForBlacklistedProcesses();
+                var blacklistedProcess = SystemChecks.CheckForBlacklistedProcesses(
+                    _config.BlacklistedProcesses);
                 if (blacklistedProcess != "") {
                     limitReason = "blacklisted process '" + blacklistedProcess + "'";
                 }
@@ -366,17 +459,17 @@ namespace AutoTx
                 _status.ServiceSuspended = false;
                 if (!string.IsNullOrEmpty(_status.LimitReason)) {
                     _status.LimitReason = ""; // reset to force a message on next service suspend
-                    writeLog("Service resuming operation (all parameters in valid ranges).");
+                    Log.Info("Service resuming operation (all parameters in valid ranges).");
                 }
                 return;
             }
             
             // set state to "Running" if no-one is logged on:
-            if (NoUserIsLoggedOn()) {
+            if (SystemChecks.NoUserIsLoggedOn()) {
                 _status.ServiceSuspended = false;
                 if (!string.IsNullOrEmpty(_status.LimitReason)) {
                     _status.LimitReason = ""; // reset to force a message on next service suspend
-                    writeLog("Service resuming operation (no user logged on).");
+                    Log.Info("Service resuming operation (no user logged on).");
                 }
                 return;
             }
@@ -385,21 +478,21 @@ namespace AutoTx
             _status.ServiceSuspended = true;
             if (limitReason == _status.LimitReason)
                 return;
-            writeLog("Service suspended due to limitiations [" + limitReason + "].");
+            Log.Info("Service suspended due to limitiations [{0}].", limitReason);
             _status.LimitReason = limitReason;
         }
 
         /// <summary>
         /// Do the main tasks of the service, check system state, trigger transfers, ...
         /// </summary>
-        public void RunMainTasks() {
+        private void RunMainTasks() {
+            // throw new Exception("just a test exception from RunMainTasks");
+
             // mandatory tasks, run on every call:
-            CheckLogSize();
-            CheckFreeDiskSpace();
+            SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
 
-            var delta = (int)(DateTime.Now - _lastUserDirCheck).TotalSeconds;
-            if (delta >= 120)
+            if (TimeUtils.SecondsSince(_lastUserDirCheck) >= 120)
                 CreateIncomingDirectories();
 
             // tasks depending on the service state:
@@ -416,81 +509,8 @@ namespace AutoTx
 
         #endregion
 
-        #region ActiveDirectory, email address, user name, ...
-
-        /// <summary>
-        /// Check if a user is currently logged into Windows.
-        /// 
-        /// WARNING: this DOES NOT ACCOUNT for users logged in via RDP!!
-        /// </summary>
-        /// See https://stackoverflow.com/questions/5218778/ for the RDP problem.
-        private bool NoUserIsLoggedOn() {
-            var username = "";
-            try {
-                var searcher = new ManagementObjectSearcher("SELECT UserName " +
-                                                            "FROM Win32_ComputerSystem");
-                var collection = searcher.Get();
-                username = (string) collection.Cast<ManagementBaseObject>().First()["UserName"];
-            }
-            catch (Exception ex) {
-                writeLog("Error in getCurrentUsername(): " + ex.Message, true);
-            }
-            return username == "";
-        }
-
-        /// <summary>
-        /// Get the user email address from ActiveDirectory.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <returns>Email address of AD user, an empty string if not found.</returns>
-        public string GetEmailAddress(string username) {
-            try {
-                using (var pctx = new PrincipalContext(ContextType.Domain)) {
-                    using (var up = UserPrincipal.FindByIdentity(pctx, username)) {
-                        if (up != null && !String.IsNullOrEmpty(up.EmailAddress)) {
-                            return up.EmailAddress;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) {
-                writeLog("Can't find email address for " + username + ": " + ex.Message);
-            }
-            return "";
-        }
-
-        /// <summary>
-        /// Get the full user name (human-friendly) from ActiveDirectory.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <returns>A human-friendly string representation of the user principal.</returns>
-        public string GetFullUserName(string username) {
-            try {
-                using (var pctx = new PrincipalContext(ContextType.Domain)) {
-                    using (var up = UserPrincipal.FindByIdentity(pctx, username)) {
-                        if (up != null) return up.GivenName + " " + up.Surname;
-                    }
-                }
-            }
-            catch (Exception ex) {
-                writeLog("Can't find full name for " + username + ": " + ex.Message);
-            }
-            return "";
-        }
-
-        #endregion
 
         #region transfer tasks
-
-        /// <summary>
-        /// Helper method to generate the full path of the current temp directory.
-        /// </summary>
-        /// <returns>A string with the path to the last tmp dir.</returns>
-        private string ExpandCurrentTargetTmp() {
-            return Path.Combine(_config.DestinationDirectory,
-                _config.TmpTransferDir,
-                _status.CurrentTargetTmp);
-        }
 
         /// <summary>
         /// Assemble the transfer destination path and check if it exists.
@@ -508,7 +528,7 @@ namespace AutoTx
         /// <summary>
         /// Check for transfers to be finished, resumed or newly initiated.
         /// </summary>
-        public void RunTransferTasks() {
+        private void RunTransferTasks() {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped &&
                 _transferState != TxState.Paused) 
@@ -539,8 +559,7 @@ namespace AutoTx
                 return;
 
             // check the "processing" location for directories:
-            var processingDir = Path.Combine(_managedPath, "PROCESSING");
-            var queued = new DirectoryInfo(processingDir).GetDirectories();
+            var queued = new DirectoryInfo(_config.ProcessingPath).GetDirectories();
             if (queued.Length == 0)
                 return;
 
@@ -548,13 +567,13 @@ namespace AutoTx
             // having no subdirectories should not happen in theory - in practice it could e.g. if
             // an admin is moving around stuff while the service is operating, so better be safe:
             if (subdirs.Length == 0) {
-                writeLog("WARNING: empty processing directory found: " + queued[0].Name);
+                Log.Warn("WARNING: empty processing directory found: {0}", queued[0].Name);
                 try {
                     queued[0].Delete();
-                    writeLogDebug("Removed empty directory: " + queued[0].Name);
+                    Log.Debug("Removed empty directory: {0}", queued[0].Name);
                 }
                 catch (Exception ex) {
-                    writeLog("Error deleting directory: " + queued[0].Name + " - " + ex.Message);
+                    Log.Error("Error deleting directory: {0} - {1}", queued[0].Name, ex.Message);
                 }
                 return;
             }
@@ -564,7 +583,7 @@ namespace AutoTx
                 StartTransfer(subdirs[0].FullName);
             }
             catch (Exception ex) {
-                writeLog("Error checking for data to be transferred: " + ex.Message);
+                Log.Error("Error checking for data to be transferred: {0}", ex.Message);
                 throw;
             }
         }
@@ -574,11 +593,11 @@ namespace AutoTx
         /// </summary>
         private void CheckIncomingDirectories() {
             // iterate over all user-subdirectories:
-            foreach (var userDir in new DirectoryInfo(_incomingPath).GetDirectories()) {
-                if (IncomingDirIsEmpty(userDir))
+            foreach (var userDir in new DirectoryInfo(_config.IncomingPath).GetDirectories()) {
+                if (FsUtils.DirEmptyExcept(userDir, _config.MarkerFile))
                     continue;
 
-                writeLog("Found new files in " + userDir.FullName);
+                Log.Info("Found new files in [{0}]", userDir.FullName);
                 MoveToManagedLocation(userDir);
             }
         }
@@ -597,17 +616,18 @@ namespace AutoTx
                 return;
             
             if (_status.CurrentTargetTmp.Length > 0) {
-                writeLogDebug("Finalizing transfer, cleaning up target storage location...");
+                Log.Debug("Finalizing transfer, cleaning up target storage location...");
                 var finalDst = DestinationPath(_status.CurrentTargetTmp);
                 if (!string.IsNullOrWhiteSpace(finalDst)) {
-                    if (MoveAllSubDirs(new DirectoryInfo(ExpandCurrentTargetTmp()), finalDst, true)) {
+                    if (FsUtils.MoveAllSubDirs(new DirectoryInfo(_status.CurrentTargetTmpFull()),
+                        finalDst, _config.EnforceInheritedACLs)) {
                         _status.CurrentTargetTmp = "";
                     }
                 }
             }
 
             if (_status.CurrentTransferSrc.Length > 0) {
-                writeLogDebug("Finalizing transfer, moving local data to grace location...");
+                Log.Debug("Finalizing transfer, moving local data to grace location...");
                 MoveToGraceLocation();
                 SendTransferCompletedMail();
                 _status.CurrentTransferSrc = ""; // cleanup completed, so reset CurrentTransferSrc
@@ -630,8 +650,8 @@ namespace AutoTx
                 _status.TransferInProgress == false)
                 return;
 
-            writeLogDebug("Resuming interrupted transfer from '" + _status.CurrentTransferSrc +
-                          "' to '" + ExpandCurrentTargetTmp() + "'");
+            Log.Debug("Resuming interrupted transfer from [{0}] to [{1}]",
+                _status.CurrentTransferSrc, _status.CurrentTargetTmpFull());
             StartTransfer(_status.CurrentTransferSrc);
         }
 
@@ -640,102 +660,38 @@ namespace AutoTx
         #region filesystem tasks (check, move, ...)
 
         /// <summary>
-        /// Check if a given directory is empty. If a marker file is set in the config a
-        /// file with this name will be created inside the given directory and will be
-        /// skipped itself when checking for files and directories.
-        /// </summary>
-        /// <param name="dirInfo">The directory to check.</param>
-        /// <returns>True if access is denied or the dir is empty, false otherwise.</returns>
-        private bool IncomingDirIsEmpty(DirectoryInfo dirInfo) {
-            try {
-                var filesInTree = dirInfo.GetFiles("*", SearchOption.AllDirectories);
-                if (string.IsNullOrEmpty(_config.MarkerFile))
-                    return filesInTree.Length == 0;
-
-                // check if there is ONLY the marker file:
-                if (filesInTree.Length == 1 &&
-                    filesInTree[0].Name.Equals(_config.MarkerFile))
-                    return true;
-
-                // make sure the marker file is there:
-                var markerFilePath = Path.Combine(dirInfo.FullName, _config.MarkerFile);
-                if (! File.Exists(markerFilePath))
-                    File.Create(markerFilePath);
-
-                return filesInTree.Length == 0;
-            }
-            catch (Exception e) {
-                writeLog("Error accessing directories: " + e.Message);
-            }
-            // if nothing triggered before, we pretend the dir is empty:
-            return true;
-        }
-
-        /// <summary>
-        /// Collect individual files in a user dir in a specific sub-directory. If a marker
-        /// file is set in the configuration, this will be skipped in the checks.
-        /// </summary>
-        /// <param name="userDir">The user directory to check for individual files.</param>
-        private void CollectOrphanedFiles(DirectoryInfo userDir) {
-            var fileList = userDir.GetFiles();
-            var orphanedDir = Path.Combine(userDir.FullName, "orphaned");
-            try {
-                if (fileList.Length > 1 ||
-                    (string.IsNullOrEmpty(_config.MarkerFile) && fileList.Length > 0)) {
-                    if (Directory.Exists(orphanedDir)) {
-                        writeLog("Orphaned directory already exists, skipping individual files.");
-                        return;
-                    }
-                    writeLogDebug("Found individual files, collecting them in 'orphaned' folder.");
-                    CreateNewDirectory(orphanedDir, false);
-                }
-                foreach (var file in fileList) {
-                    if (file.Name.Equals(_config.MarkerFile))
-                        continue;
-                    writeLogDebug("Collecting orphan: " + file.Name);
-                    file.MoveTo(Path.Combine(orphanedDir, file.Name));
-                }
-            }
-            catch (Exception ex) {
-                writeLog("Error collecting orphaned files: " + ex.Message + ex.StackTrace);
-            }
-        }
-
-        /// <summary>
         /// Check the incoming directory for files and directories, move them over
         /// to the "processing" location (a sub-directory of ManagedDirectory).
         /// </summary>
+        /// CAUTION: this method is called as a consequence of the main timer being triggered, so
+        /// be aware that any message dispatched here could potentially show up every second!
         private void MoveToManagedLocation(DirectoryInfo userDir) {
             string errMsg;
             try {
                 // first check for individual files and collect them:
-                CollectOrphanedFiles(userDir);
+                FsUtils.CollectOrphanedFiles(userDir, _config.MarkerFile);
 
-                // the default subdir inside the managed directory, where folders will be
-                // picked up later by the actual transfer method:
-                var target = "PROCESSING";
+                // the default path where folders will be picked up by the actual transfer method:
+                var baseDir = _config.ProcessingPath;
 
                 // if the user has no directory on the destination move to UNMATCHED instead:
                 if (string.IsNullOrWhiteSpace(DestinationPath(userDir.Name))) {
-                    writeLog("Found unmatched incoming dir: " + userDir.Name, true);
-                    target = "UNMATCHED";
+                    Log.Error("Found unmatched incoming dir: {0}", userDir.Name);
+                    baseDir = _config.UnmatchedPath;
                 }
                 
                 // now everything that is supposed to be transferred is in a folder,
                 // for example: D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
-                var targetDir = Path.Combine(
-                    _managedPath,
-                    target,
-                    TimeUtils.Timestamp(),
-                    userDir.Name);
-                if (MoveAllSubDirs(userDir, targetDir))
+                var targetDir = Path.Combine(baseDir, TimeUtils.Timestamp(), userDir.Name);
+                if (FsUtils.MoveAllSubDirs(userDir, targetDir))
                     return;
+
                 errMsg = "unable to move " + userDir.FullName;
             }
             catch (Exception ex) {
                 errMsg = ex.Message;
             }
-            writeLog("MoveToManagedLocation(" + userDir.FullName + ") failed: " + errMsg, true);
+            Log.Error("MoveToManagedLocation({0}) failed: {1}", userDir.FullName, errMsg);
         }
 
         /// <summary>
@@ -743,26 +699,25 @@ namespace AutoTx
         /// a subdirectory with the current date and time as its name to denote the timepoint
         /// when the grace period for this data starts.
         /// </summary>
-        public void MoveToGraceLocation() {
+        private void MoveToGraceLocation() {
             string errMsg;
             // CurrentTransferSrc is e.g. D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
             var sourceDirectory = new DirectoryInfo(_status.CurrentTransferSrc);
             var dstPath = Path.Combine(
-                _managedPath,
-                "DONE",
+                _config.DonePath,
                 sourceDirectory.Name, // the username directory
                 TimeUtils.Timestamp());
-            // writeLogDebug("MoveToGraceLocation: src(" + sourceDirectory.FullName + ") dst(" + dstPath + ")");
+            Log.Trace("MoveToGraceLocation: src({0}) dst({1})", sourceDirectory.FullName, dstPath);
 
             try {
-                if (MoveAllSubDirs(sourceDirectory, dstPath)) {
+                if (FsUtils.MoveAllSubDirs(sourceDirectory, dstPath)) {
                     // clean up the processing location:
                     sourceDirectory.Delete();
                     if (sourceDirectory.Parent != null)
                         sourceDirectory.Parent.Delete();
                     // check age and size of existing folders in the grace location after
                     // a transfer has completed, trigger a notification if necessary:
-                    writeLogDebug(GraceLocationSummary(_config.GracePeriod));
+                    Log.Debug(SendGraceLocationSummary(_config.GracePeriod));
                     return;
                 }
                 errMsg = "unable to move " + sourceDirectory.FullName;
@@ -770,114 +725,7 @@ namespace AutoTx
             catch (Exception ex) {
                 errMsg = ex.Message;
             }
-            writeLog("MoveToGraceLocation() failed: " + errMsg, true);
-        }
-
-        /// <summary>
-        /// Move all subdirectories of a given path into a destination directory. The destination
-        /// will be created if it doesn't exist yet. If a subdirectory of the same name already
-        /// exists in the destination, a timestamp-suffix is added to the new one.
-        /// </summary>
-        /// <param name="sourceDir">The source path as DirectoryInfo object.</param>
-        /// <param name="destPath">The destination path as a string.</param>
-        /// <param name="resetAcls">Whether to reset the ACLs on the moved subdirectories.</param>
-        /// <returns>True on success, false otherwise.</returns>
-        private bool MoveAllSubDirs(DirectoryInfo sourceDir, string destPath, bool resetAcls = false) {
-            // TODO: check whether _transferState should be adjusted while moving dirs!
-            writeLogDebug("MoveAllSubDirs: " + sourceDir.FullName + " to " + destPath);
-            try {
-                // make sure the target directory that should hold all subdirectories to
-                // be moved is existing:
-                if (string.IsNullOrEmpty(CreateNewDirectory(destPath, false))) {
-                    writeLog("WARNING: destination path doesn't exist: " + destPath);
-                    return false;
-                }
-
-                foreach (var subDir in sourceDir.GetDirectories()) {
-                    var target = Path.Combine(destPath, subDir.Name);
-                    // make sure NOT to overwrite the subdirectories:
-                    if (Directory.Exists(target))
-                        target += "_" + TimeUtils.Timestamp();
-                    writeLogDebug(" - " + subDir.Name + " > " + target);
-                    subDir.MoveTo(target);
-
-                    if (resetAcls && _config.EnforceInheritedACLs) {
-                        try {
-                            var acl = Directory.GetAccessControl(target);
-                            acl.SetAccessRuleProtection(false, false);
-                            Directory.SetAccessControl(target, acl);
-                            writeLogDebug("Successfully reset inherited ACLs on " + target);
-                        }
-                        catch (Exception ex) {
-                            writeLog("Error resetting inherited ACLs on " + target + ":\n" +
-                                ex.Message);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) {
-                writeLog("Error moving directories: " + ex.Message + "\n" +
-                         sourceDir.FullName + "\n" +
-                         destPath, true);
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Create a directory with the given name if it doesn't exist yet, otherwise
-        /// (optionally) create a new one using a date suffix to distinguish it from
-        /// the existing one.
-        /// </summary>
-        /// <param name="dirPath">The full path of the directory to be created.</param>
-        /// <param name="unique">Add a time-suffix to the name if the directory exists.</param>
-        /// <returns>The name of the (created or pre-existing) directory. This will only
-        /// differ from the input parameter "dirPath" if the "unique" parameter is set
-        /// to true (then it will give the newly generated name) or if an error occured
-        /// (in which case it will return an empty string).</returns>
-        private string CreateNewDirectory(string dirPath, bool unique) {
-            try {
-                if (Directory.Exists(dirPath)) {
-                    // if unique was not requested, return the name of the existing dir:
-                    if (unique == false)
-                        return dirPath;
-                    
-                    dirPath = dirPath + "_" + TimeUtils.Timestamp();
-                }
-                Directory.CreateDirectory(dirPath);
-                writeLogDebug("Created directory: " + dirPath);
-                return dirPath;
-            }
-            catch (Exception ex) {
-                writeLog("Error in CreateNewDirectory(" + dirPath + "): " + ex.Message, true);
-            }
-            return "";
-        }
-
-        /// <summary>
-        /// Helper method to check if a directory exists, trying to create it if not.
-        /// </summary>
-        /// <param name="path">The full path of the directory to check / create.</param>
-        /// <returns>True if existing or creation was successful, false otherwise.</returns>
-        private bool CheckForDirectory(string path) {
-            if (string.IsNullOrWhiteSpace(path)) {
-                writeLog("ERROR: CheckForDirectory() parameter must not be empty!");
-                return false;
-            }
-            return CreateNewDirectory(path, false) == path;
-        }
-
-        /// <summary>
-        /// Ensure the required spooling directories (managed/incoming) exist.
-        /// </summary>
-        /// <returns>True if all dirs exist or were created successfully.</returns>
-        private bool CheckSpoolingDirectories() {
-            var retval = CheckForDirectory(_incomingPath);
-            retval &= CheckForDirectory(_managedPath);
-            retval &= CheckForDirectory(Path.Combine(_managedPath, "PROCESSING"));
-            retval &= CheckForDirectory(Path.Combine(_managedPath, "DONE"));
-            retval &= CheckForDirectory(Path.Combine(_managedPath, "UNMATCHED"));
-            return retval;
+            Log.Error("MoveToGraceLocation() failed: {0}", errMsg);
         }
 
         /// <summary>
@@ -885,116 +733,32 @@ namespace AutoTx
         /// user directory (C:\Users) AND in the DestinationDirectory.
         /// </summary>
         private void CreateIncomingDirectories() {
-            _localUserDirs = new DirectoryInfo(@"C:\Users")
+            var localUserDirs = new DirectoryInfo(@"C:\Users")
                 .GetDirectories()
                 .Select(d => d.Name)
                 .ToArray();
-            _remoteUserDirs = new DirectoryInfo(_config.DestinationDirectory)
+            var remoteUserDirs = new DirectoryInfo(_config.DestinationDirectory)
                 .GetDirectories()
                 .Select(d => d.Name)
                 .ToArray();
 
-            foreach (var userDir in _localUserDirs) {
+            foreach (var userDir in localUserDirs) {
                 // don't create an incoming directory for the same name as the
                 // temporary transfer location:
                 if (_config.TmpTransferDir == userDir)
                     continue;
 
                 // don't create a directory if it doesn't exist on the target:
-                if (!_remoteUserDirs.Contains(userDir))
+                if (!remoteUserDirs.Contains(userDir))
                     continue;
 
-                CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
+                FsUtils.CreateNewDirectory(Path.Combine(_config.IncomingPath, userDir), false);
             }
             _lastUserDirCheck = DateTime.Now;
-        }
-
-        /// <summary>
-        /// Generate a report on expired folders in the grace location.
-        /// 
-        /// Check all user-directories in the grace location for subdirectories whose timestamp
-        /// (the directory name) exceeds the configured grace period and generate a summary
-        /// containing the age and size of those directories. The summary will be sent to the admin
-        /// if the configured GraceNotificationDelta has passed since the last email.
-        /// </summary>
-        /// <param name="threshold">The number of days used as expiration threshold.</param>
-        public string GraceLocationSummary(int threshold) {
-            var expired = ExpiredDirs(threshold);
-            var report = "";
-            foreach (var userdir in expired.Keys) {
-                report += "\n - user '" + userdir + "'\n";
-                foreach (var subdir in expired[userdir]) {
-                    report += string.Format("   - {0} [age: {2} days, size: {1} MB]\n",
-                        subdir.Item1, subdir.Item2, subdir.Item3);
-                }
-            }
-            if (string.IsNullOrEmpty(report))
-                return "";
-            report = "Expired folders in grace location:\n" + report;
-            var delta = (int)(DateTime.Now - _status.LastGraceNotification).TotalMinutes;
-            report += "\nTime since last grace notification: " + delta + "\n";
-            if (delta >= _config.GraceNotificationDelta) {
-                SendAdminEmail(report, "Grace location cleanup required.");
-                _status.LastGraceNotification = DateTime.Now;
-                report += "\nNotification sent to AdminEmailAdress.\n";
-            }
-            return report;
-        }
-
-        /// <summary>
-        /// Assemble a dictionary with information about expired directories.
-        /// </summary>
-        /// <param name="thresh">The number of days used as expiration threshold.</param>
-        /// <returns>A dictionary having usernames as keys (of those users that actually do have
-        /// expired directories), where the values are lists of tuples with the DirInfo objects,
-        /// size and age (in days) of the expired directories.</returns>
-        private Dictionary<string, List<Tuple<DirectoryInfo, long, int>>> ExpiredDirs(int thresh) {
-            var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
-            var graceDir = new DirectoryInfo(Path.Combine(_managedPath, "DONE"));
-            var now = DateTime.Now;
-            foreach (var userdir in graceDir.GetDirectories()) {
-                var expired = new List<Tuple<DirectoryInfo, long, int>>();
-                foreach (var subdir in userdir.GetDirectories()) {
-                    var age = DirNameToAge(subdir, now);
-                    if (age < thresh)
-                        continue;
-                    long size = -1;
-                    try {
-                        size = FsUtils.GetDirectorySize(subdir.FullName) / MegaBytes;
-                    }
-                    catch (Exception ex) {
-                        writeLog("ERROR getting directory size of " + subdir.FullName +
-                            " - " + ex.Message);
-                    }
-                    expired.Add(new Tuple<DirectoryInfo, long, int>(subdir, size, age));
-                }
-                if (expired.Count > 0)
-                    collection.Add(userdir.Name, expired);
-            }
-            return collection;
-        }
-
-        /// <summary>
-        /// Convert the timestamp given by the NAME of a directory into the age in days.
-        /// </summary>
-        /// <param name="dir">The DirectoryInfo object to check for its name-age.</param>
-        /// <param name="baseTime">The DateTime object to compare to.</param>
-        /// <returns>The age in days, or -1 in case of an error.</returns>
-        private int DirNameToAge(DirectoryInfo dir, DateTime baseTime) {
-            DateTime dirTimestamp;
-            try {
-                dirTimestamp = DateTime.ParseExact(dir.Name, "yyyy-MM-dd__HH-mm-ss",
-                    CultureInfo.InvariantCulture);
-            }
-            catch (Exception ex) {
-                writeLogDebug("ERROR parsing timestamp from directory name '" +
-                              dir.Name + "', skipping: " + ex.Message);
-                return -1;
-            }
-            return (baseTime - dirTimestamp).Days;
         }
 
         #endregion
 
     }
 }
+

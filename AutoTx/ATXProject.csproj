@@ -50,6 +50,10 @@
     <StartupObject>AutoTx.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.3.11\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="RoboSharp">
       <HintPath>..\..\robosharp\RoboSharp\bin\Debug\RoboSharp.dll</HintPath>
     </Reference>
@@ -83,9 +87,6 @@
     <Compile Include="Email.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Logging.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
@@ -100,9 +101,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RoboCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="SystemChecks.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
@@ -142,13 +140,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\BuildDate.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BuildCommit.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ATXSerializables\ATXCommon.csproj">
+    <ProjectReference Include="..\ATXCommon\ATXCommon.csproj">
       <Project>{166D65D5-EE10-4364-8AA3-4D86BA5CE244}</Project>
       <Name>ATXCommon</Name>
     </ProjectReference>
