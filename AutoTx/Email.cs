@@ -72,6 +72,18 @@ namespace AutoTx
         }
 
         /// <summary>
+        /// Wrapper method to send an email and log a message using a format string.
+        /// 
+        /// TODO: Once logging has stabilized we can probably safely remove this method again!
+        /// </summary>
+        public void AdminDebugLog(string subject, string format, params object[] list) {
+            var msg = string.Format(format, list);
+            SendAdminEmail(msg, subject);
+            msg = subject + "\n" + msg;
+            Log.Error(msg);
+        }
+
+        /// <summary>
         /// Send a notification email to the AdminEmailAdress.
         /// </summary>
         /// <param name="body">The email text.</param>
