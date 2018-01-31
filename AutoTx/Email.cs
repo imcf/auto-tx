@@ -16,7 +16,7 @@ namespace AutoTx
         /// <param name="recipient">A full email address OR a valid ActiveDirectory account.</param>
         /// <param name="subject">The subject, might be prefixed with a configurable string.</param>
         /// <param name="body">The email body.</param>
-        public void SendEmail(string recipient, string subject, string body) {
+        private void SendEmail(string recipient, string subject, string body) {
             subject = _config.EmailPrefix + subject;
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
                 Log.Debug("SendEmail: {0}\n{1}", subject, body);
@@ -76,7 +76,7 @@ namespace AutoTx
         /// 
         /// TODO: Once logging has stabilized we can probably safely remove this method again!
         /// </summary>
-        public void AdminDebugLog(string subject, string format, params object[] list) {
+        private void AdminDebugLog(string subject, string format, params object[] list) {
             var msg = string.Format(format, list);
             SendAdminEmail(msg, subject);
             msg = subject + "\n" + msg;
@@ -88,7 +88,7 @@ namespace AutoTx
         /// </summary>
         /// <param name="body">The email text.</param>
         /// <param name="subject">Optional subject for the email.</param>
-        public void SendAdminEmail(string body, string subject = "") {
+        private void SendAdminEmail(string body, string subject = "") {
             if (_config.SendAdminNotification == false)
                 return;
 
@@ -117,7 +117,7 @@ namespace AutoTx
         /// Send a notification about low drive space to the admin.
         /// </summary>
         /// <param name="spaceDetails">String describing the drives being low on space.</param>
-        public void SendLowSpaceMail(string spaceDetails) {
+        private void SendLowSpaceMail(string spaceDetails) {
             if (string.IsNullOrWhiteSpace(spaceDetails))
                 return;
 
@@ -153,7 +153,7 @@ namespace AutoTx
         /// Send a notification email to the file owner upon successful transfer.
         /// The recipient address is derived from the global variable CurrentTransferSrc.
         /// </summary>
-        public void SendTransferCompletedMail() {
+        private void SendTransferCompletedMail() {
             if (_config.SendTransferNotification == false)
                 return;
 
@@ -192,7 +192,7 @@ namespace AutoTx
         /// Send a notification email when a transfer has been interrupted before completion.
         /// Recipient address is derived from the global variable CurrentTransferSrc.
         /// </summary>
-        public void SendTransferInterruptedMail() {
+        private void SendTransferInterruptedMail() {
             if (_config.SendTransferNotification == false)
                 return;
 

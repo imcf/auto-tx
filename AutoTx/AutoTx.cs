@@ -242,7 +242,7 @@ namespace AutoTx
         /// <summary>
         /// Check if loaded configuration is valid, print a summary to the log.
         /// </summary>
-        public void CheckConfiguration() {
+        private void CheckConfiguration() {
             // non-critical / optional configuration parameters:
             if (!string.IsNullOrWhiteSpace(_config.SmtpHost))
                 SetupMailLogging();
@@ -481,7 +481,7 @@ namespace AutoTx
         /// <summary>
         /// Do the main tasks of the service, check system state, trigger transfers, ...
         /// </summary>
-        public void RunMainTasks() {
+        private void RunMainTasks() {
             // mandatory tasks, run on every call:
             SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
@@ -522,7 +522,7 @@ namespace AutoTx
         /// <summary>
         /// Check for transfers to be finished, resumed or newly initiated.
         /// </summary>
-        public void RunTransferTasks() {
+        private void RunTransferTasks() {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped &&
                 _transferState != TxState.Paused) 
@@ -693,7 +693,7 @@ namespace AutoTx
         /// a subdirectory with the current date and time as its name to denote the timepoint
         /// when the grace period for this data starts.
         /// </summary>
-        public void MoveToGraceLocation() {
+        private void MoveToGraceLocation() {
             string errMsg;
             // CurrentTransferSrc is e.g. D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
             var sourceDirectory = new DirectoryInfo(_status.CurrentTransferSrc);
