@@ -24,12 +24,10 @@ namespace AutoTx
         private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}";
         // private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
 
-        // naming convention: variables ending with "Path" are strings, variables
-        // ending with "Dir" are DirectoryInfo objects
+        // naming convention: variables containing "Path" are strings, variables
+        // containing "Dir" are DirectoryInfo objects
         private string _pathToConfig;
         private string _pathToStatus;
-        private string _incomingPath;
-        private string _managedPath;
 
         private List<string> _transferredFiles = new List<string>();
 
@@ -210,8 +208,6 @@ namespace AutoTx
         private void LoadConfigXml() {
             try {
                 _config = ServiceConfig.Deserialize(_pathToConfig);
-                _incomingPath = Path.Combine(_config.SourceDrive, _config.IncomingDirectory);
-                _managedPath = Path.Combine(_config.SourceDrive, _config.ManagedDirectory);
                 Log.Debug("Loaded config from [{0}]", _pathToConfig);
             }
             catch (ConfigurationErrorsException ex) {
@@ -252,7 +248,7 @@ namespace AutoTx
                 SetupMailLogging();
 
             var configInvalid = false;
-            if (FsUtils.CheckSpoolingDirectories(_incomingPath, _managedPath) == false) {
+            if (FsUtils.CheckSpoolingDirectories(_config.IncomingPath, _config.ManagedPath) == false) {
                 Log.Error("ERROR checking spooling directories (incoming / managed)!");
                 configInvalid = true;
             }
@@ -557,8 +553,7 @@ namespace AutoTx
                 return;
 
             // check the "processing" location for directories:
-            var processingDir = Path.Combine(_managedPath, "PROCESSING");
-            var queued = new DirectoryInfo(processingDir).GetDirectories();
+            var queued = new DirectoryInfo(_config.ProcessingPath).GetDirectories();
             if (queued.Length == 0)
                 return;
 
@@ -592,7 +587,7 @@ namespace AutoTx
         /// </summary>
         private void CheckIncomingDirectories() {
             // iterate over all user-subdirectories:
-            foreach (var userDir in new DirectoryInfo(_incomingPath).GetDirectories()) {
+            foreach (var userDir in new DirectoryInfo(_config.IncomingPath).GetDirectories()) {
                 if (FsUtils.DirEmptyExcept(userDir, _config.MarkerFile))
                     continue;
 
@@ -670,25 +665,21 @@ namespace AutoTx
                 // first check for individual files and collect them:
                 FsUtils.CollectOrphanedFiles(userDir, _config.MarkerFile);
 
-                // the default subdir inside the managed directory, where folders will be
-                // picked up later by the actual transfer method:
-                var target = "PROCESSING";
+                // the default path where folders will be picked up by the actual transfer method:
+                var baseDir = _config.ProcessingPath;
 
                 // if the user has no directory on the destination move to UNMATCHED instead:
                 if (string.IsNullOrWhiteSpace(DestinationPath(userDir.Name))) {
                     Log.Error("Found unmatched incoming dir: {0}", userDir.Name);
-                    target = "UNMATCHED";
+                    baseDir = _config.UnmatchedPath;
                 }
                 
                 // now everything that is supposed to be transferred is in a folder,
                 // for example: D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
-                var targetDir = Path.Combine(
-                    _managedPath,
-                    target,
-                    TimeUtils.Timestamp(),
-                    userDir.Name);
+                var targetDir = Path.Combine(baseDir, TimeUtils.Timestamp(), userDir.Name);
                 if (FsUtils.MoveAllSubDirs(userDir, targetDir))
                     return;
+
                 errMsg = "unable to move " + userDir.FullName;
             }
             catch (Exception ex) {
@@ -707,8 +698,7 @@ namespace AutoTx
             // CurrentTransferSrc is e.g. D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
             var sourceDirectory = new DirectoryInfo(_status.CurrentTransferSrc);
             var dstPath = Path.Combine(
-                _managedPath,
-                "DONE",
+                _config.DonePath,
                 sourceDirectory.Name, // the username directory
                 TimeUtils.Timestamp());
             Log.Trace("MoveToGraceLocation: src({0}) dst({1})", sourceDirectory.FullName, dstPath);
@@ -756,7 +746,7 @@ namespace AutoTx
                 if (!remoteUserDirs.Contains(userDir))
                     continue;
 
-                FsUtils.CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
+                FsUtils.CreateNewDirectory(Path.Combine(_config.IncomingPath, userDir), false);
             }
             _lastUserDirCheck = DateTime.Now;
         }

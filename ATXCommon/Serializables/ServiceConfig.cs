@@ -197,6 +197,51 @@ namespace ATXCommon.Serializables
 
         #endregion
 
+        
+        #region wrappers for derived parameters
+
+        /// <summary>
+        /// The full path to the incoming directory.
+        /// </summary>
+        [XmlIgnore]
+        public string IncomingPath {
+            get { return Path.Combine(SourceDrive, IncomingDirectory); }
+        }
+
+        /// <summary>
+        /// The full path to the managed directory.
+        /// </summary>
+        [XmlIgnore]
+        public string ManagedPath {
+            get { return Path.Combine(SourceDrive, ManagedDirectory); }
+        }
+
+        /// <summary>
+        /// The full path to the processing directory.
+        /// </summary>
+        [XmlIgnore]
+        public string ProcessingPath {
+            get { return Path.Combine(ManagedPath, "PROCESSING"); }
+        }
+
+        /// <summary>
+        /// The full path to the done directory / grace location.
+        /// </summary>
+        [XmlIgnore]
+        public string DonePath {
+            get { return Path.Combine(ManagedPath, "DONE"); }
+        }
+
+        /// <summary>
+        /// The full path to the directory for unmatched user directories.
+        /// </summary>
+        [XmlIgnore]
+        public string UnmatchedPath {
+            get { return Path.Combine(ManagedPath, "UNMATCHED"); }
+        }
+
+        #endregion
+
 
         public static void Serialize(string file, ServiceConfig c) {
             // the config is never meant to be written by us, therefore:

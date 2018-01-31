@@ -229,7 +229,7 @@ namespace AutoTx
         /// <returns>The summary report, empty if no expired folders exist.</returns>
         private string SendGraceLocationSummary(int threshold) {
             var report = FsUtils.GraceLocationSummary(
-                new DirectoryInfo(Path.Combine(_managedPath, "DONE")), threshold);
+                new DirectoryInfo(_config.DonePath), threshold);
             if (string.IsNullOrEmpty(report))
                 return "";
 
