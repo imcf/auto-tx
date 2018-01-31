@@ -60,7 +60,7 @@ namespace AutoTx
         /// </summary>
         /// <param name="templateName">The file name of the template, without path.</param>
         /// <param name="substitions">A list of string-tuples to be used for the search-replace.</param>
-        /// <returns></returns>
+        /// <returns>The template with all patterns replaced by their substitution values.</returns>
         private static string LoadMailTemplate(string templateName, List<Tuple<string, string>> substitions) {
             var text = File.ReadAllText(
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
