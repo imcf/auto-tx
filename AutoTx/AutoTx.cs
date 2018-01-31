@@ -129,6 +129,7 @@ namespace AutoTx
                 };
                 var mailTargetFatalLimited = new RateLimitWrapper {
                     Name = "mailfatallimited",
+                    MinLogInterval = _config.AdminNotificationDelta,
                     WrappedTarget = mailTargetFatal
                 };
                 logConfig.AddTarget(mailTargetFatalLimited);
@@ -147,6 +148,7 @@ namespace AutoTx
                     };
                     var mailTargetErrorLimited = new RateLimitWrapper {
                         Name = "mailerrorlimited",
+                        MinLogInterval = _config.AdminNotificationDelta,
                         WrappedTarget = mailTargetError
                     };
                     logConfig.AddTarget(mailTargetErrorLimited);
