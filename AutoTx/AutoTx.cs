@@ -296,7 +296,8 @@ namespace AutoTx
             }
 
 
-            msg += "\n------ Grace location status (threshold: " + _config.GracePeriod + ") ------\n";
+            msg += "\n------ Grace location status, threshold: " + _config.GracePeriod + " days " +
+                "(" + TimeUtils.DaysToHuman(_config.GracePeriod) + ") ------\n";
             try {
                 var tmp = SendGraceLocationSummary(_config.GracePeriod);
                 if (string.IsNullOrEmpty(tmp)) {
