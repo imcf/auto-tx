@@ -483,6 +483,8 @@ namespace AutoTx
         /// Do the main tasks of the service, check system state, trigger transfers, ...
         /// </summary>
         private void RunMainTasks() {
+            // throw new Exception("just a test exception from RunMainTasks");
+
             // mandatory tasks, run on every call:
             SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
