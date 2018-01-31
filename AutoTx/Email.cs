@@ -108,7 +108,7 @@ namespace AutoTx
             body = "Notification from: " + _config.HostAlias
                    + " (" + Environment.MachineName + ")\n\n"
                    + body;
-            // writeLog("Sending an admin notification email.");
+            Log.Debug("Sending an admin notification email.");
             SendEmail(_config.AdminEmailAdress, subject, body);
             _status.LastAdminNotification = DateTime.Now;
 
@@ -144,10 +144,7 @@ namespace AutoTx
                 SendEmail(_config.AdminEmailAdress, subject, body);
             }
             catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error loading email template: {0}", ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
+                Log.Error("Error loading email template: {0}", ex.Message);
             }
         }
 
@@ -183,10 +180,7 @@ namespace AutoTx
                 Log.Debug("Sent transfer completed notification to {0}", userDir);
             }
             catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error loading email template: {0}", ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
+                Log.Error("Error loading email template: {0}", ex.Message);
             }
         }
 
@@ -214,10 +208,7 @@ namespace AutoTx
                     body);
             }
             catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error loading email template: {0}", ex.Message);
-                Log.Error(msg);
-                SendAdminEmail(msg);
+                Log.Error("Error loading email template: {0}", ex.Message);
             }
         }
 
