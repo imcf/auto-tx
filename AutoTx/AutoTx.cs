@@ -31,14 +31,11 @@ namespace AutoTx
         private string _incomingPath;
         private string _managedPath;
 
-        private string[] _remoteUserDirs;
-        private string[] _localUserDirs;
-
         private List<string> _transferredFiles = new List<string>();
 
         private int _txProgress;
 
-        private DateTime _lastUserDirCheck = DateTime.Now;
+        private DateTime _lastUserDirCheck = DateTime.MinValue;
 
         // the transfer state:
         private enum TxState
@@ -790,23 +787,23 @@ namespace AutoTx
         /// user directory (C:\Users) AND in the DestinationDirectory.
         /// </summary>
         private void CreateIncomingDirectories() {
-            _localUserDirs = new DirectoryInfo(@"C:\Users")
+            var localUserDirs = new DirectoryInfo(@"C:\Users")
                 .GetDirectories()
                 .Select(d => d.Name)
                 .ToArray();
-            _remoteUserDirs = new DirectoryInfo(_config.DestinationDirectory)
+            var remoteUserDirs = new DirectoryInfo(_config.DestinationDirectory)
                 .GetDirectories()
                 .Select(d => d.Name)
                 .ToArray();
 
-            foreach (var userDir in _localUserDirs) {
+            foreach (var userDir in localUserDirs) {
                 // don't create an incoming directory for the same name as the
                 // temporary transfer location:
                 if (_config.TmpTransferDir == userDir)
                     continue;
 
                 // don't create a directory if it doesn't exist on the target:
-                if (!_remoteUserDirs.Contains(userDir))
+                if (!remoteUserDirs.Contains(userDir))
                     continue;
 
                 FsUtils.CreateNewDirectory(Path.Combine(_incomingPath, userDir), false);
