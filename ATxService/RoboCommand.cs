@@ -120,7 +120,8 @@ namespace ATxService
                 // WARNING: RoboSharp doesn't seem to offer a culture invariant representation
                 // of the FileClass, so this might fail in non-english environments:
                 if (processed.FileClass.ToLower().Equals("new file")) {
-                    _transferredFiles.Add(processed.Name + " (" + (processed.Size / 1048576) + " MB)");
+                    _transferredFiles.Add(string.Format("{0} ({1})", processed.Name,
+                        Conv.BytesToString(processed.Size)));
                 }
             }
             catch (Exception ex) {
