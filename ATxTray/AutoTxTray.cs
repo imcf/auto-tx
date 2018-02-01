@@ -4,6 +4,7 @@ using System.Timers;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using ATxCommon;
 using ATxCommon.Serializables;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NLog;
@@ -298,10 +299,12 @@ namespace ATxTray
             _txInProgress = _status.TransferInProgress;
             _txSize = _status.CurrentTransferSize;
             if (_txInProgress) {
-                _miTxProgress.Text = @"Transfer in progress (size: " + _txSize + ")";
+                _miTxProgress.Text = @"Transfer in progress (size: " +
+                    Conv.BytesToString(_txSize) + ")";
                 _miTxProgress.BackColor = Color.LightGreen;
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
-                    "New transfer started (size: " + _txSize + ").", ToolTipIcon.Info);
+                    "New transfer started (size: " +
+                    Conv.BytesToString(_txSize) + ").", ToolTipIcon.Info);
             } else {
                 _miTxProgress.Text = @"No transfer running.";
                 _miTxProgress.ResetBackColor();
