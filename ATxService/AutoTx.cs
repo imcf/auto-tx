@@ -68,7 +68,7 @@ namespace ATxService
 
         public AutoTx() {
             InitializeComponent();
-            SetupFileLogging();
+            SetupFileLogging(LogLevel.Debug);
             Log.Info("==========================================================================");
             Log.Info("Attempting to start {0} service...", ServiceName);
             CreateEventLog();
@@ -79,9 +79,10 @@ namespace ATxService
         /// <summary>
         /// Set up NLog logging: targets, rules...
         /// </summary>
-        private void SetupFileLogging() {
+        private void SetupFileLogging(LogLevel logLevel) {
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
+                Name = "file",
                 FileName = ServiceName + ".log",
                 ArchiveAboveSize = 1 * Conv.MegaBytes,
                 ArchiveFileName = ServiceName + ".{#}.log",
@@ -90,7 +91,7 @@ namespace ATxService
                 Layout = LogFormatDefault,
             };
             logConfig.AddTarget("file", fileTarget);
-            var logRuleFile = new LoggingRule("*", LogLevel.Debug, fileTarget);
+            var logRuleFile = new LoggingRule("*", logLevel, fileTarget);
             logConfig.LoggingRules.Add(logRuleFile);
             LogManager.Configuration = logConfig;
         }
@@ -245,6 +246,9 @@ namespace ATxService
         /// Check if loaded configuration is valid, print a summary to the log.
         /// </summary>
         private void CheckConfiguration() {
+            if (!_config.Debug)
+                SetupFileLogging(LogLevel.Info);
+
             // non-critical / optional configuration parameters:
             if (!string.IsNullOrWhiteSpace(_config.SmtpHost))
                 SetupMailLogging();
@@ -508,7 +512,6 @@ namespace ATxService
         }
 
         #endregion
-
 
         #region transfer tasks
 
