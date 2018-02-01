@@ -1,4 +1,4 @@
-$ResourceDir = "..\AutoTx\Resources"
+$ResourceDir = "..\ATxService\Resources"
 $TemplateDir = "$($ResourceDir)\Mail-Templates"
 
 try {
@@ -19,7 +19,7 @@ catch {
 
 $PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
 $PkgDir = "build_" + $PkgDir
-$BinariesDir = "..\AutoTx\bin\$($BuildConfiguration)"
+$BinariesDir = "..\ATxService\bin\$($BuildConfiguration)"
 
 Write-Host "Creating package [$($PkgDir)] using binaries from [$($BinariesDir)]"
 

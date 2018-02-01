@@ -14,7 +14,7 @@ using NLog.Config;
 using NLog.Targets;
 using RoboSharp;
 
-namespace AutoTx
+namespace ATxService
 {
     public partial class AutoTx : ServiceBase
     {

@@ -2,7 +2,7 @@
 using System.ServiceProcess;
 using System.IO;
 
-namespace AutoTx
+namespace ATxService
 {
     static class Program
     {

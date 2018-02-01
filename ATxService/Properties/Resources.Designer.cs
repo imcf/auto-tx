@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AutoTx.Properties {
+namespace ATxService.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AutoTx.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    var temp = new global::System.Resources.ResourceManager("AutoTx.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ATxService.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace AutoTx.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to autotransfer-v1-134-g04a73b1
+        ///   Looks up a localized string similar to autotransfer-v1-236-gc48c399
         ///.
         /// </summary>
         internal static string BuildCommit {
@@ -71,7 +71,7 @@ namespace AutoTx.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 2017-12-21 10:42:03
+        ///   Looks up a localized string similar to 2018-02-01 01:23:43
         ///.
         /// </summary>
         internal static string BuildDate {

@@ -7,7 +7,7 @@
     <ProjectGuid>{5CB67E3A-E63A-4791-B90B-8CEF0027AEAD}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AutoTx</RootNamespace>
+    <RootNamespace>ATxService</RootNamespace>
     <AssemblyName>AutoTx</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -47,7 +47,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>AutoTx.Program</StartupObject>
+    <StartupObject>ATxService.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">

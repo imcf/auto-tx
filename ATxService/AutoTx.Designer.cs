@@ -1,4 +1,4 @@
-﻿namespace AutoTx
+﻿namespace ATxService
 {
     partial class AutoTx
     {

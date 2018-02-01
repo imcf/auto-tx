@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace AutoTx
+namespace ATxService
 {
     [RunInstaller(true)]
     public partial class ProjectInstaller : System.Configuration.Install.Installer

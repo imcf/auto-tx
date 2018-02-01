@@ -4,7 +4,7 @@ using System.Management;
 using ATxCommon;
 using RoboSharp;
 
-namespace AutoTx
+namespace ATxService
 {
     public partial class AutoTx
     {

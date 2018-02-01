@@ -6,7 +6,7 @@ using System.Net.Mail;
 using System.Text;
 using ATxCommon;
 
-namespace AutoTx
+namespace ATxService
 {
     public partial class AutoTx
     {
