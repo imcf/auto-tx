@@ -29,7 +29,7 @@ namespace ATxService
         private string _pathToConfig;
         private string _pathToStatus;
 
-        private List<string> _transferredFiles = new List<string>();
+        private readonly List<string> _transferredFiles = new List<string>();
 
         private int _txProgress;
 
