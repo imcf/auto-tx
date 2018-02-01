@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace ATXTray
+namespace ATxTray
 {
     internal static class Program
     {

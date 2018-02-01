@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATxCommon", "ATxCommon\ATxC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATxConfigTest", "ATxConfigTest\ATxConfigTest.csproj", "{81E0A5AC-0E0D-4F98-B399-41A58612EF33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATXTray", "ATXTray\ATXTray.csproj", "{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATxTray", "ATxTray\ATxTray.csproj", "{0CEB80C5-65DB-406B-BCFA-4D0474C2309B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

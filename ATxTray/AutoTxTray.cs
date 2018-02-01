@@ -11,7 +11,7 @@ using NLog.Config;
 using NLog.Targets;
 using Timer = System.Timers.Timer;
 
-namespace ATXTray
+namespace ATxTray
 {
     public class AutoTxTray : ApplicationContext
     {
