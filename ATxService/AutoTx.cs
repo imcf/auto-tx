@@ -495,6 +495,7 @@ namespace ATxService
         /// Do the main tasks of the service, check system state, trigger transfers, ...
         /// </summary>
         private void RunMainTasks() {
+            // Log.Error("test the email rate limiting for error messages...");
             // throw new Exception("just a test exception from RunMainTasks");
 
             // mandatory tasks, run on every call:
