@@ -75,6 +75,7 @@ namespace ATxService
                 _roboCommand.Start();
                 Log.Info("Transfer started, total size: {0}",
                     Conv.BytesToString(_status.CurrentTransferSize));
+                Log.Debug("RoboCopy command options: {0}", _roboCommand.CommandOptions);
             }
             catch (ManagementException ex) {
                 Log.Error("Error in StartTransfer(): {0}", ex.Message);
@@ -113,10 +114,19 @@ namespace ATxService
 
         /// <summary>
         /// RoboSharp OnFileProcessed callback handler.
+        /// 
+        /// NOTE: the handler is called on any NEW message produced by RoboCopy, in particular this
+        /// also means that a "new file" event is triggered when the transfer of a new file is
+        /// about TO START! Therefore the "OnFileProcessed" name is slightly misleading.
         /// </summary>
         private void RsFileProcessed(object sender, FileProcessedEventArgs e) {
             try {
                 var processed = e.ProcessedFile;
+
+                Log.Trace("RsFileProcessed (OnFileProcessed handler) triggered:  " +
+                    "Class [{1}]  -  Size [{2}]  -  Name [{0}]",
+                    e.ProcessedFile.Name, e.ProcessedFile.FileClass, e.ProcessedFile.Size);
+
                 // WARNING: RoboSharp doesn't seem to offer a culture invariant representation
                 // of the FileClass, so this might fail in non-english environments:
                 if (processed.FileClass.ToLower().Equals("new file")) {
@@ -149,6 +159,7 @@ namespace ATxService
         /// Print a log message if the progress has changed for more than 20%.
         /// </summary>
         private void RsProgressChanged(object sender, CopyProgressEventArgs e) {
+            // e.CurrentFileProgress has the current progress in percent
             // report progress in steps of 20:
             var progress = ((int) e.CurrentFileProgress / 20) * 20;
             if (progress == _txProgress)
