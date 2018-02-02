@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using NLog;
 using NLog.Common;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
@@ -18,6 +19,7 @@ namespace ATxCommon.NLog
     public class RateLimitWrapper : WrapperTargetBase
     {
         private DateTime _lastLogEvent = DateTime.MinValue;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         protected override void Write(AsyncLogEventInfo logEvent) {
             if ((DateTime.Now - _lastLogEvent).TotalMinutes >= MinLogInterval) {
@@ -25,6 +27,11 @@ namespace ATxCommon.NLog
                 WrappedTarget.WriteAsyncLogEvent(logEvent);
             } else {
                 logEvent.Continuation(null);
+                // EXPERIMENTAL: check if the level of the log event is higher than "WARN" (3) and
+                // log a debug message about keeping back the email message:
+                if (logEvent.LogEvent.Level.Ordinal > 3) {
+                    Log.Debug("RateLimitWrapper: not sending email, frequency too high!");
+                }
             }
         }
 
