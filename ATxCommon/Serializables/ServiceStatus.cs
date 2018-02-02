@@ -29,6 +29,8 @@ namespace ATxCommon.Serializables
         private bool _cleanShutdown;
 
         private long _currentTransferSize;
+        private long _transferredBytesCompleted;
+        private long _transferredBytesCurrentFile;
 
 
         #region constructor, serializer and deserializer
@@ -40,6 +42,8 @@ namespace ATxCommon.Serializables
             _currentTransferSrc = "";
             _currentTargetTmp = "";
             _transferInProgress = false;
+            _transferredBytesCompleted = 0;
+            _transferredBytesCurrentFile = 0;
         }
 
         public void Serialize() {
@@ -222,6 +226,30 @@ namespace ATxCommon.Serializables
             set {
                 _currentTransferSize = value;
                 Log.Trace("CurrentTransferSize was updated ({0}).", value);
+                Serialize();
+            }
+        }
+
+        /// <summary>
+        /// Total size of files of the running transfer that are already fully transferred.
+        /// </summary>
+        public long TransferredBytesCompleted {
+            get { return _transferredBytesCompleted; }
+            set {
+                _transferredBytesCompleted = value;
+                Log.Trace("TransferredBytesCompleted was updated ({0}).", value);
+                Serialize();
+            }
+        }
+
+        /// <summary>
+        /// Total size of files of the running transfer that are already fully transferred.
+        /// </summary>
+        public long TransferredBytesCurrentFile {
+            get { return _transferredBytesCurrentFile; }
+            set {
+                _transferredBytesCurrentFile = value;
+                Log.Trace("TransferredBytesCurrentFile was updated ({0}).", value);
                 Serialize();
             }
         }

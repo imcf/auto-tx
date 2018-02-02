@@ -8,8 +8,6 @@ namespace ATxService
 {
     public partial class AutoTx
     {
-        private RoboCommand _roboCommand;
-
         /// <summary>
         /// Start transferring data from a given source directory to the destination
         /// location that is stored in CurrentTargetTmp. Requires CopyState to be in
@@ -75,7 +73,7 @@ namespace ATxService
                 _roboCommand.Start();
                 Log.Info("Transfer started, total size: {0}",
                     Conv.BytesToString(_status.CurrentTransferSize));
-                Log.Debug("RoboCopy command options: {0}", _roboCommand.CommandOptions);
+                Log.Trace("RoboCopy command options: {0}", _roboCommand.CommandOptions);
             }
             catch (ManagementException ex) {
                 Log.Error("Error in StartTransfer(): {0}", ex.Message);
@@ -132,6 +130,16 @@ namespace ATxService
                 if (processed.FileClass.ToLower().Equals("new file")) {
                     _transferredFiles.Add(string.Format("{0} ({1})", processed.Name,
                         Conv.BytesToString(processed.Size)));
+                    // reset the value for the amount of bytes transferred for the current file:
+                    _status.TransferredBytesCurrentFile = 0;
+                    // now add _txCurFileSize (containing either the size of the previously
+                    // transferred file or 0 in case this is the first file of a new transfer) to
+                    // the total amount of already transferred bytes:
+                    _status.TransferredBytesCompleted += _txCurFileSize;
+                    // finally we can now update the _txCurFileSize variable:
+                    _txCurFileSize = processed.Size;
+                    Log.Trace("++++ new file transfer started: size [{0}], already transferred [{1}] ++++",
+                        _txCurFileSize, _status.TransferredBytesCompleted);
                 }
             }
             catch (Exception ex) {
@@ -149,24 +157,36 @@ namespace ATxService
             _roboCommand.Stop();
             Log.Debug("Transfer stopped");
             _transferState = TxState.Stopped;
+            _status.TransferredBytesCompleted = 0;
+            _status.TransferredBytesCurrentFile = 0;
+            _txCurFileSize = 0;
+            _txCurFileProgress = 0;
             _roboCommand.Dispose();
             _roboCommand = new RoboCommand();
             _status.TransferInProgress = false;
         }
 
         /// <summary>
-        /// RoboSharp OnCopyProgressChanged callback handler.
+        /// RoboSharp OnCopyProgressChanged callback handler, triggered every time RoboCopy reports
+        /// a change in the copy progress.
         /// Print a log message if the progress has changed for more than 20%.
         /// </summary>
         private void RsProgressChanged(object sender, CopyProgressEventArgs e) {
             // e.CurrentFileProgress has the current progress in percent
             // report progress in steps of 20:
             var progress = ((int) e.CurrentFileProgress / 20) * 20;
-            if (progress == _txProgress)
+            if (progress == _txCurFileProgress)
                 return;
 
-            _txProgress = progress;
-            Log.Debug("Transfer progress {0}%", progress);
+            _txCurFileProgress = progress;
+            _status.TransferredBytesCurrentFile = (long) (_txCurFileSize * e.CurrentFileProgress / 100);
+            var overallProgress = ((double)(_status.TransferredBytesCompleted + _status.TransferredBytesCurrentFile) /
+                                   _status.CurrentTransferSize) * 100;
+            Log.Info("Current transfer at {0:0}%", overallProgress);
+            Log.Trace("Tx progress: complete [{0}] - current [{1}] - combined {2:0}%",
+                _status.TransferredBytesCompleted, _status.TransferredBytesCurrentFile,
+                overallProgress);
+            Log.Trace("Current file transfer progress {0}%", progress);
         }
 
         #endregion

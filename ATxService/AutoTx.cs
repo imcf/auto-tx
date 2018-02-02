@@ -31,7 +31,9 @@ namespace ATxService
 
         private readonly List<string> _transferredFiles = new List<string>();
 
-        private int _txProgress;
+        private RoboCommand _roboCommand;
+        private long _txCurFileSize;
+        private int _txCurFileProgress;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
