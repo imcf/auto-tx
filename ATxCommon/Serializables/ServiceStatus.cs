@@ -32,6 +32,8 @@ namespace ATxCommon.Serializables
         private long _transferredBytesCompleted;
         private long _transferredBytesCurrentFile;
 
+        private int _currentTransferPercent;
+
 
         #region constructor, serializer and deserializer
 
@@ -44,6 +46,7 @@ namespace ATxCommon.Serializables
             _transferInProgress = false;
             _transferredBytesCompleted = 0;
             _transferredBytesCurrentFile = 0;
+            _currentTransferPercent = 0;
         }
 
         public void Serialize() {
@@ -250,6 +253,18 @@ namespace ATxCommon.Serializables
             set {
                 _transferredBytesCurrentFile = value;
                 Log.Trace("TransferredBytesCurrentFile was updated ({0}).", value);
+                Serialize();
+            }
+        }
+
+        /// <summary>
+        /// The progress of the current transfer in percent.
+        /// </summary>
+        public int CurrentTransferPercent {
+            get { return _currentTransferPercent; }
+            set {
+                _currentTransferPercent = value;
+                Log.Trace("CurrentTransferPercent was updated ({0}).", value);
                 Serialize();
             }
         }

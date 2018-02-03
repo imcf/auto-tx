@@ -159,6 +159,7 @@ namespace ATxService
             _transferState = TxState.Stopped;
             _status.TransferredBytesCompleted = 0;
             _status.TransferredBytesCurrentFile = 0;
+            _status.CurrentTransferPercent = 0;
             _txCurFileSize = 0;
             _txCurFileProgress = 0;
             _roboCommand.Dispose();
@@ -180,12 +181,14 @@ namespace ATxService
 
             _txCurFileProgress = progress;
             _status.TransferredBytesCurrentFile = (long) (_txCurFileSize * e.CurrentFileProgress / 100);
-            var overallProgress = ((double)(_status.TransferredBytesCompleted + _status.TransferredBytesCurrentFile) /
-                                   _status.CurrentTransferSize) * 100;
-            Log.Info("Current transfer at {0:0}%", overallProgress);
+            // NOTE: the (double) is required to make the division work on float which can then 
+            // eventually be cast into an (int) after multiplying it by 100:
+            _status.CurrentTransferPercent = (int)((_status.TransferredBytesCompleted + _status.TransferredBytesCurrentFile) * 100 /
+                                   _status.CurrentTransferSize);
+            Log.Info("Current transfer at {0}%", _status.CurrentTransferPercent);
             Log.Trace("Tx progress: complete [{0}] - current [{1}] - combined {2:0}%",
                 _status.TransferredBytesCompleted, _status.TransferredBytesCurrentFile,
-                overallProgress);
+                _status.CurrentTransferPercent);
             Log.Trace("Current file transfer progress {0}%", progress);
         }
 
