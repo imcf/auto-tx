@@ -181,10 +181,9 @@ namespace ATxService
 
             _txCurFileProgress = progress;
             _status.TransferredBytesCurrentFile = (long) (_txCurFileSize * e.CurrentFileProgress / 100);
-            // NOTE: the (double) is required to make the division work on float which can then 
-            // eventually be cast into an (int) after multiplying it by 100:
-            _status.CurrentTransferPercent = (int)((_status.TransferredBytesCompleted + _status.TransferredBytesCurrentFile) * 100 /
-                                   _status.CurrentTransferSize);
+            _status.CurrentTransferPercent = (int) (
+                (_status.TransferredBytesCompleted + _status.TransferredBytesCurrentFile) * 100 /
+                _status.CurrentTransferSize);
             Log.Info("Current transfer at {0}%", _status.CurrentTransferPercent);
             Log.Trace("Tx progress: complete [{0}] - current [{1}] - combined {2:0}%",
                 _status.TransferredBytesCompleted, _status.TransferredBytesCurrentFile,
