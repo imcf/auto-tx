@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>AutoTx.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\IconDefault.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -91,13 +91,20 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AutoTx.ico" />
+    <None Include="Resources\IconTx1.ico" />
+    <None Include="Resources\IconTx0.ico" />
+    <None Include="Resources\IconSuspended.ico" />
+    <None Include="Resources\IconStopped.ico" />
+    <None Include="Resources\IconDefault.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ATxCommon\ATxCommon.csproj">
       <Project>{166D65D5-EE10-4364-8AA3-4D86BA5CE244}</Project>
       <Name>ATxCommon</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="IconDefault.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

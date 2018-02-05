@@ -39,11 +39,11 @@ namespace ATxTray
         private static int _txProgressPct;
         
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
-        private readonly Icon _tiDefault = new Icon("icon-default.ico");
-        private readonly Icon _tiStopped = new Icon("icon-stopped.ico");
-        private readonly Icon _tiSuspended = new Icon("icon-suspended.ico");
-        private readonly Icon _tiTx0 = new Icon("icon-tx-0.ico");
-        private readonly Icon _tiTx1 = new Icon("icon-tx-1.ico");
+        private readonly Icon _tiDefault = Properties.Resources.IconDefault;
+        private readonly Icon _tiStopped = Properties.Resources.IconStopped;
+        private readonly Icon _tiSuspended = Properties.Resources.IconSuspended;
+        private readonly Icon _tiTx0 = Properties.Resources.IconTx0;
+        private readonly Icon _tiTx1 = Properties.Resources.IconTx1;
         private readonly ContextMenuStrip _cmStrip = new ContextMenuStrip();
         private readonly ToolStripMenuItem _miExit = new ToolStripMenuItem();
         private readonly ToolStripMenuItem _miTitle = new ToolStripMenuItem();
@@ -115,7 +115,7 @@ namespace ATxTray
 
             _miTitle.Font = new Font(_cmStrip.Font, FontStyle.Bold);
             _miTitle.Text = AppTitle;
-            _miTitle.Image = Image.FromFile("icon-default.ico");
+            _miTitle.Image = _tiDefault.ToBitmap();
             _miTitle.BackColor = Color.LightCoral;
             _miTitle.Click += ShowContextMenu;
 
