@@ -297,7 +297,7 @@ function Upload-LogFiles {
     New-Item -Force -Type Directory $Dest
     try {
         Copy-Item -Force -ErrorAction Stop `
-            -Path "$($LogPath)\service.log" `
+            -Path "$($LogPath)\AutoTx.log" `
             -Destination $Dest
         Log-Debug "Uploaded logfile to [$($Dest)]."
     }
