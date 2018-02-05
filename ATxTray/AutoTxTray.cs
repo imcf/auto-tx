@@ -132,8 +132,7 @@ namespace ATxTray
             _miTxEnqueue.Text = @"+++ Add new directory for transfer. +++";
             _miTxEnqueue.Click += StartNewTransfer;
 
-            _miTxProgressBar.Text = @"Current Transfer Progress";
-            _miTxProgressBar.ToolTipText = _miTxProgressBar.Text;
+            _miTxProgressBar.ToolTipText = @"Current Transfer Progress";
             _miTxProgressBar.Value = 0;
             var size = _miTxProgressBar.Size;
             size.Width = 300;
@@ -188,6 +187,7 @@ namespace ATxTray
                 serviceRunning = "OK";
                 ReadStatus();
                 UpdateSvcSuspended();
+                UpdateTxProgressBar();
                 UpdateTxInProgress();
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
                     heartBeat = "OK";
@@ -303,14 +303,12 @@ namespace ATxTray
 
         private void UpdateTxInProgress() {
             if (_txInProgress == _status.TransferInProgress &&
-                _txSize == _status.CurrentTransferSize &&
-                _txProgressPct == _status.CurrentTransferPercent)
+                _txSize == _status.CurrentTransferSize)
                 return;
 
             _statusChanged = true;
             _txInProgress = _status.TransferInProgress;
             _txSize = _status.CurrentTransferSize;
-            _txProgressPct = _status.CurrentTransferPercent;
             if (_txInProgress) {
                 _miTxProgress.Text = @"Transfer in progress (size: " +
                     Conv.BytesToString(_txSize) + ")";
@@ -318,17 +316,30 @@ namespace ATxTray
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "New transfer started (size: " +
                     Conv.BytesToString(_txSize) + ").", ToolTipIcon.Info);
-                Log.Debug("Transfer progress: {0}%", _txProgressPct);
-                _miTxProgressBar.Visible = true;
-                _miTxProgressBar.Value = _txProgressPct;
-                _miTxProgressBar.Text = _txProgressPct.ToString();
             } else {
                 _miTxProgress.Text = @"No transfer running.";
                 _miTxProgress.ResetBackColor();
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "Transfer completed.", ToolTipIcon.Info);
+            }
+        }
+
+        private void UpdateTxProgressBar() {
+            if (_txInProgress == _status.TransferInProgress &&
+                _txProgressPct == _status.CurrentTransferPercent)
+                return;
+
+            _statusChanged = true;
+            _txProgressPct = _status.CurrentTransferPercent;
+            if (_txInProgress) {
+                Log.Debug("Transfer progress: {0}%", _txProgressPct);
+                _miTxProgressBar.Visible = true;
+                _miTxProgressBar.Value = _txProgressPct;
+                _miTxProgressBar.ToolTipText = _txProgressPct.ToString();
+            } else {
                 _miTxProgressBar.Value = 0;
                 _miTxProgressBar.Visible = false;
+                _miTxProgressBar.ToolTipText = @"Current Transfer Progress";
             }
         }
 
