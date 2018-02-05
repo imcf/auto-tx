@@ -307,7 +307,26 @@ function Upload-LogFiles {
 }
 
 
+function Get-HostDescription() {
+    $Desc = $env:COMPUTERNAME
+    $ConfigXml = "$($InstallationPath)\configuration.xml"
+    try {
+        [xml]$XML = Get-Content $ConfigXml -ErrorAction Stop
+        # careful, we need a string comparison here:
+        $Desc += " ($($XML.ServiceConfig.HostAlias))"
+    }
+    catch {
+        $ex = $_.Exception.Message
+        $msg = "Trying to read the service config from [$($ConfigXml)] failed! "
+        $msg += "The reported error message was:`n$($ex)"
+        Log-Error $msg
+    }
+    Return $Desc
+}
+
+
 function Send-MailReport([string]$Subject, [string]$Body) {
+    $Body = "Notification from $(Get-HostDescription)`n`n$($Body)"
     $Subject = "[$($Me)] $($env:COMPUTERNAME) - $($Subject)"
     $msg = "------------------------------`n"
     $msg += "From: $($EmailFrom)`n"
