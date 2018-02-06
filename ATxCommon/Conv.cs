@@ -16,7 +16,7 @@
                 order++;
                 numBytes /= 1024;
             }
-            return string.Format("{0:0.#} {1}", numBytes, suffixes[order]);
+            return $"{numBytes:0.#} {suffixes[order]}";
         }
     }
 }

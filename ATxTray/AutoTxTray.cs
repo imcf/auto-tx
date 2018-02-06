@@ -199,7 +199,7 @@ namespace ATxTray
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
                     heartBeat = "OK";
                 if (_txInProgress)
-                    txProgress = _txSize.ToString();
+                    txProgress = _txProgressPct.ToString();
             }
 
             UpdateTrayIcon();
@@ -207,8 +207,7 @@ namespace ATxTray
             if (!_statusChanged)
                 return;
 
-            UpdateHoverText(string.Format("AutoTx [svc={0}] [hb={1}] [tx={2}]",
-                serviceRunning, heartBeat, txProgress));
+            UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}%]");
         }
 
         private void MiExitClick(object sender, EventArgs e) {
@@ -229,9 +228,9 @@ namespace ATxTray
                 DefaultDirectory = _config.SourceDrive
             };
             if (dirDialog.ShowDialog() == CommonFileDialogResult.Ok) {
-                MessageBox.Show("Directory\nselected:\n\n" + dirDialog.FileName +
-                    "\n\nWARNING: adding new transfers is NOT YET IMPLEMENTED!",
-                    "New transfer confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                MessageBox.Show($@"Directory\nselected:\n\n{dirDialog.FileName}\n\n" +
+                    @"WARNING: adding new transfers is NOT YET IMPLEMENTED!",
+                    @"New transfer confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
         }
 
@@ -317,8 +316,7 @@ namespace ATxTray
             _txInProgress = _status.TransferInProgress;
             _txSize = _status.CurrentTransferSize;
             if (_txInProgress) {
-                _miTxProgress.Text = @"Transfer in progress (size: " +
-                    Conv.BytesToString(_txSize) + ")";
+                _miTxProgress.Text = $@"Transfer in progress (size: {Conv.BytesToString(_txSize)})";
                 _miTxProgress.BackColor = Color.LightGreen;
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "New transfer started (size: " +

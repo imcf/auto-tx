@@ -129,8 +129,7 @@ namespace ATxService
                 // WARNING: RoboSharp doesn't seem to offer a culture invariant representation
                 // of the FileClass, so this might fail in non-english environments:
                 if (processed.FileClass.ToLower().Equals("new file")) {
-                    _transferredFiles.Add(string.Format("{0} ({1})", processed.Name,
-                        Conv.BytesToString(processed.Size)));
+                    _transferredFiles.Add($"{processed.Name} ({Conv.BytesToString(processed.Size)})");
                     // reset the value for the amount of bytes transferred for the current file:
                     _status.TransferredBytesCurrentFile = 0;
                     // now add _txCurFileSize (containing either the size of the previously
