@@ -121,11 +121,7 @@ namespace ATxCommon
                 username = (string)collection.Cast<ManagementBaseObject>().First()["UserName"];
             }
             catch (Exception ex) {
-                // TODO / FIXME: combine log and admin-email!
-                var msg = string.Format("Error in getCurrentUsername(): {0}", ex.Message);
-                Log.Error(msg);
-                // TODO: FIXME!
-                // SendAdminEmail(msg);
+                Log.Error("Error in getCurrentUsername(): {0}", ex.Message);
             }
             return username == "";
         }
