@@ -21,6 +21,7 @@ namespace ATxService
             if (_transferState != TxState.Stopped)
                 return;
 
+            _roboCommand = new RoboCommand();
             _status.CurrentTransferSrc = sourcePath;
             _status.CurrentTransferSize = FsUtils.GetDirectorySize(sourcePath);
 
@@ -163,7 +164,6 @@ namespace ATxService
             _txCurFileSize = 0;
             _txCurFileProgress = 0;
             _roboCommand.Dispose();
-            _roboCommand = new RoboCommand();
             _status.TransferInProgress = false;
         }
 

@@ -189,11 +189,8 @@ namespace ATxService
         /// </summary>
         private void LoadSettings() {
             try {
-
                 LoadConfigXml();
                 LoadStatusXml();
-
-                _roboCommand = new RoboCommand();
             }
             catch (Exception ex) {
                 Log.Error("LoadSettings() failed: {0}\n{1}", ex.Message, ex.StackTrace);
