@@ -61,6 +61,26 @@ namespace ATxTray.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to autotransfer-v1-265-g1b03979-unclean
+        ///.
+        /// </summary>
+        internal static string BuildCommit {
+            get {
+                return ResourceManager.GetString("BuildCommit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 2018-02-06 11:38:53
+        ///.
+        /// </summary>
+        internal static string BuildDate {
+            get {
+                return ResourceManager.GetString("BuildDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon IconDefault {

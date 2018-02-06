@@ -105,8 +105,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="IconDefault.ico" />
+    <None Include="Resources\BuildDate.txt" />
+    <None Include="Resources\BuildCommit.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)\Scripts\Prepare-Build.ps1 $(ProjectDir)</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>PowerShell -Command "Write-Host $(ConfigurationName)" &gt; $(ProjectDir)\Resources\BuildConfiguration.txt</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

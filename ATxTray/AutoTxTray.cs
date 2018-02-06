@@ -70,11 +70,15 @@ namespace ATxTray
             var logRule = new LoggingRule("*", LogLevel.Debug, fileTarget);
             logConfig.LoggingRules.Add(logRule);
             LogManager.Configuration = logConfig;
-            
+
             #endregion
 
 
+            Log.Info("-----------------------");
             Log.Info("{0} initializing...", AppTitle);
+            Log.Info("build: [{0}]", Properties.Resources.BuildDate.Trim());
+            Log.Info("commit: [{0}]", Properties.Resources.BuildCommit.Trim());
+            Log.Info("-----------------------");
             Log.Debug(" - config file: [{0}]", ConfigFile);
             Log.Debug(" - status file: [{0}]", StatusFile);
 
