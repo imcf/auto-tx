@@ -164,6 +164,7 @@ namespace ATxService
             _txCurFileProgress = 0;
             _roboCommand.Dispose();
             _status.TransferInProgress = false;
+            _waitCyclesBeforeNextTx = 2;
         }
 
         /// <summary>

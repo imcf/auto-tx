@@ -32,6 +32,7 @@ namespace ATxService
         private RoboCommand _roboCommand;
         private long _txCurFileSize;
         private int _txCurFileProgress;
+        private int _waitCyclesBeforeNextTx;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
@@ -576,6 +577,14 @@ namespace ATxService
                 catch (Exception ex) {
                     Log.Error("Error deleting directory: {0} - {1}", queued[0].Name, ex.Message);
                 }
+                return;
+            }
+
+            // give the system some time before starting the next transfer:
+            if (_waitCyclesBeforeNextTx > 0) {
+                Log.Debug("Waiting {0} more cycles before starting the next transfer...",
+                    _waitCyclesBeforeNextTx);
+                _waitCyclesBeforeNextTx--;
                 return;
             }
 
