@@ -199,7 +199,7 @@ namespace ATxTray
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
                     heartBeat = "OK";
                 if (_txInProgress)
-                    txProgress = _txProgressPct.ToString();
+                    txProgress = $"{_txProgressPct}%";
             }
 
             UpdateTrayIcon();
@@ -207,7 +207,7 @@ namespace ATxTray
             if (!_statusChanged)
                 return;
 
-            UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}%]");
+            UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}]");
         }
 
         private void MiExitClick(object sender, EventArgs e) {
