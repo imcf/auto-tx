@@ -52,6 +52,17 @@ function ServiceIsBusy {
     }
 }
 
+function Stop-TrayApp() {
+    try {
+        Stop-Process -Name "ATxTray" -Force -ErrorAction Stop
+        Start-Sleep -Milliseconds 200
+        Log-Debug "Stopped Tray App process."
+    }
+    catch {
+        Log-Debug "Unable to stop tray app, is it running?"
+    }
+}
+
 
 function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
     if (Test-Path -PathType Container $DirName) {
@@ -279,6 +290,7 @@ function Update-ServiceBinaries {
         Log-Debug "Found marker [$($MarkerFile)], not updating service."
         Return $False
     }
+    Stop-TrayApp
     Copy-ServiceFiles
     try {
         New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
