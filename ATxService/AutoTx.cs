@@ -55,7 +55,7 @@ namespace ATxService
             // to prevent accidentially launching new transfers etc.
         }
 
-        private TxState _transferState;
+        private TxState _transferState = TxState.Stopped;
 
         private ServiceConfig _config;
         private ServiceStatus _status;
@@ -189,7 +189,6 @@ namespace ATxService
         /// </summary>
         private void LoadSettings() {
             try {
-                _transferState = TxState.Stopped;
 
                 LoadConfigXml();
                 LoadStatusXml();
