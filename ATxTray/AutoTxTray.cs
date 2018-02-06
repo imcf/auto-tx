@@ -62,7 +62,7 @@ namespace ATxTray
             
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
-                FileName = AppTitle + ".log",
+                FileName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".log",
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
                 // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
             };
