@@ -72,18 +72,6 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Wrapper method to send an email and log a message using a format string.
-        /// 
-        /// TODO: Once logging has stabilized we can probably safely remove this method again!
-        /// </summary>
-        private void AdminDebugLog(string subject, string format, params object[] list) {
-            var msg = string.Format(format, list);
-            SendAdminEmail(msg, subject);
-            msg = subject + "\n" + msg;
-            Log.Error(msg);
-        }
-
-        /// <summary>
         /// Send a notification email to the AdminEmailAdress.
         /// </summary>
         /// <param name="body">The email text.</param>
@@ -101,13 +89,9 @@ namespace ATxService
             }
 
             if (subject == "") {
-                subject = ServiceName +
-                          " - " + Environment.MachineName +
-                          " - Admin Notification";
+                subject = $"{ServiceName} - {Environment.MachineName} - Admin Notification";
             }
-            body = "Notification from: " + _config.HostAlias
-                   + " (" + Environment.MachineName + ")\n\n"
-                   + body;
+            body = $"Notification from: {_config.HostAlias} ({Environment.MachineName})\n\n{body}";
             Log.Debug("Sending an admin notification email.");
             SendEmail(_config.AdminEmailAdress, subject, body);
             _status.LastAdminNotification = DateTime.Now;
@@ -140,7 +124,7 @@ namespace ATxService
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
-                var subject = "Low Disk Space On " + Environment.MachineName;
+                var subject = $"Low Disk Space On {Environment.MachineName}";
                 SendEmail(_config.AdminEmailAdress, subject, body);
             }
             catch (Exception ex) {
@@ -161,8 +145,7 @@ namespace ATxService
             var transferredFiles = "List of transferred files:\n";
             transferredFiles += string.Join("\n", _transferredFiles.Take(30).ToArray());
             if (_transferredFiles.Count > 30) {
-                transferredFiles += "\n\n(list showing the first 30 out of the total number of " +
-                                    _transferredFiles.Count + " files)\n";
+                transferredFiles += $"\n\n(showing the first 30 files ({_transferredFiles.Count} in total)\n";
             }
 
             var substitutions = new List<Tuple<string, string>> {
@@ -176,7 +159,7 @@ namespace ATxService
 
             try {
                 var body = LoadMailTemplate("Transfer-Success.txt", substitutions);
-                SendEmail(userDir, ServiceName + " - Transfer Notification", body);
+                SendEmail(userDir, $"{ServiceName} - Transfer Notification", body);
                 Log.Debug("Sent transfer completed notification to {0}", userDir);
             }
             catch (Exception ex) {
@@ -204,7 +187,7 @@ namespace ATxService
             try {
                 var body = LoadMailTemplate("Transfer-Interrupted.txt", substitutions);
                 SendEmail(userDir,
-                    ServiceName + " - Transfer Interrupted - " + _config.HostAlias,
+                    $"{ServiceName} - Transfer Interrupted - {_config.HostAlias}",
                     body);
             }
             catch (Exception ex) {
@@ -227,8 +210,7 @@ namespace ATxService
                 return "";
 
             var delta = TimeUtils.MinutesSince(_status.LastGraceNotification);
-            report += "\nTime since last grace notification: " +
-                TimeUtils.MinutesToHuman(delta) + "\n";
+            report += $"\nTime since last grace notification: {TimeUtils.MinutesToHuman(delta)}\n";
             if (delta < _config.GraceNotificationDelta)
                 return report;
 
