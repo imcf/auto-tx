@@ -18,7 +18,9 @@ namespace ATxTray
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private static readonly string AppTitle = Path.GetFileNameWithoutExtension(Application.ExecutablePath);
+        // private static readonly string AppTitle = Path.GetFileNameWithoutExtension(Application.ExecutablePath);
+        private const string AppTitle = "AutoTx Tray Monitor";
+
         private static readonly Timer AppTimer = new Timer(1000);
         private static bool _terminate = false;
 
