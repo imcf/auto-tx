@@ -121,6 +121,7 @@ namespace ATxTray
 
             _miTitle.Font = new Font(_cmStrip.Font, FontStyle.Bold);
             _miTitle.Text = AppTitle;
+            _miTitle.ToolTipText = Properties.Resources.BuildCommit.Trim();
             _miTitle.Image = _tiDefault.ToBitmap();
             _miTitle.BackColor = Color.LightCoral;
             _miTitle.Click += ShowContextMenu;
