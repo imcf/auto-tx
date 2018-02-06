@@ -279,6 +279,7 @@ namespace ATxCommon.Serializables
         public string CurrentTargetTmpFull() {
             return Path.Combine(_config.DestinationDirectory,
                 _config.TmpTransferDir,
+                Environment.MachineName,
                 _currentTargetTmp);
         }
         
