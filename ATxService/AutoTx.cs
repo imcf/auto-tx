@@ -14,6 +14,9 @@ using NLog.Config;
 using NLog.Targets;
 using RoboSharp;
 
+// NOTE on naming conventions: variables containing "Path" are strings, variables containing
+// "Dir" are DirectoryInfo objects!
+
 namespace ATxService
 {
     public partial class AutoTx : ServiceBase
@@ -23,11 +26,6 @@ namespace ATxService
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}";
         // private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
-
-        // naming convention: variables containing "Path" are strings, variables
-        // containing "Dir" are DirectoryInfo objects
-        private string _pathToConfig;
-        private string _pathToStatus;
 
         private readonly List<string> _transferredFiles = new List<string>();
 
@@ -192,9 +190,6 @@ namespace ATxService
         private void LoadSettings() {
             try {
                 _transferState = TxState.Stopped;
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                _pathToConfig = Path.Combine(baseDir, "configuration.xml");
-                _pathToStatus = Path.Combine(baseDir, "status.xml");
 
                 LoadConfigXml();
                 LoadStatusXml();
@@ -214,13 +209,15 @@ namespace ATxService
         /// Load the configuration xml file.
         /// </summary>
         private void LoadConfigXml() {
+	        var confPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+		        "configuration.xml");
             try {
-                _config = ServiceConfig.Deserialize(_pathToConfig);
-                Log.Debug("Loaded config from [{0}]", _pathToConfig);
+                _config = ServiceConfig.Deserialize(confPath);
+                Log.Debug("Loaded config from [{0}]", confPath);
             }
             catch (ConfigurationErrorsException ex) {
                 Log.Error("ERROR validating configuration file [{0}]: {1}",
-                    _pathToConfig, ex.Message);
+	                confPath, ex.Message);
                 throw new Exception("Error validating configuration.");
             }
             catch (Exception ex) {
@@ -234,14 +231,16 @@ namespace ATxService
         /// Load the status xml file.
         /// </summary>
         private void LoadStatusXml() {
-            try {
-                Log.Debug("Trying to load status from [{0}]", _pathToStatus);
-                _status = ServiceStatus.Deserialize(_pathToStatus, _config);
-                Log.Debug("Loaded status from [{0}]", _pathToStatus);
+	        var statusPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+		        "status.xml");
+			try {
+                Log.Debug("Trying to load status from [{0}]", statusPath);
+                _status = ServiceStatus.Deserialize(statusPath, _config);
+                Log.Debug("Loaded status from [{0}]", statusPath);
             }
             catch (Exception ex) {
                 Log.Error("loading status XML from [{0}] failed: {1} {2}",
-                    _pathToStatus, ex.Message, ex.StackTrace);
+	                statusPath, ex.Message, ex.StackTrace);
                 // this should terminate the service process:
                 throw new Exception("Error loading status.");
             }
