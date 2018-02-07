@@ -27,6 +27,7 @@ namespace ATxTray
         private static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
         private static readonly string ConfigFile = Path.Combine(BaseDir, "configuration.xml");
         private static readonly string StatusFile = Path.Combine(BaseDir, "status.xml");
+        private static string _submitPath;
         private static DateTime _statusAge;
         private static ServiceConfig _config;
         private static ServiceStatus _status;
@@ -56,6 +57,8 @@ namespace ATxTray
 
         private readonly ToolStripProgressBar _miTxProgressBar = new ToolStripProgressBar();
 
+        private static TaskDialog _confirmDialog;
+        private static DirectoryInfo _selectedDir;
         public AutoTxTray() {
             
             #region logging configuration
@@ -106,6 +109,8 @@ namespace ATxTray
                 _terminate = true;
                 System.Threading.Thread.Sleep(5000);
             }
+
+            _submitPath = Path.Combine(_config.IncomingPath, Environment.UserName);
 
             AppTimer.Elapsed += AppTimerElapsed;
             AppTimer.Enabled = true;
@@ -221,17 +226,82 @@ namespace ATxTray
         }
 
         private static void StartNewTransfer(object sender, EventArgs e) {
+            if (!Directory.Exists(_submitPath)) {
+                Log.Error("Current user has no incoming directory: [{0}]", _submitPath);
+                MessageBox.Show($@"User '{Environment.UserName}' is not allowed to start transfers!",
+                    @"User not registered for AutoTx", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var dirDialog = new CommonOpenFileDialog {
                 Title = @"Select directory to be transferred",
                 IsFolderPicker = true,
                 EnsurePathExists = true,
+                Multiselect = false,
                 DefaultDirectory = _config.SourceDrive
             };
-            if (dirDialog.ShowDialog() == CommonFileDialogResult.Ok) {
-                MessageBox.Show($@"Directory\nselected:\n\n{dirDialog.FileName}\n\n" +
-                    @"WARNING: adding new transfers is NOT YET IMPLEMENTED!",
-                    @"New transfer confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (dirDialog.ShowDialog() != CommonFileDialogResult.Ok)
+                return;
+
+            _selectedDir = new DirectoryInfo(dirDialog.FileName);
+            var folderName = _selectedDir.Name;
+            var locationPath = _selectedDir.Parent?.FullName;
+            var size = Conv.BytesToString(FsUtils.GetDirectorySize(_selectedDir.FullName));
+
+            _confirmDialog = new TaskDialog {
+                Caption = "AutoTx - Folder Selection Confirmation",
+                // Icon is buggy in the API and has to be set via an event handler, see below
+                // Icon = TaskDialogStandardIcon.Shield,
+                InstructionText = "Review your folder selection:",
+                FooterText = "Selection summary:\n\n" +
+                             $"Selected Folder:  [{folderName}]\n" +
+                             $"Size:  {size}\n" +
+                             $"Folder Location:  [{locationPath}]",
+                DetailsExpanded = true,
+                StandardButtons = TaskDialogStandardButtons.Cancel,
+            };
+            // register the event handler to set the icon:
+            _confirmDialog.Opened += TaskDialogOpened;
+
+            var acceptBtn = new TaskDialogCommandLink("buttonAccept",
+                $"Accept \"{folderName}\" with a total size of {size}.",
+                $"Transfer \"{folderName}\" from \"{locationPath}\".");
+            var changeBtn = new TaskDialogCommandLink("buttonCancel", "Select different folder...",
+                "Do not use this folder, select another one instead.");
+            acceptBtn.Click += ConfirmAcceptClick;
+            changeBtn.Click += ConfirmChangeClick;
+
+            _confirmDialog.Controls.Add(acceptBtn);
+            _confirmDialog.Controls.Add(changeBtn);
+            _confirmDialog.Show();
+        }
+
+        private static void TaskDialogOpened(object sender, EventArgs e) {
+            var td = sender as TaskDialog;
+            td.Icon = TaskDialogStandardIcon.Shield;
+        }
+
+        private static void ConfirmAcceptClick(object sender, EventArgs e) {
+            _confirmDialog.Close();
+            Log.Debug($"User accepted directory choice [{_selectedDir.FullName}].");
+            var tgtPath = Path.Combine(_submitPath, _selectedDir.Name);
+            try {
+                Directory.Move(_selectedDir.FullName, tgtPath);
             }
+            catch (Exception ex) {
+                Log.Error("Moving [{0}] to [{1}] failed: {2}", _selectedDir.FullName, tgtPath, ex);
+                MessageBox.Show($@"Error submitting {_selectedDir.FullName} for transfer: {ex}",
+                    @"AutoTx New Transfer Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            Log.Info($"Submitted new transfer: [{_selectedDir.FullName}].");
+        }
+
+        private static void ConfirmChangeClick(object sender, EventArgs e) {
+            _confirmDialog.Close();
+            Log.Debug("User wants to change directory choice.");
+            StartNewTransfer(sender, e);
         }
 
         /// <summary>
