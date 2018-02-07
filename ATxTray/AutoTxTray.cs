@@ -59,6 +59,7 @@ namespace ATxTray
 
         private static TaskDialog _confirmDialog;
         private static DirectoryInfo _selectedDir;
+
         public AutoTxTray() {
             
             #region logging configuration
@@ -245,6 +246,14 @@ namespace ATxTray
                 return;
 
             _selectedDir = new DirectoryInfo(dirDialog.FileName);
+            var drive = dirDialog.FileName.Substring(0, 3);
+            if (drive != _config.SourceDrive) {
+                MessageBox.Show($@"The selected directory '{_selectedDir}' is required to be on " +
+                    $@"drive {_config.SourceDrive}, please choose another directory!",
+                    @"Selected directory on wrong drive", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var folderName = _selectedDir.Name;
             var locationPath = _selectedDir.Parent?.FullName;
             var size = Conv.BytesToString(FsUtils.GetDirectorySize(_selectedDir.FullName));
