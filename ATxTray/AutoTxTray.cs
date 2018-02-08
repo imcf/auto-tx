@@ -370,15 +370,19 @@ namespace ATxTray
                 _miSvcRunning.BackColor = Color.LightGreen;
                 _miTitle.BackColor = Color.LightGreen;
                 _miSvcSuspended.Enabled = true;
+                /*
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "Service running.", ToolTipIcon.Info);
+                 */
             } else {
                 _miSvcRunning.Text = @"Service NOT RUNNING!";
                 _miSvcRunning.BackColor = Color.LightCoral;
                 _miTitle.BackColor = Color.LightCoral;
                 _miSvcSuspended.Enabled = false;
+                /*
                 _notifyIcon.ShowBalloonTip(500, AppTitle,
                     "Service stopped.", ToolTipIcon.Error);
+                 */
             }
         }
 
