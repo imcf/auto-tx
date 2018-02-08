@@ -495,6 +495,10 @@ namespace ATxService
             SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
 
+            // update the status heartbeat at least once a minute:
+            if (TimeUtils.SecondsSince(_status.LastStatusUpdate) >= 60)
+                _status.Serialize();
+
             if (TimeUtils.SecondsSince(_lastUserDirCheck) >= 120)
                 CreateIncomingDirectories();
 
