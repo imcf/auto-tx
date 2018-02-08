@@ -154,6 +154,8 @@ namespace ATxCommon.Serializables
         public string LimitReason {
             get { return _limitReason; }
             set {
+                if (_limitReason == value) return;
+
                 _limitReason = value;
                 Log.Trace("LimitReason was updated ({0}).", value);
                 Serialize();
@@ -192,6 +194,8 @@ namespace ATxCommon.Serializables
         public bool ServiceSuspended {
             get { return _serviceSuspended; }
             set {
+                if (_serviceSuspended == value) return;
+
                 _serviceSuspended = value;
                 Log.Trace("ServiceSuspended was updated ({0}).", value);
                 Serialize();
