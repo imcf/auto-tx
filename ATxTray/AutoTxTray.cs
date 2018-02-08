@@ -254,19 +254,27 @@ namespace ATxTray
                 return;
             }
 
+            ReviewNewTxDialog();
+        }
+
+        private static void ReviewNewTxDialog() {
             var folderName = _selectedDir.Name;
             var locationPath = _selectedDir.Parent?.FullName;
             var size = Conv.BytesToString(FsUtils.GetDirectorySize(_selectedDir.FullName));
 
-            _confirmDialog = new TaskDialog {
-                Caption = "AutoTx - Folder Selection Confirmation",
-                // Icon is buggy in the API and has to be set via an event handler, see below
-                // Icon = TaskDialogStandardIcon.Shield,
-                InstructionText = "Review your folder selection:",
-                FooterText = "Selection summary:\n\n" +
+            const string caption = "AutoTx - Folder Selection Confirmation";
+            const string instructionText = "Review your folder selection:";
+            var footerText = "Selection summary:\n\n" +
                              $"Selected Folder:  [{folderName}]\n" +
                              $"Size:  {size}\n" +
-                             $"Folder Location:  [{locationPath}]",
+                             $"Folder Location:  [{locationPath}]";
+
+            _confirmDialog = new TaskDialog {
+                Caption = caption,
+                // Icon is buggy in the API and has to be set via an event handler, see below
+                // Icon = TaskDialogStandardIcon.Shield,
+                InstructionText = instructionText,
+                FooterText = footerText,
                 DetailsExpanded = true,
                 StandardButtons = TaskDialogStandardButtons.Cancel,
             };
@@ -283,7 +291,17 @@ namespace ATxTray
 
             _confirmDialog.Controls.Add(acceptBtn);
             _confirmDialog.Controls.Add(changeBtn);
-            _confirmDialog.Show();
+            try {
+                _confirmDialog.Show();
+            }
+            catch (Exception ex) {
+                Log.Error("Showing the TaskDialog failed: {0}", ex.Message);
+                var res = MessageBox.Show($"{instructionText}\n{footerText}\n\n" +
+                                "Press [OK] to confirm selection.", caption,
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (res == DialogResult.OK)
+                    SubmitDirForTransfer();
+            }
         }
 
         private static void TaskDialogOpened(object sender, EventArgs e) {
@@ -293,6 +311,16 @@ namespace ATxTray
 
         private static void ConfirmAcceptClick(object sender, EventArgs e) {
             _confirmDialog.Close();
+            SubmitDirForTransfer();
+        }
+
+        private static void ConfirmChangeClick(object sender, EventArgs e) {
+            _confirmDialog.Close();
+            Log.Debug("User wants to change directory choice.");
+            StartNewTransfer(sender, e);
+        }
+
+        private static void SubmitDirForTransfer() {
             Log.Debug($"User accepted directory choice [{_selectedDir.FullName}].");
             var tgtPath = Path.Combine(_submitPath, _selectedDir.Name);
             try {
@@ -304,13 +332,8 @@ namespace ATxTray
                     @"AutoTx New Transfer Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            Log.Info($"Submitted new transfer: [{_selectedDir.FullName}].");
-        }
 
-        private static void ConfirmChangeClick(object sender, EventArgs e) {
-            _confirmDialog.Close();
-            Log.Debug("User wants to change directory choice.");
-            StartNewTransfer(sender, e);
+            Log.Info($"Submitted new transfer: [{_selectedDir.FullName}].");
         }
 
         /// <summary>
