@@ -26,9 +26,7 @@ namespace ATxTray
         private static readonly Timer AppTimer = new Timer(1000);
         private static bool _terminate = false;
 
-        private static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
-        private static readonly string ConfigFile = Path.Combine(BaseDir, "configuration.xml");
-        private static readonly string StatusFile = Path.Combine(BaseDir, "status.xml");
+        private static string _statusFile;
         private static string _submitPath;
         private static DateTime _statusAge;
         private static ServiceConfig _config;
@@ -62,10 +60,10 @@ namespace ATxTray
         private static TaskDialog _confirmDialog;
         private static DirectoryInfo _selectedDir;
 
-        public AutoTxTray() {
+        public AutoTxTray(string baseDir) {
             
             #region logging configuration
-            
+
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
                 FileName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".log",
@@ -80,13 +78,16 @@ namespace ATxTray
             #endregion
 
 
+            var configFile = Path.Combine(baseDir, "configuration.xml");
+            _statusFile = Path.Combine(baseDir, "status.xml");
+
             Log.Info("-----------------------");
             Log.Info("{0} initializing...", AppTitle);
             Log.Info("build: [{0}]", Properties.Resources.BuildDate.Trim());
             Log.Info("commit: [{0}]", Properties.Resources.BuildCommit.Trim());
             Log.Info("-----------------------");
-            Log.Debug(" - config file: [{0}]", ConfigFile);
-            Log.Debug(" - status file: [{0}]", StatusFile);
+            Log.Debug(" - config file: [{0}]", configFile);
+            Log.Debug(" - status file: [{0}]", _statusFile);
 
             _notifyIcon.Icon = _tiStopped;
             _notifyIcon.Visible = true;
@@ -97,7 +98,7 @@ namespace ATxTray
 
             Log.Trace("Trying to read service config and status files...");
             try {
-                _config = ServiceConfig.Deserialize(ConfigFile);
+                _config = ServiceConfig.Deserialize(configFile);
                 ReadStatus();
                 Log.Trace("Completed reading service config and status files.");
                 SetupContextMenu();
@@ -342,13 +343,13 @@ namespace ATxTray
         /// Read (or re-read) the service status file if it has changed since last time.
         /// </summary>
         private static void ReadStatus() {
-            var age = new FileInfo(StatusFile).LastWriteTime;
+            var age = new FileInfo(_statusFile).LastWriteTime;
             if (age == _statusAge)
                 return;
 
             Log.Trace("Status file was updated, trying to re-read...");
             _statusAge = age;
-            _status = ServiceStatus.Deserialize(StatusFile, _config);
+            _status = ServiceStatus.Deserialize(_statusFile, _config);
         }
 
         /// <summary>

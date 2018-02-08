@@ -9,10 +9,13 @@ namespace ATxTray
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main() {
+        private static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new AutoTxTray());
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            if (args.Length > 0)
+                baseDir = args[0];
+            Application.Run(new AutoTxTray(baseDir));
         }
     }
 }
