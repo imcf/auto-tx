@@ -28,10 +28,10 @@ namespace ATxTray
 
         private static string _statusFile;
         private static string _submitPath;
-        private static DateTime _statusAge;
         private static ServiceConfig _config;
         private static ServiceStatus _status;
 
+        private static bool _statusFileChanged = false;
         private static bool _statusChanged = false;
         private static bool _svcRunning = false;
         private static bool _svcSuspended = true;
@@ -119,6 +119,14 @@ namespace ATxTray
             AppTimer.Elapsed += AppTimerElapsed;
             AppTimer.Enabled = true;
             Log.Trace("Enabled timer.");
+
+            var fsw = new FileSystemWatcher {
+                Path = baseDir,
+                NotifyFilter = NotifyFilters.LastWrite,
+                Filter = "status.xml",
+            };
+            fsw.Changed += StatusUpdated;
+            fsw.EnableRaisingEvents = true;
 
             Log.Info("AutoTxTray initialization completed.");
         }
@@ -217,6 +225,10 @@ namespace ATxTray
                 return;
 
             UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}]");
+        }
+
+        private static void StatusUpdated(object sender, FileSystemEventArgs e) {
+            _statusFileChanged = true;
         }
 
         private void MiExitClick(object sender, EventArgs e) {
@@ -343,13 +355,12 @@ namespace ATxTray
         /// Read (or re-read) the service status file if it has changed since last time.
         /// </summary>
         private static void ReadStatus() {
-            var age = new FileInfo(_statusFile).LastWriteTime;
-            if (age == _statusAge)
+            if (!_statusFileChanged)
                 return;
 
-            Log.Trace("Status file was updated, trying to re-read...");
-            _statusAge = age;
+            Log.Debug("Status file was updated, trying to re-read...");
             _status = ServiceStatus.Deserialize(_statusFile, _config);
+            _statusFileChanged = false;
         }
 
         /// <summary>
