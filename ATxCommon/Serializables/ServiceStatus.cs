@@ -108,8 +108,8 @@ namespace ATxCommon.Serializables
         /// </summary>
         [XmlElement("LastStatusUpdate", DataType = "dateTime")]
         public DateTime LastStatusUpdate {
-            get { return _lastStatusUpdate; }
-            set { _lastStatusUpdate = value; }
+            get => _lastStatusUpdate;
+            set => _lastStatusUpdate = value;
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace ATxCommon.Serializables
         /// </summary>
         [XmlElement("LastStorageNotification", DataType = "dateTime")]
         public DateTime LastStorageNotification {
-            get { return _lastStorageNotification; }
+            get => _lastStorageNotification;
             set {
                 _lastStorageNotification = value;
                 Serialize();
@@ -129,7 +129,7 @@ namespace ATxCommon.Serializables
         /// </summary>
         [XmlElement("LastAdminNotification", DataType = "dateTime")]
         public DateTime LastAdminNotification {
-            get { return _lastAdminNotification; }
+            get => _lastAdminNotification;
             set {
                 _lastAdminNotification = value;
                 Serialize();
@@ -141,7 +141,7 @@ namespace ATxCommon.Serializables
         /// </summary>
         [XmlElement("LastGraceNotification", DataType = "dateTime")]
         public DateTime LastGraceNotification {
-            get { return _lastGraceNotification; }
+            get => _lastGraceNotification;
             set {
                 _lastGraceNotification = value;
                 Serialize();
@@ -152,7 +152,7 @@ namespace ATxCommon.Serializables
         /// String indicating why the service is currently suspended (empty if not suspended).
         /// </summary>
         public string LimitReason {
-            get { return _limitReason; }
+            get => _limitReason;
             set {
                 if (_limitReason == value) return;
 
@@ -166,7 +166,7 @@ namespace ATxCommon.Serializables
         /// The full path to the folder currently being transferred.
         /// </summary>
         public string CurrentTransferSrc {
-            get { return _currentTransferSrc; }
+            get => _currentTransferSrc;
             set {
                 _currentTransferSrc = value;
                 Log.Trace("CurrentTransferSrc was updated ({0}).", value);
@@ -180,7 +180,7 @@ namespace ATxCommon.Serializables
         /// <seealso cref="CurrentTargetTmpFull"/> on details for assembling the full path.
         /// </summary>
         public string CurrentTargetTmp {
-            get { return _currentTargetTmp; }
+            get => _currentTargetTmp;
             set {
                 _currentTargetTmp = value;
                 Log.Trace("CurrentTargetTmp was updated ({0}).", value);
@@ -192,7 +192,7 @@ namespace ATxCommon.Serializables
         /// Flag indicating whether the service is currently suspended.
         /// </summary>
         public bool ServiceSuspended {
-            get { return _serviceSuspended; }
+            get => _serviceSuspended;
             set {
                 if (_serviceSuspended == value) return;
 
@@ -206,7 +206,7 @@ namespace ATxCommon.Serializables
         /// Flag indicating whether a transfer is currently running.
         /// </summary>
         public bool TransferInProgress {
-            get { return _transferInProgress; }
+            get => _transferInProgress;
             set {
                 _transferInProgress = value;
                 Log.Trace("FilecopyFinished was updated ({0}).", value);
@@ -218,7 +218,7 @@ namespace ATxCommon.Serializables
         /// Indicates whether the service was cleanly shut down (false while the service is running).
         /// </summary>
         public bool CleanShutdown {
-            get { return _cleanShutdown; }
+            get => _cleanShutdown;
             set {
                 _cleanShutdown = value;
                 Serialize();
@@ -229,7 +229,7 @@ namespace ATxCommon.Serializables
         /// The full size of the current transfer in bytes.
         /// </summary>
         public long CurrentTransferSize {
-            get { return _currentTransferSize; }
+            get => _currentTransferSize;
             set {
                 _currentTransferSize = value;
                 Log.Trace("CurrentTransferSize was updated ({0}).", value);
@@ -241,7 +241,7 @@ namespace ATxCommon.Serializables
         /// Total size of files of the running transfer that are already fully transferred.
         /// </summary>
         public long TransferredBytesCompleted {
-            get { return _transferredBytesCompleted; }
+            get => _transferredBytesCompleted;
             set {
                 _transferredBytesCompleted = value;
                 Log.Trace("TransferredBytesCompleted was updated ({0}).", value);
@@ -253,7 +253,7 @@ namespace ATxCommon.Serializables
         /// Total size of files of the running transfer that are already fully transferred.
         /// </summary>
         public long TransferredBytesCurrentFile {
-            get { return _transferredBytesCurrentFile; }
+            get => _transferredBytesCurrentFile;
             set {
                 _transferredBytesCurrentFile = value;
                 Log.Trace("TransferredBytesCurrentFile was updated ({0}).", value);
@@ -265,7 +265,7 @@ namespace ATxCommon.Serializables
         /// The progress of the current transfer in percent.
         /// </summary>
         public int CurrentTransferPercent {
-            get { return _currentTransferPercent; }
+            get => _currentTransferPercent;
             set {
                 _currentTransferPercent = value;
                 Log.Trace("CurrentTransferPercent was updated ({0}).", value);
