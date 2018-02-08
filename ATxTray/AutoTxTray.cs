@@ -12,6 +12,8 @@ using NLog.Config;
 using NLog.Targets;
 using Timer = System.Timers.Timer;
 
+// ReSharper disable RedundantDefaultMemberInitializer
+
 namespace ATxTray
 {
     public class AutoTxTray : ApplicationContext
@@ -296,8 +298,8 @@ namespace ATxTray
             }
             catch (Exception ex) {
                 Log.Error("Showing the TaskDialog failed: {0}", ex.Message);
-                var res = MessageBox.Show($"{instructionText}\n{footerText}\n\n" +
-                                "Press [OK] to confirm selection.", caption,
+                var res = MessageBox.Show($@"{instructionText}\n{footerText}\n\n" +
+                                @"Press [OK] to confirm selection.", caption,
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                 if (res == DialogResult.OK)
                     SubmitDirForTransfer();
