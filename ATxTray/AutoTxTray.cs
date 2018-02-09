@@ -32,14 +32,17 @@ namespace ATxTray
 
         private static bool _statusChanged = false;
         private static bool _statusFileChanged = true;
-        private static bool _svcRunning = false;
-        private static bool _svcSuspended = true;
-        private static string _svcSuspendReason;
+        private static bool _serviceProcessAlive = false;
+        private static bool _serviceSuspended = true;
+        private static string _serviceSuspendReason;
 
         private static bool _txInProgress = false;
         private static long _txSize;
         private static int _txProgressPct;
-        
+
+
+        #region tray icon and context menu variables
+
         private readonly NotifyIcon _notifyIcon = new NotifyIcon();
         private readonly Icon _tiDefault = Properties.Resources.IconDefault;
         private readonly Icon _tiStopped = Properties.Resources.IconStopped;
@@ -55,6 +58,9 @@ namespace ATxTray
         private readonly ToolStripMenuItem _miTxEnqueue = new ToolStripMenuItem();
 
         private readonly ToolStripProgressBar _miTxProgressBar = new ToolStripProgressBar();
+
+        #endregion
+
 
         private static TaskDialog _confirmDialog;
         private static DirectoryInfo _selectedDir;
@@ -74,7 +80,7 @@ namespace ATxTray
 
             _notifyIcon.Icon = _tiStopped;
             _notifyIcon.Visible = true;
-            _notifyIcon.DoubleClick += StartNewTransfer;
+            _notifyIcon.DoubleClick += PickDirectoryForNewTransfer;
 
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
@@ -82,7 +88,7 @@ namespace ATxTray
             Log.Trace("Trying to read service config and status files...");
             try {
                 _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "configuration.xml"));
-                ReadStatus();
+                UpdateStatusInformation();
                 SetupContextMenu();
             }
             catch (Exception ex) {
@@ -108,7 +114,7 @@ namespace ATxTray
                 NotifyFilter = NotifyFilters.LastWrite,
                 Filter = "status.xml",
             };
-            fsw.Changed += StatusUpdated;
+            fsw.Changed += StatusFileUpdated;
             fsw.EnableRaisingEvents = true;
 
             Log.Info("{0} initialization completed.", AppTitle);
@@ -153,7 +159,7 @@ namespace ATxTray
             _miTxProgress.Click += ShowContextMenu;
 
             _miTxEnqueue.Text = @"+++ Add new directory for transfer. +++";
-            _miTxEnqueue.Click += StartNewTransfer;
+            _miTxEnqueue.Click += PickDirectoryForNewTransfer;
 
             _miTxProgressBar.ToolTipText = @"Current Transfer Progress";
             _miTxProgressBar.Value = 0;
@@ -210,35 +216,35 @@ namespace ATxTray
                 return;
             }
 
-            UpdateSvcRunning();
-            ReadStatus();  // update the status no matter if the service process is running
+            UpdateServiceProcessState();
+            UpdateStatusInformation();  // update the status no matter if the service process is running
 
-            var serviceRunning = "stopped";
-            var heartBeat = "?";
+            var svcProcessRunning = "stopped";
+            var statusHeartbeat = "?";
             var txProgress = "No";
 
-            if (_svcRunning) {
-                serviceRunning = "OK";
+            if (_serviceProcessAlive) {
+                svcProcessRunning = "OK";
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds <= 60)
-                    heartBeat = "OK";
+                    statusHeartbeat = "OK";
                 if (_txInProgress)
                     txProgress = $"{_txProgressPct}%";
             }
 
-            UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}]");
+            UpdateHoverText($"AutoTx [svc={svcProcessRunning}] [hb={statusHeartbeat}] [tx={txProgress}]");
 
             if (!_statusChanged)
                 return;
 
-            UpdateSvcSuspended();
+            UpdateServiceSuspendedState();
             UpdateTxProgressBar();
-            UpdateTxInProgress();
+            UpdateTxInProgressState();
 
             UpdateTrayIcon();
             _statusChanged = false;
         }
 
-        private static void StatusUpdated(object sender, FileSystemEventArgs e) {
+        private static void StatusFileUpdated(object sender, FileSystemEventArgs e) {
             _statusFileChanged = true;
         }
 
@@ -248,7 +254,7 @@ namespace ATxTray
             _notifyIcon.ContextMenuStrip.Show();
         }
 
-        private static void StartNewTransfer(object sender, EventArgs e) {
+        private static void PickDirectoryForNewTransfer(object sender, EventArgs e) {
             if (!Directory.Exists(_submitPath)) {
                 Log.Error("Current user has no incoming directory: [{0}]", _submitPath);
                 MessageBox.Show($@"User '{Environment.UserName}' is not allowed to start transfers!",
@@ -276,10 +282,10 @@ namespace ATxTray
                 return;
             }
 
-            ReviewNewTxDialog();
+            NewTxConfirmationDialog();
         }
 
-        private static void ReviewNewTxDialog() {
+        private static void NewTxConfirmationDialog() {
             var folderName = _selectedDir.Name;
             var locationPath = _selectedDir.Parent?.FullName;
             var size = Conv.BytesToString(FsUtils.GetDirectorySize(_selectedDir.FullName));
@@ -322,7 +328,7 @@ namespace ATxTray
                                 @"Press [OK] to confirm selection.", caption,
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                 if (res == DialogResult.OK)
-                    SubmitDirForTransfer();
+                    SubmitDirForNewTx();
             }
         }
 
@@ -333,16 +339,16 @@ namespace ATxTray
 
         private static void ConfirmAcceptClick(object sender, EventArgs e) {
             _confirmDialog.Close();
-            SubmitDirForTransfer();
+            SubmitDirForNewTx();
         }
 
         private static void ConfirmChangeClick(object sender, EventArgs e) {
             _confirmDialog.Close();
             Log.Debug("User wants to change directory choice.");
-            StartNewTransfer(sender, e);
+            PickDirectoryForNewTransfer(sender, e);
         }
 
-        private static void SubmitDirForTransfer() {
+        private static void SubmitDirForNewTx() {
             Log.Debug($"User accepted directory choice [{_selectedDir.FullName}].");
             var tgtPath = Path.Combine(_submitPath, _selectedDir.Name);
             try {
@@ -361,7 +367,7 @@ namespace ATxTray
         /// <summary>
         /// Read (or re-read) the service status file if it has changed since last time.
         /// </summary>
-        private static void ReadStatus() {
+        private static void UpdateStatusInformation() {
             if (!_statusFileChanged)
                 return;
 
@@ -375,18 +381,18 @@ namespace ATxTray
         /// Check if a process with the expeced name of the service is currently running.
         /// </summary>
         /// <returns>True if such a process exists, false otherwise.</returns>
-        private static bool ServiceProcessRunning() {
+        private static bool IsServiceProcessAlive() {
             var plist = Process.GetProcessesByName("AutoTx");
             return plist.Length > 0;
         }
 
-        private void UpdateSvcRunning() {
-            var curSvcRunState = ServiceProcessRunning();
-            if (_svcRunning == curSvcRunState)
+        private void UpdateServiceProcessState() {
+            var isServiceProcessAlive = IsServiceProcessAlive();
+            if (_serviceProcessAlive == isServiceProcessAlive)
                 return;
 
-            _svcRunning = curSvcRunState;
-            if (_svcRunning) {
+            _serviceProcessAlive = isServiceProcessAlive;
+            if (_serviceProcessAlive) {
                 _miSvcRunning.Text = @"Service running.";
                 _miSvcRunning.BackColor = Color.LightGreen;
                 _miTitle.BackColor = Color.LightGreen;
@@ -407,17 +413,17 @@ namespace ATxTray
             }
         }
 
-        private void UpdateSvcSuspended() {
+        private void UpdateServiceSuspendedState() {
             // first update the suspend reason as this can possibly change even if the service
             // never leaves the suspended state and we should still display the correct reason:
-            if (_svcSuspendReason == _status.LimitReason &&
-                _svcSuspended == _status.ServiceSuspended)
+            if (_serviceSuspendReason == _status.LimitReason &&
+                _serviceSuspended == _status.ServiceSuspended)
                 return;
 
-            _svcSuspended = _status.ServiceSuspended;
-            _svcSuspendReason = _status.LimitReason;
-            if (_svcSuspended) {
-                _miSvcSuspended.Text = @"Service suspended, reason: " + _svcSuspendReason;
+            _serviceSuspended = _status.ServiceSuspended;
+            _serviceSuspendReason = _status.LimitReason;
+            if (_serviceSuspended) {
+                _miSvcSuspended.Text = @"Service suspended, reason: " + _serviceSuspendReason;
                 _miSvcSuspended.BackColor = Color.LightSalmon;
                 /*
                 _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
@@ -433,7 +439,7 @@ namespace ATxTray
             }
         }
 
-        private void UpdateTxInProgress() {
+        private void UpdateTxInProgressState() {
             if (_txInProgress == _status.TransferInProgress &&
                 _txSize == _status.CurrentTransferSize)
                 return;
@@ -473,8 +479,7 @@ namespace ATxTray
         }
 
         private void UpdateTrayIcon() {
-            if (_txInProgress &&
-                !_svcSuspended) {
+            if (_txInProgress && !_serviceSuspended) {
                 if (DateTime.Now.Second % 2 == 0) {
                     _notifyIcon.Icon = _tiTx0;
                 } else {
@@ -485,12 +490,12 @@ namespace ATxTray
             if (!_statusChanged)
                 return;
 
-            if (!_svcRunning) {
+            if (!_serviceProcessAlive) {
                 _notifyIcon.Icon = _tiStopped;
                 return;
             }
 
-            if (_svcSuspended) {
+            if (_serviceSuspended) {
                 _notifyIcon.Icon = _tiSuspended;
                 return;
             }
