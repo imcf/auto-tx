@@ -133,7 +133,7 @@ namespace ATxTray
         private void SetupContextMenu() {
             Log.Trace("Building context menu...");
             _miExit.Text = @"Exit";
-            _miExit.Click += MiExitClick;
+            _miExit.Click += AutoTxTrayExit;
 
             _miTitle.Font = new Font(_cmStrip.Font, FontStyle.Bold);
             _miTitle.Text = AppTitle;
@@ -176,11 +176,21 @@ namespace ATxTray
             _notifyIcon.ContextMenuStrip = _cmStrip;
             Log.Trace("Finished building context menu.");
         }
-        
+
+        /// <summary>
+        /// Clean up the tray icon and shut down the application.
+        /// </summary>
         private void AutoTxTrayExit() {
             _notifyIcon.Visible = false;
             Log.Info("Shutting down {0}.", AppTitle);
             Application.Exit();
+        }
+
+        /// <summary>
+        /// Wrapper for AutoTxTrayExit to act as an event handler.
+        /// </summary>
+        private void AutoTxTrayExit(object sender, EventArgs e) {
+            AutoTxTrayExit();
         }
 
         /// <summary>
@@ -230,10 +240,6 @@ namespace ATxTray
 
         private static void StatusUpdated(object sender, FileSystemEventArgs e) {
             _statusFileChanged = true;
-        }
-
-        private void MiExitClick(object sender, EventArgs e) {
-            AutoTxTrayExit();
         }
 
         private void ShowContextMenu(object sender, EventArgs e) {
