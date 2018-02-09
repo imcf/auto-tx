@@ -479,6 +479,10 @@ namespace ATxTray
         }
 
         private void UpdateTrayIcon() {
+            // if a transfer is running and active show the transfer icon, alternating between its
+            // two variants every second ("blinking")
+            // NOTE: this is independent of a status change as the blinking should still happen
+            // even if the status (file) has not been updated in between
             if (_txInProgress && !_serviceSuspended) {
                 if (DateTime.Now.Second % 2 == 0) {
                     _notifyIcon.Icon = _tiTx0;
@@ -487,19 +491,23 @@ namespace ATxTray
                 }
             }
 
+            // now we can check if a status change occurred and just return otherwise:
             if (!_statusChanged)
                 return;
 
+            // show the "stopped" icon if the service process is not running:
             if (!_serviceProcessAlive) {
                 _notifyIcon.Icon = _tiStopped;
                 return;
             }
 
+            // show the "suspended" icon of the service is in the corresponding state:
             if (_serviceSuspended) {
                 _notifyIcon.Icon = _tiSuspended;
                 return;
             }
 
+            // if none of the above is true and no transfer is running show the default icon:
             if (!_txInProgress) {
                 _notifyIcon.Icon = _tiDefault;
             }
