@@ -65,6 +65,10 @@ namespace ATxTray
         private static TaskDialog _confirmDialog;
         private static DirectoryInfo _selectedDir;
 
+        /// <summary>
+        /// Constructor setting up tray icon, config + status, timer and file system watcher.
+        /// </summary>
+        /// <param name="baseDir">The base directory of the AutoTx service installation.</param>
         public AutoTxTray(string baseDir) {
 
             SetupLogging();
@@ -136,6 +140,9 @@ namespace ATxTray
             LogManager.Configuration = logConfig;
         }
 
+        /// <summary>
+        /// Set up the tray icon context menu entries.
+        /// </summary>
         private void SetupContextMenu() {
             Log.Trace("Building context menu...");
             _miExit.Text = @"Exit";
@@ -210,6 +217,9 @@ namespace ATxTray
             _notifyIcon.Text = msg;
         }
 
+        /// <summary>
+        /// Refresh status information and update tray icon and context menu items accordingly.
+        /// </summary>
         private void AppTimerElapsed(object sender, ElapsedEventArgs e) {
             if (_status == null) {
                 AutoTxTrayExit();
@@ -244,16 +254,25 @@ namespace ATxTray
             _statusChanged = false;
         }
 
+        /// <summary>
+        /// Set global flag indicating the status file has changed and needs to be re-read.
+        /// </summary>
         private static void StatusFileUpdated(object sender, FileSystemEventArgs e) {
             _statusFileChanged = true;
         }
 
+        /// <summary>
+        /// Event handler to make the context menu appear on the screen.
+        /// </summary>
         private void ShowContextMenu(object sender, EventArgs e) {
             // just show the menu again, to avoid that clicking the menu item closes the context
             // menu without having to disable the item (which would grey out the text and icon):
             _notifyIcon.ContextMenuStrip.Show();
         }
 
+        /// <summary>
+        /// Let the user select a directory for starting a new transfer.
+        /// </summary>
         private static void PickDirectoryForNewTransfer(object sender, EventArgs e) {
             if (!Directory.Exists(_submitPath)) {
                 Log.Error("Current user has no incoming directory: [{0}]", _submitPath);
@@ -285,6 +304,9 @@ namespace ATxTray
             NewTxConfirmationDialog();
         }
 
+        /// <summary>
+        /// Let the user confirm the directory choice by presenting a summary with name, size etc.
+        /// </summary>
         private static void NewTxConfirmationDialog() {
             var folderName = _selectedDir.Name;
             var locationPath = _selectedDir.Parent?.FullName;
@@ -332,22 +354,37 @@ namespace ATxTray
             }
         }
 
+        /// <summary>
+        /// Dummy handler to set the TaskDialog icon.
+        /// </summary>
         private static void TaskDialogOpened(object sender, EventArgs e) {
             var td = sender as TaskDialog;
             td.Icon = TaskDialogStandardIcon.Shield;
         }
 
+        /// <summary>
+        /// Close the confirmation dialog and submit the selected dir for transfer.
+        /// </summary>
         private static void ConfirmAcceptClick(object sender, EventArgs e) {
             _confirmDialog.Close();
             SubmitDirForNewTx();
         }
 
+        /// <summary>
+        /// Close the confirmation dialog and re-show the directory picker.
+        /// </summary>
         private static void ConfirmChangeClick(object sender, EventArgs e) {
             _confirmDialog.Close();
             Log.Debug("User wants to change directory choice.");
             PickDirectoryForNewTransfer(sender, e);
         }
 
+        /// <summary>
+        /// Submit the selected directory as a new transfer.
+        /// 
+        /// The chosen folder will be moved to the AutoTx "incoming" location of the current user
+        /// where it will be picked up by the service as a new transfer.
+        /// </summary>
         private static void SubmitDirForNewTx() {
             Log.Debug($"User accepted directory choice [{_selectedDir.FullName}].");
             var tgtPath = Path.Combine(_submitPath, _selectedDir.Name);
@@ -386,6 +423,9 @@ namespace ATxTray
             return plist.Length > 0;
         }
 
+        /// <summary>
+        /// Check if the service process is alive and update context menu entries accordingly.
+        /// </summary>
         private void UpdateServiceProcessState() {
             var isServiceProcessAlive = IsServiceProcessAlive();
             if (_serviceProcessAlive == isServiceProcessAlive)
@@ -413,6 +453,9 @@ namespace ATxTray
             }
         }
 
+        /// <summary>
+        /// Update the context menu with the current "suspended" state of the service.
+        /// </summary>
         private void UpdateServiceSuspendedState() {
             // first update the suspend reason as this can possibly change even if the service
             // never leaves the suspended state and we should still display the correct reason:
@@ -439,6 +482,10 @@ namespace ATxTray
             }
         }
 
+        /// <summary>
+        /// Update the context menu regarding the current transfer state, show a balloon tooltip
+        /// if the transfer status has changed.
+        /// </summary>
         private void UpdateTxInProgressState() {
             if (_txInProgress == _status.TransferInProgress &&
                 _txSize == _status.CurrentTransferSize)
@@ -460,6 +507,9 @@ namespace ATxTray
             }
         }
 
+        /// <summary>
+        /// Update the transfer progress bar.
+        /// </summary>
         private void UpdateTxProgressBar() {
             if (_txInProgress == _status.TransferInProgress &&
                 _txProgressPct == _status.CurrentTransferPercent)
@@ -478,6 +528,9 @@ namespace ATxTray
             }
         }
 
+        /// <summary>
+        /// Update the tray icon reflecting the current service and transfer status.
+        /// </summary>
         private void UpdateTrayIcon() {
             // if a transfer is running and active show the transfer icon, alternating between its
             // two variants every second ("blinking")
