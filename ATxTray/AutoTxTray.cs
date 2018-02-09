@@ -24,7 +24,6 @@ namespace ATxTray
         private const string AppTitle = "AutoTx Tray Monitor";
 
         private static readonly Timer AppTimer = new Timer(1000);
-        private static bool _terminate = false;
 
         private static string _statusFile;
         private static string _submitPath;
@@ -104,9 +103,10 @@ namespace ATxTray
                 Log.Error(msg);
                 _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
                 // we cannot terminate the message loop (Application.Run()) while the constructor
-                // is being run as it is not active yet - therefore we simply remember that we want
-                // to exit and evaluate this in the "Elapsed" handler:
-                _terminate = true;
+                // is being run as it is not active yet - therefore we set the _status object to
+                // null which will terminate the application during the next "Elapsed" event:
+                _status = null;
+                // suspend the thread for 5s to make sure the balloon tip is shown for a while:
                 System.Threading.Thread.Sleep(5000);
             }
 
@@ -192,7 +192,7 @@ namespace ATxTray
         }
 
         private void AppTimerElapsed(object sender, ElapsedEventArgs e) {
-            if (_terminate) {
+            if (_status == null) {
                 AutoTxTrayExit();
                 return;
             }
