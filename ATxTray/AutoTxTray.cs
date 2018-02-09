@@ -77,8 +77,6 @@ namespace ATxTray
 
             #endregion
 
-
-            var configFile = Path.Combine(baseDir, "configuration.xml");
             _statusFile = Path.Combine(baseDir, "status.xml");
 
             Log.Info("-----------------------");
@@ -86,7 +84,6 @@ namespace ATxTray
             Log.Info("build: [{0}]", Properties.Resources.BuildDate.Trim());
             Log.Info("commit: [{0}]", Properties.Resources.BuildCommit.Trim());
             Log.Info("-----------------------");
-            Log.Debug(" - config file: [{0}]", configFile);
             Log.Debug(" - status file: [{0}]", _statusFile);
 
             _notifyIcon.Icon = _tiStopped;
@@ -98,9 +95,8 @@ namespace ATxTray
 
             Log.Trace("Trying to read service config and status files...");
             try {
-                _config = ServiceConfig.Deserialize(configFile);
+                _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "configuration.xml"));
                 ReadStatus();
-                Log.Trace("Completed reading service config and status files.");
                 SetupContextMenu();
             }
             catch (Exception ex) {
