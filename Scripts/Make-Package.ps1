@@ -19,9 +19,10 @@ catch {
 
 $PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
 $PkgDir = "build_" + $PkgDir
-$BinariesDir = "..\ATxService\bin\$($BuildConfiguration)"
+$BinariesDirService = "..\ATxService\bin\$($BuildConfiguration)"
+$BinariesDirTrayApp = "..\ATxTray\bin\$($BuildConfiguration)"
 
-Write-Host "Creating package [$($PkgDir)] using binaries from [$($BinariesDir)]"
+Write-Host "Creating package [$($PkgDir)] using binaries from [$($BinariesDirService)] and [$($BinariesDirTrayApp)]"
 
 if (Test-Path $PkgDir) {
     Write-Host "Removing existing package dir [$($PkgDir)]..."
@@ -33,13 +34,14 @@ $dir = New-Item -ItemType Container -Path $PkgDir -Name "AutoTx"
 $tgt = $dir.FullName
 
 Copy-Item -Recurse "$TemplateDir" $tgt
-Copy-Item -Recurse "$($BinariesDir)\*" $tgt
+Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
+Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
 # provide an up-to-date version of the example config file:
 Copy-Item "$($ResourceDir)\configuration-example.xml" $tgt
 
 Copy-Item "$($ResourceDir)\configuration-example.xml" "$($PkgDir)\configuration.xml"
 Copy-Item "$($ResourceDir)\status-example.xml" "$($PkgDir)\status.xml"
-Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\service.log"
+Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\AutoTx.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 try {
     $CommitRefFile = "$($PkgDir)\BuildCommitRef.txt"
