@@ -178,8 +178,8 @@ namespace ATxTray
         }
         
         private void AutoTxTrayExit() {
-            Log.Info("Shutting down {0}.", AppTitle);
             _notifyIcon.Visible = false;
+            Log.Info("Shutting down {0}.", AppTitle);
             Application.Exit();
         }
 
@@ -203,13 +203,13 @@ namespace ATxTray
             UpdateSvcRunning();
             ReadStatus();  // update the status no matter if the service process is running
 
-            var heartBeat = "?";
             var serviceRunning = "stopped";
+            var heartBeat = "?";
             var txProgress = "No";
 
             if (_svcRunning) {
                 serviceRunning = "OK";
-                if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
+                if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds <= 60)
                     heartBeat = "OK";
                 if (_txInProgress)
                     txProgress = $"{_txProgressPct}%";
@@ -359,7 +359,7 @@ namespace ATxTray
             if (!_statusFileChanged)
                 return;
 
-            Log.Debug("Status file was updated, trying to re-read...");
+            Log.Trace("Status file was updated, trying to re-read...");
             _status = ServiceStatus.Deserialize(_statusFile, _config);
             _statusFileChanged = false;
             _statusChanged = true;
