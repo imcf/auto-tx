@@ -60,21 +60,8 @@ namespace ATxTray
         private static DirectoryInfo _selectedDir;
 
         public AutoTxTray(string baseDir) {
-            
-            #region logging configuration
 
-            var logConfig = new LoggingConfiguration();
-            var fileTarget = new FileTarget {
-                FileName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".log",
-                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
-                // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
-            };
-            logConfig.AddTarget("file", fileTarget);
-            var logRule = new LoggingRule("*", LogLevel.Debug, fileTarget);
-            logConfig.LoggingRules.Add(logRule);
-            LogManager.Configuration = logConfig;
-
-            #endregion
+            SetupLogging();
 
             _statusFile = Path.Combine(baseDir, "status.xml");
 
@@ -124,7 +111,23 @@ namespace ATxTray
             fsw.Changed += StatusUpdated;
             fsw.EnableRaisingEvents = true;
 
-            Log.Info("AutoTxTray initialization completed.");
+            Log.Info("{0} initialization completed.", AppTitle);
+        }
+
+        /// <summary>
+        /// Configure logging using a file target.
+        /// </summary>
+        private static void SetupLogging() {
+            var logConfig = new LoggingConfiguration();
+            var fileTarget = new FileTarget {
+                FileName = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".log",
+                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
+                // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
+            };
+            logConfig.AddTarget("file", fileTarget);
+            var logRule = new LoggingRule("*", LogLevel.Debug, fileTarget);
+            logConfig.LoggingRules.Add(logRule);
+            LogManager.Configuration = logConfig;
         }
 
         private void SetupContextMenu() {
