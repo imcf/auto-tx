@@ -30,8 +30,8 @@ namespace ATxTray
         private static ServiceConfig _config;
         private static ServiceStatus _status;
 
-        private static bool _statusFileChanged = false;
         private static bool _statusChanged = false;
+        private static bool _statusFileChanged = true;
         private static bool _svcRunning = false;
         private static bool _svcSuspended = true;
         private static string _svcSuspendReason;
@@ -201,6 +201,7 @@ namespace ATxTray
             }
 
             UpdateSvcRunning();
+            ReadStatus();  // update the status no matter if the service process is running
 
             var heartBeat = "?";
             var serviceRunning = "stopped";
@@ -208,22 +209,23 @@ namespace ATxTray
 
             if (_svcRunning) {
                 serviceRunning = "OK";
-                ReadStatus();
-                UpdateSvcSuspended();
-                UpdateTxProgressBar();
-                UpdateTxInProgress();
                 if ((DateTime.Now - _status.LastStatusUpdate).TotalSeconds < 60)
                     heartBeat = "OK";
                 if (_txInProgress)
                     txProgress = $"{_txProgressPct}%";
             }
 
-            UpdateTrayIcon();
+            UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}]");
 
             if (!_statusChanged)
                 return;
 
-            UpdateHoverText($"AutoTx [svc={serviceRunning}] [hb={heartBeat}] [tx={txProgress}]");
+            UpdateSvcSuspended();
+            UpdateTxProgressBar();
+            UpdateTxInProgress();
+
+            UpdateTrayIcon();
+            _statusChanged = false;
         }
 
         private static void StatusUpdated(object sender, FileSystemEventArgs e) {
@@ -360,6 +362,7 @@ namespace ATxTray
             Log.Debug("Status file was updated, trying to re-read...");
             _status = ServiceStatus.Deserialize(_statusFile, _config);
             _statusFileChanged = false;
+            _statusChanged = true;
         }
 
         /// <summary>
@@ -376,7 +379,6 @@ namespace ATxTray
             if (_svcRunning == curSvcRunState)
                 return;
 
-            _statusChanged = true;
             _svcRunning = curSvcRunState;
             if (_svcRunning) {
                 _miSvcRunning.Text = @"Service running.";
@@ -406,7 +408,6 @@ namespace ATxTray
                 _svcSuspended == _status.ServiceSuspended)
                 return;
 
-            _statusChanged = true;
             _svcSuspended = _status.ServiceSuspended;
             _svcSuspendReason = _status.LimitReason;
             if (_svcSuspended) {
@@ -431,7 +432,6 @@ namespace ATxTray
                 _txSize == _status.CurrentTransferSize)
                 return;
 
-            _statusChanged = true;
             _txInProgress = _status.TransferInProgress;
             _txSize = _status.CurrentTransferSize;
             if (_txInProgress) {
@@ -453,7 +453,6 @@ namespace ATxTray
                 _txProgressPct == _status.CurrentTransferPercent)
                 return;
 
-            _statusChanged = true;
             _txProgressPct = _status.CurrentTransferPercent;
             if (_txInProgress) {
                 Log.Debug("Transfer progress: {0}%", _txProgressPct);
