@@ -97,5 +97,14 @@ namespace ATxCommon
         public static string DaysToHuman(long delta) {
             return MinutesToHuman(delta * 60 * 24);
         }
+
+        /// <summary>
+        /// Wrapper to convert a date into a human readable string relative to now.
+        /// </summary>
+        /// <param name="refDate">The reference DateTime to check.</param>
+        /// <returns>A string describing the delta, e.g. "12 days" or "3 weeks".</returns>
+        public static string HumanSince(DateTime refDate) {
+            return SecondsToHuman(SecondsSince(refDate));
+        }
     }
 }

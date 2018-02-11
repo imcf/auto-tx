@@ -331,13 +331,13 @@ namespace ATxCommon.Serializables
                 $"TransferInProgress: {TransferInProgress}\n" +
                 $"CurrentTransferSize: {CurrentTransferSize}\n" +
                 $"LastStatusUpdate: {LastStatusUpdate:yyyy-MM-dd HH:mm:ss}" +
-                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStatusUpdate))})\n" +
+                $" ({TimeUtils.HumanSince(LastStatusUpdate)})\n" +
                 $"LastStorageNotification: {LastStorageNotification:yyyy-MM-dd HH:mm:ss}" +
-                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStorageNotification))})\n" +
+                $" ({TimeUtils.HumanSince(LastStorageNotification)})\n" +
                 $"LastAdminNotification: {LastAdminNotification:yyyy-MM-dd HH:mm:ss}" +
-                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastAdminNotification))})\n" +
+                $" ({TimeUtils.HumanSince(LastAdminNotification)})\n" +
                 $"LastGraceNotification: {LastGraceNotification:yyyy-MM-dd HH:mm:ss}" +
-                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastGraceNotification))})\n";
+                $" ({TimeUtils.HumanSince(LastGraceNotification)})\n";
         }
 
         #endregion validate and report
