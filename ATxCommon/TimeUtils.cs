@@ -47,6 +47,8 @@ namespace ATxCommon
             const int hour = minute * 60;
             const int day = hour * 24;
             const int week = day * 7;
+            const int month = day * 30;
+            const int year = day * 365;
             
             if (delta < minute)
                 return $"{delta} seconds {desc}";
@@ -68,7 +70,14 @@ namespace ATxCommon
             if (delta < 2 * week)
                 return $"{delta / day} days ${desc}";
 
-            return delta / week + " weeks";
+            if (delta < 2 * month)
+                return $"{delta / week} weeks {desc}";
+
+            // TODO: make the remaining options more flexible (like "< day" above)
+            if (delta < year)
+                return $"{delta / month} monts {desc}";
+
+            return $"{delta / year} years {desc}";
         }
 
         /// <summary>
