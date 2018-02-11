@@ -73,9 +73,29 @@ namespace ATxCommon
             if (delta < 2 * month)
                 return $"{delta / week} weeks {desc}";
 
-            // TODO: make the remaining options more flexible (like "< day" above)
-            if (delta < year)
-                return $"{delta / month} monts {desc}";
+            if (delta < year) {
+                var months = delta / month;
+                var weeks = (delta - months * month) / week;
+                var days = ((delta - months * month) - weeks * week) / day;
+                var ret = $"{months} months";
+                if (weeks > 0)
+                    ret += $" {weeks} weeks";
+                if (days > 0)
+                    ret += $" {days} days";
+                return $"{ret} {desc}";
+            }
+
+            if (delta < 10 * year) {
+                var years = delta / year;
+                var months = (delta - years * year) / month;
+                var days = ((delta - years * year) - months * month) / day;
+                var ret = $"{years} years";
+                if (months > 0)
+                    ret += $" {months} months";
+                if (days > 0)
+                    ret += $" {days} days";
+                return $"{ret} {desc}";
+            }
 
             return $"{delta / year} years {desc}";
         }
