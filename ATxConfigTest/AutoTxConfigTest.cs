@@ -34,6 +34,7 @@ namespace ATxConfigTest
             }
             catch (Exception ex) {
                 Console.WriteLine(ex);
+                Environment.ExitCode = -1;
             }
         }
     }
