@@ -326,26 +326,18 @@ namespace ATxCommon.Serializables
         /// <returns>A string with details on the transfer.</returns>
         public string Summary() {
             return
-                "CurrentTransferSrc: " + CurrentTransferSrc + "\n" +
-                "CurrentTargetTmp: " + CurrentTargetTmp + "\n" +
-                "TransferInProgress: " + TransferInProgress + "\n" +
-                "CurrentTransferSize: " + CurrentTransferSize + "\n" +
-                "LastStatusUpdate: " +
-                LastStatusUpdate.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
-                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStatusUpdate)) +
-                " ago)\n" +
-                "LastStorageNotification: " +
-                LastStorageNotification.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
-                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStorageNotification)) +
-                " ago)\n" +
-                "LastAdminNotification: " +
-                LastAdminNotification.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
-                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastAdminNotification)) +
-                " ago)\n" +
-                "LastGraceNotification: " +
-                LastGraceNotification.ToString("yyyy-MM-dd HH:mm:ss") + " (" +
-                TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastGraceNotification)) +
-                " ago)\n";
+                $"CurrentTransferSrc: {CurrentTransferSrc}\n" +
+                $"CurrentTargetTmp: {CurrentTargetTmp}\n" +
+                $"TransferInProgress: {TransferInProgress}\n" +
+                $"CurrentTransferSize: {CurrentTransferSize}\n" +
+                $"LastStatusUpdate: {LastStatusUpdate:yyyy-MM-dd HH:mm:ss}" +
+                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStatusUpdate))})\n" +
+                $"LastStorageNotification: {LastStorageNotification:yyyy-MM-dd HH:mm:ss}" +
+                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastStorageNotification))})\n" +
+                $"LastAdminNotification: {LastAdminNotification:yyyy-MM-dd HH:mm:ss}" +
+                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastAdminNotification))})\n" +
+                $"LastGraceNotification: {LastGraceNotification:yyyy-MM-dd HH:mm:ss}" +
+                $" ({TimeUtils.SecondsToHuman(TimeUtils.SecondsSince(LastGraceNotification))})\n";
         }
 
         #endregion validate and report
