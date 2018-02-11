@@ -29,8 +29,15 @@ $PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
 $PkgDir = "build_" + $PkgDir
 $BinariesDirService = "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = "..\ATxTray\bin\$($BuildConfiguration)"
+$BinariesDirCfgTest = "..\ATxConfigTest\bin\$($BuildConfiguration)"
 
-Write-Host "Creating package [$($PkgDir)] using binaries from [$($BinariesDirService)] and [$($BinariesDirTrayApp)]"
+Write-Host -NoNewline "Creating package "
+Highlight $PkgDir "Red"
+Write-Host " using binaries from:"
+Write-Host $(Highlight $BinariesDirService "Green")
+Write-Host $(Highlight $BinariesDirTrayApp "Green")
+Write-Host $(Highlight $BinariesDirCfgTest "Green")
+Write-Host ""
 
 if (Test-Path $PkgDir) {
     Write-Host "Removing existing package dir [$($PkgDir)]..."
@@ -44,6 +51,7 @@ $tgt = $dir.FullName
 Copy-Item -Recurse "$TemplateDir" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
+Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirCfgTest)\*" $tgt -EA Ignore
 # provide an up-to-date version of the example config file:
 Copy-Item "$($ResourceDir)\configuration-example.xml" $tgt
 
