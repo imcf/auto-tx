@@ -36,6 +36,12 @@ namespace ATxCommon
         /// <param name="delta">The time span in seconds.</param>
         /// <returns>A string describing the duration, e.g. "2 hours 34 minutes".</returns>
         public static string SecondsToHuman(long delta) {
+            var desc = "ago";
+            if (delta < 0) {
+                delta *= -1;
+                desc = "in the future";
+            }
+
             const int second = 1;
             const int minute = second * 60;
             const int hour = minute * 60;
@@ -43,24 +49,24 @@ namespace ATxCommon
             const int week = day * 7;
             
             if (delta < minute)
-                return delta + " seconds";
+                return $"{delta} seconds {desc}";
 
             if (delta < 2 * minute)
-                return "a minute";
+                return $"a minute {desc}";
 
             if (delta < hour)
-                return delta / minute + " minutes";
+                return $"{delta / minute} minutes {desc}";
 
             if (delta < day) {
                 var hours = delta / hour;
                 var mins = (delta - hours * hour) / minute;
                 if (mins > 0)
-                    return hours + " hours " + mins + " minutes";
-                return hours + " hours";
+                    return $"{hours} hours {mins} minutes {desc}";
+                return $"{hours} hours {desc}";
             }
 
             if (delta < 2 * week)
-                return delta / day + " days";
+                return $"{delta / day} days ${desc}";
 
             return delta / week + " weeks";
         }
