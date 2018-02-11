@@ -1,6 +1,14 @@
 $ResourceDir = "..\ATxService\Resources"
 $TemplateDir = "$($ResourceDir)\Mail-Templates"
 
+
+function Highlight([string]$Message, [string]$Color = "Cyan") {
+    Write-Host -NoNewline "["
+    Write-Host -NoNewline -F $Color $Message
+    Write-Host -NoNewline "]"
+}
+
+
 try {
     $BuildDate = Get-Content "$($ResourceDir)\BuildDate.txt" -EA Stop
 }
@@ -56,12 +64,6 @@ catch {
 
 Copy-Item "ScriptsConfig.ps1" $PkgDir
 Copy-Item "Install-Service.ps1" $PkgDir
-
-function Highlight([string]$Message) {
-    Write-Host -NoNewline "["
-    Write-Host -NoNewline -F Cyan $Message
-    Write-Host -NoNewline "]"
-}
 
 Write-Host -NoNewline "Done creating package "
 Highlight $PkgDir
