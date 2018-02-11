@@ -14,13 +14,8 @@ namespace ATxConfigTest
 
         private static void Main(string[] args) {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-
-            try {
+            if (args.Length > 0)
                 baseDir = args[0];
-            }
-            catch {
-                // ignored (use default value from above)
-            }
 
             var configPath = Path.Combine(baseDir, "configuration.xml");
             var statusPath = Path.Combine(baseDir, "status.xml");
