@@ -27,15 +27,15 @@ namespace ATxConfigTest
 
             try {
                 string msg;
-                Console.WriteLine("\nTrying to parse configuration file [{0}]...\n", configPath);
+                Console.WriteLine($"\nTrying to parse configuration file [{configPath}]...\n");
                 _config = ServiceConfig.Deserialize(configPath);
                 msg = "------------------ configuration settings ------------------";
-                Console.WriteLine("{0}\n{1}{0}\n", msg, _config.Summary());
+                Console.WriteLine($"{msg}\n{_config.Summary()}{msg}\n");
 
-                Console.WriteLine("\nTrying to parse status file [{0}]...\n", statusPath);
+                Console.WriteLine($"\nTrying to parse status file [{statusPath}]...\n");
                 _status = ServiceStatus.Deserialize(statusPath, _config);
                 msg = "------------------ status parameters ------------------";
-                Console.WriteLine("{0}\n{1}{0}\n", msg, _status.Summary());
+                Console.WriteLine($"{msg}\n{_status.Summary()}{msg}\n");
             }
             catch (Exception ex) {
                 Console.WriteLine(ex);
