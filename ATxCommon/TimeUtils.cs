@@ -17,8 +17,8 @@ namespace ATxCommon
         /// </summary>
         /// <param name="refDate">The reference DateTime to check.</param>
         /// <returns>The number of minutes between the reference date and now.</returns>
-        public static int MinutesSince(DateTime refDate) {
-            return (int)(DateTime.Now - refDate).TotalMinutes;
+        public static long MinutesSince(DateTime refDate) {
+            return (long)(DateTime.Now - refDate).TotalMinutes;
         }
 
         /// <summary>
@@ -26,8 +26,8 @@ namespace ATxCommon
         /// </summary>
         /// <param name="refDate">The reference DateTime to check.</param>
         /// <returns>The number of seconds between the reference date and now.</returns>
-        public static int SecondsSince(DateTime refDate) {
-            return (int)(DateTime.Now - refDate).TotalSeconds;
+        public static long SecondsSince(DateTime refDate) {
+            return (long)(DateTime.Now - refDate).TotalSeconds;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace ATxCommon
         /// </summary>
         /// <param name="delta">The time span in seconds.</param>
         /// <returns>A string describing the duration, e.g. "2 hours 34 minutes".</returns>
-        public static string SecondsToHuman(int delta) {
+        public static string SecondsToHuman(long delta) {
             const int second = 1;
             const int minute = second * 60;
             const int hour = minute * 60;
@@ -70,7 +70,7 @@ namespace ATxCommon
         /// </summary>
         /// <param name="delta">The time span in minutes.</param>
         /// <returns>A string describing the duration, e.g. "2 hours 34 minutes".</returns>
-        public static string MinutesToHuman(int delta) {
+        public static string MinutesToHuman(long delta) {
             return SecondsToHuman(delta * 60);
         }
 
@@ -79,7 +79,7 @@ namespace ATxCommon
         /// </summary>
         /// <param name="delta">The time span in days.</param>
         /// <returns>A string describing the duration, e.g. "12 days" or "3 weeks".</returns>
-        public static string DaysToHuman(int delta) {
+        public static string DaysToHuman(long delta) {
             return MinutesToHuman(delta * 60 * 24);
         }
     }
