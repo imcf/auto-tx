@@ -303,43 +303,43 @@ namespace ATxCommon.Serializables
         /// <returns>A string with details on the configuration.</returns>
         public string Summary() {
             var msg =
-                "HostAlias: " + HostAlias + "\n" +
-                "SourceDrive: " + SourceDrive + "\n" +
-                "IncomingDirectory: " + IncomingDirectory + "\n" +
-                "MarkerFile: " + MarkerFile + "\n" +
-                "ManagedDirectory: " + ManagedDirectory + "\n" +
-                "GracePeriod: " + GracePeriod + " (" +
-                TimeUtils.DaysToHuman(GracePeriod) + ")\n" +
-                "DestinationDirectory: " + DestinationDirectory + "\n" +
-                "TmpTransferDir: " + TmpTransferDir + "\n" +
-                "EnforceInheritedACLs: " + EnforceInheritedACLs + "\n" +
-                "ServiceTimer: " + ServiceTimer + " ms\n" +
-                "InterPacketGap: " + InterPacketGap + "\n" +
-                "MaxCpuUsage: " + MaxCpuUsage + "%\n" +
-                "MinAvailableMemory: " + MinAvailableMemory + "\n";
+                $"HostAlias: {HostAlias}\n" +
+                $"SourceDrive: {SourceDrive}\n" +
+                $"IncomingDirectory: {IncomingDirectory}\n" +
+                $"MarkerFile: {MarkerFile}\n" +
+                $"ManagedDirectory: {ManagedDirectory}\n" +
+                $"GracePeriod: {GracePeriod} (" +
+                TimeUtils.DaysToHuman(GracePeriod, false) + ")\n" +
+                $"DestinationDirectory: {DestinationDirectory}\n" +
+                $"TmpTransferDir: {TmpTransferDir}\n" +
+                $"EnforceInheritedACLs: {EnforceInheritedACLs}\n" +
+                $"ServiceTimer: {ServiceTimer} ms\n" +
+                $"InterPacketGap: {InterPacketGap}\n" +
+                $"MaxCpuUsage: {MaxCpuUsage}%\n" +
+                $"MinAvailableMemory: {MinAvailableMemory}\n";
             foreach (var processName in BlacklistedProcesses) {
-                msg += "BlacklistedProcess: " + processName + "\n";
+                msg += $"BlacklistedProcess: {processName}\n";
             }
-            foreach (var driveToCheck in SpaceMonitoring) {
-                msg += "Drive to check free space: " + driveToCheck.DriveName +
-                       " (threshold: " +
-                       Conv.BytesToString(driveToCheck.SpaceThreshold * Conv.MegaBytes) +
-                       ")" + "\n";
+            foreach (var drive in SpaceMonitoring) {
+                msg += $"Drive to check free space: {drive.DriveName} " +
+                       $"(threshold: {Conv.MegabytesToString(drive.SpaceThreshold)})\n";
             }
             if (string.IsNullOrEmpty(SmtpHost)) {
                 msg += "SmtpHost: ====== Not configured, disabling email! ======" + "\n";
             } else {
                 msg +=
-                    "SmtpHost: " + SmtpHost + "\n" +
-                    "EmailFrom: " + EmailFrom + "\n" +
-                    "AdminEmailAdress: " + AdminEmailAdress + "\n" +
-                    "AdminDebugEmailAdress: " + AdminDebugEmailAdress + "\n" +
-                    "StorageNotificationDelta: " + StorageNotificationDelta + " (" +
-                    TimeUtils.MinutesToHuman(StorageNotificationDelta) + ")\n" +
-                    "AdminNotificationDelta: " + AdminNotificationDelta + " (" +
-                    TimeUtils.MinutesToHuman(AdminNotificationDelta) + ")\n" +
-                    "GraceNotificationDelta: " + GraceNotificationDelta + " (" +
-                    TimeUtils.MinutesToHuman(GraceNotificationDelta) + ")\n";
+                    $"SmtpHost: {SmtpHost}\n" +
+                    $"SmtpUserCredential: {SmtpUserCredential}\n" +
+                    $"EmailPrefix: {EmailPrefix}\n" +
+                    $"EmailFrom: {EmailFrom}\n" +
+                    $"AdminEmailAdress: {AdminEmailAdress}\n" +
+                    $"AdminDebugEmailAdress: {AdminDebugEmailAdress}\n" +
+                    $"StorageNotificationDelta: {StorageNotificationDelta} (" +
+                    TimeUtils.MinutesToHuman(StorageNotificationDelta, false) + ")\n" +
+                    $"AdminNotificationDelta: {AdminNotificationDelta} (" +
+                    TimeUtils.MinutesToHuman(AdminNotificationDelta, false) + ")\n" +
+                    $"GraceNotificationDelta: {GraceNotificationDelta} (" +
+                    TimeUtils.MinutesToHuman(GraceNotificationDelta, false) + ")\n";
             }
             return msg;
         }
