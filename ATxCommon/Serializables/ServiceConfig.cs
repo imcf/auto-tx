@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 using NLog;
 
@@ -34,10 +35,11 @@ namespace ATxCommon.Serializables
 
         public static ServiceConfig Deserialize(string file) {
             Log.Debug("Trying to read service configuration XML file: [{0}]", file);
-            var xs = new XmlSerializer(typeof(ServiceConfig));
-            var reader = File.OpenText(file);
-            var config = (ServiceConfig) xs.Deserialize(reader);
-            reader.Close();
+            var serializer = new XmlSerializer(typeof(ServiceConfig));
+            ServiceConfig config;
+            using (var reader = XmlReader.Create(file)) {
+                config = (ServiceConfig) serializer.Deserialize(reader);
+            }
             ValidateConfiguration(config);
             Log.Debug("Finished deserializing service configuration XML file.");
             return config;
