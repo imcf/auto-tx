@@ -34,13 +34,17 @@ namespace ATxCommon
         /// Convert a number of seconds to a human readable string.
         /// </summary>
         /// <param name="delta">The time span in seconds.</param>
+        /// <param name="addDesc">Add a description suffix like "ago" or "in the future".</param>
         /// <returns>A string describing the duration, e.g. "2 hours 34 minutes".</returns>
-        public static string SecondsToHuman(long delta) {
-            var desc = "ago";
+        public static string SecondsToHuman(long delta, bool addDesc = true) {
+            var desc = " ago";
             if (delta < 0) {
                 delta *= -1;
-                desc = "in the future";
+                desc = " in the future";
             }
+
+            if (!addDesc)
+                desc = "";
 
             const int second = 1;
             const int minute = second * 60;
@@ -51,27 +55,27 @@ namespace ATxCommon
             const int year = day * 365;
             
             if (delta < minute)
-                return $"{delta} seconds {desc}";
+                return $"{delta} seconds{desc}";
 
             if (delta < 2 * minute)
-                return $"a minute {desc}";
+                return $"a minute{desc}";
 
             if (delta < hour)
-                return $"{delta / minute} minutes {desc}";
+                return $"{delta / minute} minutes{desc}";
 
             if (delta < day) {
                 var hours = delta / hour;
                 var mins = (delta - hours * hour) / minute;
                 if (mins > 0)
-                    return $"{hours} hours {mins} minutes {desc}";
-                return $"{hours} hours {desc}";
+                    return $"{hours} hours {mins} minutes{desc}";
+                return $"{hours} hours{desc}";
             }
 
             if (delta < 2 * week)
-                return $"{delta / day} days ${desc}";
+                return $"{delta / day} days{desc}";
 
             if (delta < 2 * month)
-                return $"{delta / week} weeks {desc}";
+                return $"{delta / week} weeks{desc}";
 
             if (delta < year) {
                 var months = delta / month;
@@ -82,7 +86,7 @@ namespace ATxCommon
                     ret += $" {weeks} weeks";
                 if (days > 0)
                     ret += $" {days} days";
-                return $"{ret} {desc}";
+                return $"{ret}{desc}";
             }
 
             if (delta < 10 * year) {
@@ -94,34 +98,37 @@ namespace ATxCommon
                     ret += $" {months} months";
                 if (days > 0)
                     ret += $" {days} days";
-                return $"{ret} {desc}";
+                return $"{ret}{desc}";
             }
 
-            return $"{delta / year} years {desc}";
+            return $"{delta / year} years{desc}";
         }
 
         /// <summary>
         /// Wrapper to use <see cref="SecondsToHuman"/> with minutes as input.
         /// </summary>
         /// <param name="delta">The time span in minutes.</param>
+        /// <param name="addDesc">Add a description suffix like "ago" or "in the future".</param>
         /// <returns>A string describing the duration, e.g. "2 hours 34 minutes".</returns>
-        public static string MinutesToHuman(long delta) {
-            return SecondsToHuman(delta * 60);
+        public static string MinutesToHuman(long delta, bool addDesc = true) {
+            return SecondsToHuman(delta * 60, addDesc);
         }
 
         /// <summary>
         /// Wrapper to use <see cref="SecondsToHuman"/> with days as input.
         /// </summary>
         /// <param name="delta">The time span in days.</param>
+        /// <param name="addDesc">Add a description suffix like "ago" or "in the future".</param>
         /// <returns>A string describing the duration, e.g. "12 days" or "3 weeks".</returns>
-        public static string DaysToHuman(long delta) {
-            return MinutesToHuman(delta * 60 * 24);
+        public static string DaysToHuman(long delta, bool addDesc = true) {
+            return MinutesToHuman(delta * 60 * 24, addDesc);
         }
 
         /// <summary>
         /// Wrapper to convert a date into a human readable string relative to now.
         /// </summary>
         /// <param name="refDate">The reference DateTime to check.</param>
+        /// <param name="addDesc">Add a description suffix like "ago" or "in the future".</param>
         /// <returns>A string describing the delta, e.g. "12 days" or "3 weeks".</returns>
         public static string HumanSince(DateTime refDate) {
             if (refDate == DateTime.MinValue) {
