@@ -3,16 +3,28 @@ using System.IO;
 using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
+using NLog.Targets;
 
 namespace ATxConfigTest
 {
     internal class AutoTxConfigTest
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private static ServiceConfig _config;
         private static ServiceStatus _status;
 
         private static void Main(string[] args) {
+            var logConfig = new LoggingConfiguration();
+            var consoleTarget = new ConsoleTarget {
+                Name = "console",
+                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}",
+            };
+            logConfig.AddTarget("console", consoleTarget);
+            var logRuleConsole = new LoggingRule("*", LogLevel.Debug, consoleTarget);
+            logConfig.LoggingRules.Add(logRuleConsole);
+            LogManager.Configuration = logConfig;
+
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             if (args.Length > 0)
                 baseDir = args[0];
