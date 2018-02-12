@@ -31,6 +31,23 @@ namespace ATxCommon.Serializables
             EnforceInheritedACLs = true;
         }
 
+        public static void Serialize(string file, ServiceConfig c) {
+            // the config is never meant to be written by us, therefore:
+            throw new SettingsPropertyIsReadOnlyException("The config file must not be written by the service!");
+        }
+
+        public static ServiceConfig Deserialize(string file) {
+            Log.Debug("Trying to read service configuration XML file: [{0}]", file);
+            var xs = new XmlSerializer(typeof(ServiceConfig));
+            var reader = File.OpenText(file);
+            var config = (ServiceConfig) xs.Deserialize(reader);
+            reader.Close();
+            ValidateConfiguration(config);
+            Log.Debug("Finished deserializing service configuration XML file.");
+            return config;
+        }
+
+
         #region required configuration parameters
 
         /// <summary>
@@ -241,23 +258,6 @@ namespace ATxCommon.Serializables
         }
 
         #endregion
-
-
-        public static void Serialize(string file, ServiceConfig c) {
-            // the config is never meant to be written by us, therefore:
-            throw new SettingsPropertyIsReadOnlyException("The config file must not be written by the service!");
-        }
-
-        public static ServiceConfig Deserialize(string file) {
-            Log.Debug("Trying to read service configuration XML file: [{0}]", file);
-            var xs = new XmlSerializer(typeof(ServiceConfig));
-            var reader = File.OpenText(file);
-            var config = (ServiceConfig) xs.Deserialize(reader);
-            reader.Close();
-            ValidateConfiguration(config);
-            Log.Debug("Finished deserializing service configuration XML file.");
-            return config;
-        }
 
 
         /// <summary>
