@@ -24,6 +24,9 @@ namespace ATxCommon.Serializables
             EnforceInheritedACLs = true;
         }
 
+        /// <summary>
+        /// Dummy method raising an exception (this class must not be serialized).
+        /// </summary>
         public static void Serialize(string file, ServiceConfig c) {
             // the config is never meant to be written by us, therefore:
             throw new SettingsPropertyIsReadOnlyException("The config file must not be written by the service!");
