@@ -16,7 +16,16 @@
                 order++;
                 numBytes /= 1024;
             }
+
             return $"{numBytes:0.#} {suffixes[order]}";
+        }
+
+        /// <summary>
+        /// Wrapper to convert megabytes into human-readable size string.
+        /// See <see cref="BytesToString"/> for more details.
+        /// </summary>
+        public static string MegabytesToString(long megaBytes) {
+            return BytesToString(megaBytes * MegaBytes);
         }
     }
 }
