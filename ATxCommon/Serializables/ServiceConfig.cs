@@ -16,17 +16,10 @@ namespace ATxCommon.Serializables
         [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public ServiceConfig() {
+            Log.Trace("ServiceConfig() constructor, setting defaults.");
             // set values for the optional XML elements:
-            SmtpHost = "";
             SmtpPort = 25;
-            SmtpUserCredential = "";
-            SmtpPasswortCredential = "";
-            EmailPrefix = "";
-            AdminEmailAdress = "";
-            AdminDebugEmailAdress = "";
             GraceNotificationDelta = 720;
-
-            InterPacketGap = 0;
 
             EnforceInheritedACLs = true;
         }
