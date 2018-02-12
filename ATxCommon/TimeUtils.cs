@@ -124,6 +124,9 @@ namespace ATxCommon
         /// <param name="refDate">The reference DateTime to check.</param>
         /// <returns>A string describing the delta, e.g. "12 days" or "3 weeks".</returns>
         public static string HumanSince(DateTime refDate) {
+            if (refDate == DateTime.MinValue) {
+                return "never, reference is DateTime.MinValue";
+            }
             return SecondsToHuman(SecondsSince(refDate));
         }
     }
