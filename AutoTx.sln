@@ -13,6 +13,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATxTray", "ATxTray\ATxTray.
 EndProject
 Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "Updater", "Updater\Updater.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3E945C19-14E3-4FE8-9008-480D4EA57F45}"
+	ProjectSection(SolutionItems) = preProject
+		Resources\auto-tx-logo.png = Resources\auto-tx-logo.png
+		Resources\Mail-Templates\DiskSpace-Low.txt = Resources\Mail-Templates\DiskSpace-Low.txt
+		Resources\Mail-Templates\Transfer-Interrupted.txt = Resources\Mail-Templates\Transfer-Interrupted.txt
+		Resources\Mail-Templates\Transfer-Success.txt = Resources\Mail-Templates\Transfer-Success.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
