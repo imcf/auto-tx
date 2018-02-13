@@ -1,5 +1,6 @@
 $ResourceDir = "..\ATxService\Resources"
 $TemplateDir = "$($ResourceDir)\Mail-Templates"
+$RsrcDirCommon = "..\Resources"
 
 
 function Highlight([string]$Message, [string]$Color = "Cyan") {
@@ -53,10 +54,10 @@ Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirCfgTest)\*" $tgt -EA Ignore
 # provide an up-to-date version of the example config file:
-Copy-Item "$($ResourceDir)\configuration-example.xml" $tgt
+Copy-Item "$($RsrcDirCommon)\configuration-example.xml" $tgt
 
-Copy-Item "$($ResourceDir)\configuration-example.xml" "$($PkgDir)\configuration.xml"
-Copy-Item "$($ResourceDir)\status-example.xml" "$($PkgDir)\status.xml"
+Copy-Item "$($RsrcDirCommon)\configuration-example.xml" "$($PkgDir)\configuration.xml"
+Copy-Item "$($RsrcDirCommon)\status-example.xml" "$($PkgDir)\status.xml"
 Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\AutoTx.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 try {
