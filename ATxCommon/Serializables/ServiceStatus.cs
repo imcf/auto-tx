@@ -11,9 +11,9 @@ namespace ATxCommon.Serializables
     [Serializable]
     public class ServiceStatus
     {
-        [XmlIgnore] private string _storageFile; // remember where we came from
-        [XmlIgnore] private ServiceConfig _config;
-        [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private string _storageFile; // remember where we came from
+        private ServiceConfig _config;
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private DateTime _lastStatusUpdate;
         private DateTime _lastStorageNotification;
