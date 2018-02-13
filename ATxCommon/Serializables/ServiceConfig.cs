@@ -14,7 +14,7 @@ namespace ATxCommon.Serializables
     [Serializable]
     public class ServiceConfig
     {
-        [XmlIgnore] private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public ServiceConfig() {
             Log.Trace("ServiceConfig() constructor, setting defaults.");
