@@ -78,11 +78,6 @@ namespace ATxCommon.Serializables
         public string HostAlias { get; set; }
 
         /// <summary>
-        /// A human friendly name for the target, to be used in emails etc.
-        /// </summary>
-        public string DestinationAlias { get; set; }
-
-        /// <summary>
         /// The base drive for the spooling directories (incoming and managed).
         /// </summary>
         public string SourceDrive { get; set; }
@@ -93,16 +88,21 @@ namespace ATxCommon.Serializables
         public string IncomingDirectory { get; set; }
 
         /// <summary>
-        /// The name of a marker file to be placed in all **sub**directories
-        /// inside the IncomingDirectory.
-        /// </summary>
-        public string MarkerFile { get; set; }
-
-        /// <summary>
         /// A directory on SourceDrive to hold the three subdirectories "DONE",
         /// "PROCESSING" and "UNMATCHED" used during and after transfers.
         /// </summary>
         public string ManagedDirectory { get; set; }
+
+        /// <summary>
+        /// GracePeriod: number of days after data in the "DONE" location expires,
+        /// which will trigger a summary email to the admin address.
+        /// </summary>
+        public int GracePeriod { get; set; }
+
+        /// <summary>
+        /// A human friendly name for the target, to be used in emails etc.
+        /// </summary>
+        public string DestinationAlias { get; set; }
 
         /// <summary>
         /// Target path to transfer files to. Usually a UNC location.
@@ -116,11 +116,6 @@ namespace ATxCommon.Serializables
         public string TmpTransferDir { get; set; }
 
         /// <summary>
-        /// The email address to be used as "From:" when sending mail notifications.
-        /// </summary>
-        public string EmailFrom { get; set; }
-
-        /// <summary>
         /// The interval (in ms) for checking for new files and system parameters.
         /// </summary>
         public int ServiceTimer { get; set; }
@@ -130,50 +125,11 @@ namespace ATxCommon.Serializables
         /// if this limit is exceeded.
         /// </summary>
         public int MaxCpuUsage { get; set; }
-        
+
         /// <summary>
         /// Minimum amount of free RAM (in MB) required for the service to operate.
         /// </summary>
         public int MinAvailableMemory { get; set; }
-
-        /// <summary>
-        /// Minimum amount of time in minutes between two mail notifications to the admin address.
-        /// </summary>
-        public int AdminNotificationDelta { get; set; }
-
-        /// <summary>
-        /// Minimum amount of time in minutes between two low-storage-space notifications.
-        /// </summary>
-        public int StorageNotificationDelta { get; set; }
-
-        /// <summary>
-        /// GracePeriod: number of days after data in the "DONE" location expires,
-        /// which will trigger a summary email to the admin address.
-        /// </summary>
-        public int GracePeriod { get; set; }
-
-        /// <summary>
-        /// Flag whether to send explicit mail notifications to the admin on selected events.
-        /// </summary>
-        public bool SendAdminNotification { get; set; }
-        
-        /// <summary>
-        /// Flag whether to send a mail notification to the user upon completed transfers.
-        /// </summary>
-        public bool SendTransferNotification { get; set; }
-
-        /// <summary>
-        /// Switch on debug log messages.
-        /// </summary>
-        public bool Debug { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem(ElementName = "DriveToCheck")]
-        public List<DriveToCheck> SpaceMonitoring { get; set; }
-
-        [XmlArray]
-        [XmlArrayItem(ElementName = "ProcessName")]
-        public List<string> BlacklistedProcesses { get; set; }
 
         #endregion
 
@@ -181,11 +137,25 @@ namespace ATxCommon.Serializables
         #region optional configuration parameters
 
         /// <summary>
-        /// SMTP server used to send mails (if configured) and Fatal/Error log messages.
-        /// 
-        /// No mails will be sent if this is omitted.
+        /// Switch on debug log messages.
+        /// </summary>
+        public bool Debug { get; set; }
+
+        /// <summary>
+        /// The name of a marker file to be placed in all **sub**directories
+        /// inside the IncomingDirectory.
+        /// </summary>
+        public string MarkerFile { get; set; }
+
+        /// <summary>
+        /// SMTP server to send mails and Fatal/Error log messages. No mails if omitted.
         /// </summary>
         public string SmtpHost { get; set; }
+
+        /// <summary>
+        /// SMTP port for sending emails (default: 25).
+        /// </summary>
+        public int SmtpPort { get; set; }
 
         /// <summary>
         /// SMTP username to authenticate when sending emails (if required).
@@ -198,9 +168,9 @@ namespace ATxCommon.Serializables
         public string SmtpPasswortCredential { get; set; }
 
         /// <summary>
-        /// SMTP port for sending emails (25 will be used if this entry is omitted).
+        /// The email address to be used as "From:" when sending mail notifications.
         /// </summary>
-        public int SmtpPort { get; set; }
+        public string EmailFrom { get; set; }
 
         /// <summary>
         /// A string to be added as a prefix to the subject when sending emails.
@@ -218,21 +188,55 @@ namespace ATxCommon.Serializables
         public string AdminDebugEmailAdress { get; set; }
 
         /// <summary>
+        /// Flag whether to send a mail notification to the user upon completed transfers.
+        /// </summary>
+        public bool SendTransferNotification { get; set; }
+
+        /// <summary>
+        /// Flag whether to send explicit mail notifications to the admin on selected events.
+        /// </summary>
+        public bool SendAdminNotification { get; set; }
+
+        /// <summary>
+        /// Minimum amount of time in minutes between two mail notifications to the admin address.
+        /// </summary>
+        public int AdminNotificationDelta { get; set; }
+
+        /// <summary>
         /// Minimum time in minutes between two mails about expired folders in the grace location.
         /// </summary>
         public int GraceNotificationDelta { get; set; }
 
         /// <summary>
-        /// RoboCopy parameter for limiting the bandwidth (mostly for testing purposes).
+        /// Minimum amount of time in minutes between two low-storage-space notifications.
         /// </summary>
-        /// See the RoboCopy documentation for more details.
-        public int InterPacketGap { get; set; }
+        public int StorageNotificationDelta { get; set; }
+
+        /// <summary>
+        /// A list of process names causing transfers to be suspended if running.
+        /// </summary>
+        [XmlArray]
+        [XmlArrayItem(ElementName = "ProcessName")]
+        public List<string> BlacklistedProcesses { get; set; }
 
         /// <summary>
         /// EnforceInheritedACLs: whether to enforce ACL inheritance when moving files and
         /// directories, see https://support.microsoft.com/en-us/help/320246 for more details.
         /// </summary>
         public bool EnforceInheritedACLs { get; set; }
+
+        /// <summary>
+        /// A list of drives and thresholds to monitor free space.
+        /// </summary>
+        [XmlArray]
+        [XmlArrayItem(ElementName = "DriveToCheck")]
+        public List<DriveToCheck> SpaceMonitoring { get; set; }
+
+        /// <summary>
+        /// RoboCopy parameter for limiting the bandwidth (mostly for testing purposes).
+        /// </summary>
+        /// See the RoboCopy documentation for more details.
+        public int InterPacketGap { get; set; }
 
         #endregion
 
