@@ -229,11 +229,29 @@ namespace ATxCommon.Serializables
         /// </summary>
         public ServiceConfig() {
             Log.Trace("ServiceConfig() constructor, setting defaults.");
-            // set values for the optional XML elements:
-            SmtpPort = 25;
-            GraceNotificationDelta = 720;
+            // set values for the optional XML elements (NOTE: parameters / variables that do not
+            // strictly REQUIRE a value are listed here as comments to denote they have not just
+            // been forgotten but an empty value is fine instead:
 
+            Debug = false;
+            // MarkerFile may be empty
+            // SmtpHost may be empty
+            SmtpPort = 25;
+            // SmtpUserCredential may be empty
+            // SmtpPasswortCredential may be empty
+            // EmailFrom may be empty
+            EmailPrefix = "[AutoTx Service] ";
+            // AdminEmailAdress may be empty
+            // AdminDebugEmailAdress may be empty
+            SendTransferNotification = true;
+            SendAdminNotification = true;
+            AdminNotificationDelta = 60;
+            GraceNotificationDelta = 720;
+            StorageNotificationDelta = 720;
+            // BlacklistedProcesses may be empty
             EnforceInheritedACLs = true;
+            // SpaceMonitoring may be empty
+            InterPacketGap = 0;
         }
 
         /// <summary>
