@@ -27,7 +27,7 @@
     </SpaceMonitoring>
 
     <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
-    <InterPacketGap />
+    <InterPacketGap>0</InterPacketGap>
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
 
