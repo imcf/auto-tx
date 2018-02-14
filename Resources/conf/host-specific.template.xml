@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- HostAlias: friendly name to be used for this machine in mails -->
+    <HostAlias>Confocal Microscope (Room 123)</HostAlias>
+
+    <!-- SourceDrive: local drive to operate on (include the backslash!) -->
+    <SourceDrive>C:\</SourceDrive>
+
+
+    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+    <!-- A list of drive names and space thresholds to be used for monitoring
+         the free space and send notifications if below. -->
+    <SpaceMonitoring>
+        <DriveToCheck>
+            <!-- DriveName: the drive letter followed by a colon -->
+            <DriveName>C:</DriveName>
+            <!-- SpaceThreshold: minimum amount of free megabytes -->
+            <SpaceThreshold>14000</SpaceThreshold>
+        </DriveToCheck>
+        <!--><DriveToCheck>
+            <DriveName>D:</DriveName>
+            <SpaceThreshold>120000</SpaceThreshold>
+        </DriveToCheck><-->
+    </SpaceMonitoring>
+
+    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
+    <InterPacketGap />
+
+    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+  </ServiceConfig>
