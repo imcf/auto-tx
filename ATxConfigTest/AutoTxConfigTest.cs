@@ -21,7 +21,7 @@ namespace ATxConfigTest
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}",
             };
             logConfig.AddTarget("console", consoleTarget);
-            var logRuleConsole = new LoggingRule("*", LogLevel.Debug, consoleTarget);
+            var logRuleConsole = new LoggingRule("*", LogLevel.Trace, consoleTarget);
             logConfig.LoggingRules.Add(logRuleConsole);
             LogManager.Configuration = logConfig;
 
@@ -29,13 +29,12 @@ namespace ATxConfigTest
             if (args.Length > 0)
                 baseDir = args[0];
 
-            var configPath = Path.Combine(baseDir, "configuration.xml");
             var statusPath = Path.Combine(baseDir, "status.xml");
 
             try {
                 string msg;
-                Console.WriteLine($"\nTrying to parse configuration file [{configPath}]...\n");
-                _config = ServiceConfig.Deserialize(configPath);
+                Console.WriteLine($"\nTrying to parse configuration files from [{baseDir}]...\n");
+                _config = ServiceConfig.Deserialize(baseDir);
                 msg = "------------------ configuration settings ------------------";
                 Console.WriteLine($"{msg}\n{_config.Summary()}{msg}\n");
 
