@@ -42,12 +42,6 @@ namespace ATxCommon.Serializables
         public string ManagedDirectory { get; set; }
 
         /// <summary>
-        /// GracePeriod: number of days after data in the "DONE" location expires,
-        /// which will trigger a summary email to the admin address.
-        /// </summary>
-        public int GracePeriod { get; set; }
-
-        /// <summary>
         /// A human friendly name for the target, to be used in emails etc.
         /// </summary>
         public string DestinationAlias { get; set; }
@@ -162,6 +156,12 @@ namespace ATxCommon.Serializables
         public int StorageNotificationDelta { get; set; }
 
         /// <summary>
+        /// GracePeriod: number of days after data in the "DONE" location expires,
+        /// which will trigger a summary email to the admin address, default: 30.
+        /// </summary>
+        public int GracePeriod { get; set; }
+
+        /// <summary>
         /// A list of process names causing transfers to be suspended if running.
         /// </summary>
         [XmlArray]
@@ -249,6 +249,7 @@ namespace ATxCommon.Serializables
             AdminNotificationDelta = 60;
             GraceNotificationDelta = 720;
             StorageNotificationDelta = 720;
+            GracePeriod = 30;
             // BlacklistedProcesses may be empty
             EnforceInheritedACLs = true;
             // SpaceMonitoring may be empty

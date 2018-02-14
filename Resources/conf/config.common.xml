@@ -11,10 +11,6 @@
          the transfer (sub-directory "DONE"). -->
     <ManagedDirectory>ATX\MANAGED</ManagedDirectory>
 
-    <!-- GracePeriod: number of days after data in the "DONE" location expires,
-         which will trigger a summary email to the admin address. -->
-    <GracePeriod>30</GracePeriod>
-
     <!-- DestinationAlias: friendly name for the target to be used in mails -->
     <DestinationAlias>Core Facility Storage</DestinationAlias>
 
@@ -84,6 +80,10 @@
     <!-- StorageNotificationDelta: how often to send storage notification mails
          in case one of the drives is below the threshold (in minutes) -->
     <StorageNotificationDelta>720</StorageNotificationDelta>
+
+    <!-- GracePeriod: number of days after data in the "DONE" location expires,
+         which will trigger a summary email to the admin address. -->
+    <GracePeriod>30</GracePeriod>
 
     <!-- BlacklistedProcesses: a list of "ProcessName" entries denoting
          programs that will cause a transfer to be suspended immediately if the
