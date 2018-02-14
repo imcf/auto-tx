@@ -21,7 +21,7 @@ namespace ATxConfigTest
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}",
             };
             logConfig.AddTarget("console", consoleTarget);
-            var logRuleConsole = new LoggingRule("*", LogLevel.Trace, consoleTarget);
+            var logRuleConsole = new LoggingRule("*", LogLevel.Debug, consoleTarget);
             logConfig.LoggingRules.Add(logRuleConsole);
             LogManager.Configuration = logConfig;
 
