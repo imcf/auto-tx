@@ -152,6 +152,20 @@
       <Name>ATxCommon</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Resources\Mail-Templates\DiskSpace-Low.txt">
+      <Link>Mail-Templates\DiskSpace-Low.txt</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Resources\Mail-Templates\Transfer-Interrupted.txt">
+      <Link>Mail-Templates\Transfer-Interrupted.txt</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Resources\Mail-Templates\Transfer-Success.txt">
+      <Link>Mail-Templates\Transfer-Success.txt</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)\Scripts\Prepare-Build.ps1 $(ProjectDir)</PreBuildEvent>

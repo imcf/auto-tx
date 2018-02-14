@@ -1,5 +1,4 @@
 $ResourceDir = "..\ATxService\Resources"
-$TemplateDir = "$($ResourceDir)\Mail-Templates"
 $RsrcDirCommon = "..\Resources"
 
 
@@ -49,7 +48,6 @@ $dir = New-Item -ItemType Container -Name $PkgDir
 $dir = New-Item -ItemType Container -Path $PkgDir -Name "AutoTx"
 $tgt = $dir.FullName
 
-Copy-Item -Recurse "$TemplateDir" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirCfgTest)\*" $tgt -EA Ignore
