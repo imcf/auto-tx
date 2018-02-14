@@ -17,58 +17,6 @@ namespace ATxCommon.Serializables
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public ServiceConfig() {
-            Log.Trace("ServiceConfig() constructor, setting defaults.");
-            // set values for the optional XML elements:
-            SmtpPort = 25;
-            GraceNotificationDelta = 720;
-
-            EnforceInheritedACLs = true;
-        }
-
-        /// <summary>
-        /// Dummy method raising an exception (this class must not be serialized).
-        /// </summary>
-        public static void Serialize(string file, ServiceConfig c) {
-            // the config is never meant to be written by us, therefore:
-            throw new SettingsPropertyIsReadOnlyException("The config file must not be written by the service!");
-        }
-
-        /// <summary>
-        /// Load the host specific and the common XML configuration files, combine them and
-        /// deserialize them into a ServiceConfig object. The host specific configuration file's
-        /// name is defined as the hostname with an ".xml" suffix.
-        /// </summary>
-        /// <param name="path">The path to the configuration files.</param>
-        /// <returns>A ServiceConfig object with validated settings.</returns>
-        public static ServiceConfig Deserialize(string path) {
-            ServiceConfig config;
-
-            var commonFile = Path.Combine(path, "config.common.xml");
-            var specificFile = Path.Combine(path, Environment.MachineName + ".xml");
-
-            // for parsing the configuration from two separate files we are using the default
-            // behaviour of the .NET XmlSerializer on duplicates: only the first occurrence is
-            // used, all other ones are silentley being discarded - this way we simply append the
-            // contents of the common config file to the host-specific and deserialize then:
-            var common = XElement.Load(commonFile);
-            Log.Debug("Loaded common configuration XML file: [{0}]", commonFile);
-            var combined = XElement.Load(specificFile);
-            Log.Debug("Loaded host specific configuration XML file: [{0}]", specificFile);
-            combined.Add(common.Nodes());
-            Log.Trace("Combined XML structure:\n\n{0}\n\n", combined);
-
-            using (var reader = XmlReader.Create(new StringReader(combined.ToString()))) {
-                Log.Debug("Trying to parse combined XML.");
-                var serializer = new XmlSerializer(typeof(ServiceConfig));
-                config = (ServiceConfig) serializer.Deserialize(reader);
-            }
-
-            ValidateConfiguration(config);
-            Log.Debug("Successfully parsed and validated configuration XML.");
-            return config;
-        }
-
 
         #region required configuration parameters
 
@@ -275,6 +223,61 @@ namespace ATxCommon.Serializables
 
         #endregion
 
+
+        /// <summary>
+        /// Constructor setting default values for optional parameters.
+        /// </summary>
+        public ServiceConfig() {
+            Log.Trace("ServiceConfig() constructor, setting defaults.");
+            // set values for the optional XML elements:
+            SmtpPort = 25;
+            GraceNotificationDelta = 720;
+
+            EnforceInheritedACLs = true;
+        }
+
+        /// <summary>
+        /// Dummy method raising an exception (this class must not be serialized).
+        /// </summary>
+        public static void Serialize(string file, ServiceConfig c) {
+            // the config is never meant to be written by us, therefore:
+            throw new SettingsPropertyIsReadOnlyException("The config file must not be written by the service!");
+        }
+
+        /// <summary>
+        /// Load the host specific and the common XML configuration files, combine them and
+        /// deserialize them into a ServiceConfig object. The host specific configuration file's
+        /// name is defined as the hostname with an ".xml" suffix.
+        /// </summary>
+        /// <param name="path">The path to the configuration files.</param>
+        /// <returns>A ServiceConfig object with validated settings.</returns>
+        public static ServiceConfig Deserialize(string path) {
+            ServiceConfig config;
+
+            var commonFile = Path.Combine(path, "config.common.xml");
+            var specificFile = Path.Combine(path, Environment.MachineName + ".xml");
+
+            // for parsing the configuration from two separate files we are using the default
+            // behaviour of the .NET XmlSerializer on duplicates: only the first occurrence is
+            // used, all other ones are silentley being discarded - this way we simply append the
+            // contents of the common config file to the host-specific and deserialize then:
+            var common = XElement.Load(commonFile);
+            Log.Debug("Loaded common configuration XML file: [{0}]", commonFile);
+            var combined = XElement.Load(specificFile);
+            Log.Debug("Loaded host specific configuration XML file: [{0}]", specificFile);
+            combined.Add(common.Nodes());
+            Log.Trace("Combined XML structure:\n\n{0}\n\n", combined);
+
+            using (var reader = XmlReader.Create(new StringReader(combined.ToString()))) {
+                Log.Debug("Trying to parse combined XML.");
+                var serializer = new XmlSerializer(typeof(ServiceConfig));
+                config = (ServiceConfig) serializer.Deserialize(reader);
+            }
+
+            ValidateConfiguration(config);
+            Log.Debug("Successfully parsed and validated configuration XML.");
+            return config;
+        }
 
         /// <summary>
         /// Validate the configuration, throwing exceptions on invalid parameters.
