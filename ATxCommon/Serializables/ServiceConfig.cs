@@ -281,12 +281,15 @@ namespace ATxCommon.Serializables
             // behaviour of the .NET XmlSerializer on duplicates: only the first occurrence is
             // used, all other ones are silentley being discarded - this way we simply append the
             // contents of the common config file to the host-specific and deserialize then:
-            var common = XElement.Load(commonFile);
-            Log.Debug("Loaded common configuration XML file: [{0}]", commonFile);
             var combined = XElement.Load(specificFile);
             Log.Debug("Loaded host specific configuration XML file: [{0}]", specificFile);
-            combined.Add(common.Nodes());
-            Log.Trace("Combined XML structure:\n\n{0}\n\n", combined);
+            // the common configuration file is optional, so check if it exists at all:
+            if (File.Exists(commonFile)) {
+                var common = XElement.Load(commonFile);
+                Log.Debug("Loaded common configuration XML file: [{0}]", commonFile);
+                combined.Add(common.Nodes());
+                Log.Trace("Combined XML structure:\n\n{0}\n\n", combined);
+            }
 
             using (var reader = XmlReader.Create(new StringReader(combined.ToString()))) {
                 Log.Debug("Trying to parse combined XML.");
