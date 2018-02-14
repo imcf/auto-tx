@@ -295,6 +295,7 @@ namespace ATxCommon.Serializables
             }
 
             ValidateConfiguration(config);
+            
             Log.Debug("Successfully parsed and validated configuration XML.");
             return config;
         }
@@ -303,51 +304,92 @@ namespace ATxCommon.Serializables
         /// Validate the configuration, throwing exceptions on invalid parameters.
         /// </summary>
         private static void ValidateConfiguration(ServiceConfig c) {
-            if (string.IsNullOrEmpty(c.SourceDrive) ||
-                string.IsNullOrEmpty(c.IncomingDirectory) ||
-                string.IsNullOrEmpty(c.ManagedDirectory))
-                throw new ConfigurationErrorsException("mandatory parameter missing!");
+            var errmsg = "";
 
+            string CheckEmpty(string value, string name) {
+                // if the string is null terminate the validation immediately since this means the
+                // file doesn't contain a required parameter at all:
+                if (value == null) {
+                    var msg = $"mandatory parameter missing: {name}";
+                    Log.Error(msg);
+                    throw new ConfigurationErrorsException(msg);
+                }
+
+                if (string.IsNullOrWhiteSpace(value))
+                    return $"mandatory parameter unset: {name}\n";
+
+                return string.Empty;
+            }
+
+            string CheckMinValue(int value, string name, int min) {
+                if (value == 0)
+                    return $"{name} is unset (or set to 0), minimal accepted value is {min}\n";
+
+                if (value < min)
+                    return $"{name} must not be smaller than {min}\n";
+
+                return string.Empty;
+            }
+
+            void SubOptimal(string name, string value, string msg) {
+                Log.Warn(">>> Sub-optimal setting detected: <{0}> [{1}] {2}", name, value, msg);
+            }
+
+            void LogAndThrow(string msg) {
+                msg = $"Configuration issues detected:\n{msg}";
+                Log.Error(msg);
+                throw new ConfigurationErrorsException(msg);
+            }
+
+            errmsg += CheckEmpty(c.HostAlias, nameof(c.HostAlias));
+            errmsg += CheckEmpty(c.SourceDrive, nameof(c.SourceDrive));
+            errmsg += CheckEmpty(c.IncomingDirectory, nameof(c.IncomingDirectory));
+            errmsg += CheckEmpty(c.ManagedDirectory, nameof(c.ManagedDirectory));
+            errmsg += CheckEmpty(c.DestinationAlias, nameof(c.DestinationAlias));
+            errmsg += CheckEmpty(c.DestinationDirectory, nameof(c.DestinationDirectory));
+            errmsg += CheckEmpty(c.TmpTransferDir, nameof(c.TmpTransferDir));
+
+            errmsg += CheckMinValue(c.ServiceTimer, nameof(c.ServiceTimer), 1000);
+            errmsg += CheckMinValue(c.MaxCpuUsage, nameof(c.MaxCpuUsage), 5);
+            errmsg += CheckMinValue(c.MinAvailableMemory, nameof(c.MinAvailableMemory), 256);
+
+            // if any of the above detected invalid settings we terminate now as many of the
+            // string checks below would fail on empty strings:
+            if (!string.IsNullOrWhiteSpace(errmsg)) 
+                LogAndThrow(errmsg);
+
+            // SourceDrive
             if (c.SourceDrive.Substring(1) != @":\")
-                throw new ConfigurationErrorsException("SourceDrive must be a drive " +
-                                                       @"letter followed by a colon and a backslash, e.g. 'D:\'!");
-
-            // make sure SourceDrive is a local (fixed) disk:
-            var driveInfo = new DriveInfo(c.SourceDrive);
-            if (driveInfo.DriveType != DriveType.Fixed)
-                throw new ConfigurationErrorsException("SourceDrive (" + c.SourceDrive +
-                                                       ") must be a local (fixed) drive, OS reports '" +
-                                                       driveInfo.DriveType + "')!");
-
+                errmsg += "SourceDrive must be of form [X:\\]\n!";
+            var driveType = new DriveInfo(c.SourceDrive).DriveType;
+            if (driveType != DriveType.Fixed)
+                errmsg += $"SourceDrive ({c.SourceDrive}) must be a local (fixed) drive, " +
+                          $"OS reports '{driveType}'!\n";
 
             // spooling directories: IncomingDirectory + ManagedDirectory
             if (c.IncomingDirectory.StartsWith(@"\"))
-                throw new ConfigurationErrorsException("IncomingDirectory must not start with a backslash!");
+                errmsg += "IncomingDirectory must not start with a backslash!\n";
             if (c.ManagedDirectory.StartsWith(@"\"))
-                throw new ConfigurationErrorsException("ManagedDirectory must not start with a backslash!");
+                errmsg += "ManagedDirectory must not start with a backslash!\n";
 
+            // DestinationDirectory
             if (!Directory.Exists(c.DestinationDirectory))
-                throw new ConfigurationErrorsException("can't find destination: " + c.DestinationDirectory);
+                errmsg += $"can't find (or reach) destination: {c.DestinationDirectory}\n";
 
+            // TmpTransferDir
             var tmpTransferPath = Path.Combine(c.DestinationDirectory, c.TmpTransferDir);
             if (!Directory.Exists(tmpTransferPath))
-                throw new ConfigurationErrorsException("temporary transfer dir doesn't exist: " + tmpTransferPath);
-
-            if (c.ServiceTimer < 1000)
-                throw new ConfigurationErrorsException("ServiceTimer must not be smaller than 1000 ms!");
-
+                errmsg += $"can't find (or reach) temporary transfer dir: {tmpTransferPath}\n";
+            
 
             // NON-CRITICAL stuff is simply reported to the logs:
-            if (!c.DestinationDirectory.StartsWith(@"\\")) {
-                ReportNonOptimal("DestinationDirectory", c.DestinationDirectory, "is not a UNC path!");
-            }
-        }
+            if (!c.DestinationDirectory.StartsWith(@"\\"))
+                SubOptimal("DestinationDirectory", c.DestinationDirectory, "is not a UNC path!");
 
-        /// <summary>
-        /// Print a standardized msg about a non-optimal configuration setting to the log.
-        /// </summary>
-        private static void ReportNonOptimal(string attribute, string value, string msg) {
-            Log.Warn(">>> Non-optimal setting detected: <{0}> [{1}] {2}", attribute, value, msg);
+            if (string.IsNullOrWhiteSpace(errmsg))
+                return;
+
+            LogAndThrow(errmsg);
         }
 
         /// <summary>
