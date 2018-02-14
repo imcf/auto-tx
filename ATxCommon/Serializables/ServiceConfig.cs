@@ -334,6 +334,13 @@ namespace ATxCommon.Serializables
                 return string.Empty;
             }
 
+            string CheckLocalDrive(string value, string name) {
+                var driveType = new DriveInfo(value).DriveType;
+                if (driveType != DriveType.Fixed)
+                    return $"{name} ({value}) must be a local fixed drive, not '{driveType}'!\n";
+                return string.Empty;
+            }
+
             void SubOptimal(string name, string value, string msg) {
                 Log.Warn(">>> Sub-optimal setting detected: <{0}> [{1}] {2}", name, value, msg);
             }
@@ -364,10 +371,7 @@ namespace ATxCommon.Serializables
             // SourceDrive
             if (c.SourceDrive.Substring(1) != @":\")
                 errmsg += "SourceDrive must be of form [X:\\]\n!";
-            var driveType = new DriveInfo(c.SourceDrive).DriveType;
-            if (driveType != DriveType.Fixed)
-                errmsg += $"SourceDrive ({c.SourceDrive}) must be a local (fixed) drive, " +
-                          $"OS reports '{driveType}'!\n";
+            errmsg += CheckLocalDrive(c.SourceDrive, nameof(c.SourceDrive));
 
             // spooling directories: IncomingDirectory + ManagedDirectory
             if (c.IncomingDirectory.StartsWith(@"\"))
@@ -383,7 +387,12 @@ namespace ATxCommon.Serializables
             var tmpTransferPath = Path.Combine(c.DestinationDirectory, c.TmpTransferDir);
             if (!Directory.Exists(tmpTransferPath))
                 errmsg += $"can't find (or reach) temporary transfer dir: {tmpTransferPath}\n";
-            
+
+            // DriveName
+            foreach (var driveToCheck in c.SpaceMonitoring) {
+                errmsg += CheckLocalDrive(driveToCheck.DriveName, nameof(driveToCheck.DriveName));
+            }
+
 
             // NON-CRITICAL stuff is simply reported to the logs:
             if (!c.DestinationDirectory.StartsWith(@"\\"))
