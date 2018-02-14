@@ -146,17 +146,18 @@ namespace ATxCommon.Serializables
         public bool SendAdminNotification { get; set; }
 
         /// <summary>
-        /// Minimum amount of time in minutes between two mail notifications to the admin address.
+        /// Minimum time in minutes between two notifications to the admin, default: 60.
         /// </summary>
         public int AdminNotificationDelta { get; set; }
 
         /// <summary>
-        /// Minimum time in minutes between two mails about expired folders in the grace location.
+        /// Minimum time in minutes between two mails about expired folders in the grace location,
+        /// default: 720 (12h).
         /// </summary>
         public int GraceNotificationDelta { get; set; }
 
         /// <summary>
-        /// Minimum amount of time in minutes between two low-storage-space notifications.
+        /// Minimum time in minutes between two low-space notifications, default: 720 (12h).
         /// </summary>
         public int StorageNotificationDelta { get; set; }
 
