@@ -313,23 +313,23 @@ namespace ATxCommon.Serializables
                 // if the string is null terminate the validation immediately since this means the
                 // file doesn't contain a required parameter at all:
                 if (value == null) {
-                    var msg = $"mandatory parameter missing: {name}";
+                    var msg = $"mandatory parameter missing: <{name}>";
                     Log.Error(msg);
                     throw new ConfigurationErrorsException(msg);
                 }
 
                 if (string.IsNullOrWhiteSpace(value))
-                    return $"mandatory parameter unset: {name}\n";
+                    return $"mandatory parameter unset: <{name}>\n";
 
                 return string.Empty;
             }
 
             string CheckMinValue(int value, string name, int min) {
                 if (value == 0)
-                    return $"{name} is unset (or set to 0), minimal accepted value is {min}\n";
+                    return $"<{name}> is unset (or set to 0), minimal accepted value is {min}\n";
 
                 if (value < min)
-                    return $"{name} must not be smaller than {min}\n";
+                    return $"<{name}> must not be smaller than {min}\n";
 
                 return string.Empty;
             }
@@ -337,7 +337,7 @@ namespace ATxCommon.Serializables
             string CheckLocalDrive(string value, string name) {
                 var driveType = new DriveInfo(value).DriveType;
                 if (driveType != DriveType.Fixed)
-                    return $"{name} ({value}) must be a local fixed drive, not '{driveType}'!\n";
+                    return $"<{name}> ({value}) must be a local fixed drive, not '{driveType}'!\n";
                 return string.Empty;
             }
 
@@ -374,14 +374,14 @@ namespace ATxCommon.Serializables
 
             // SourceDrive
             if (c.SourceDrive.Substring(1) != @":\")
-                errmsg += "SourceDrive must be of form [X:\\]\n!";
+                errmsg += "<SourceDrive> must be of form [X:\\]\n!";
             errmsg += CheckLocalDrive(c.SourceDrive, nameof(c.SourceDrive));
 
             // spooling directories: IncomingDirectory + ManagedDirectory
             if (c.IncomingDirectory.StartsWith(@"\"))
-                errmsg += "IncomingDirectory must not start with a backslash!\n";
+                errmsg += "<IncomingDirectory> must not start with a backslash!\n";
             if (c.ManagedDirectory.StartsWith(@"\"))
-                errmsg += "ManagedDirectory must not start with a backslash!\n";
+                errmsg += "<ManagedDirectory> must not start with a backslash!\n";
 
             // DestinationDirectory
             if (!Directory.Exists(c.DestinationDirectory))
