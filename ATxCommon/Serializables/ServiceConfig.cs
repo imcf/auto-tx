@@ -351,6 +351,7 @@ namespace ATxCommon.Serializables
                 throw new ConfigurationErrorsException(msg);
             }
 
+            // check if all required parameters are there and non-empty / non-zero:
             errmsg += CheckEmpty(c.HostAlias, nameof(c.HostAlias));
             errmsg += CheckEmpty(c.SourceDrive, nameof(c.SourceDrive));
             errmsg += CheckEmpty(c.IncomingDirectory, nameof(c.IncomingDirectory));
@@ -363,10 +364,13 @@ namespace ATxCommon.Serializables
             errmsg += CheckMinValue(c.MaxCpuUsage, nameof(c.MaxCpuUsage), 5);
             errmsg += CheckMinValue(c.MinAvailableMemory, nameof(c.MinAvailableMemory), 256);
 
-            // if any of the above detected invalid settings we terminate now as many of the
+            // if any of the required parameter checks failed we terminate now as many of the
             // string checks below would fail on empty strings:
             if (!string.IsNullOrWhiteSpace(errmsg)) 
                 LogAndThrow(errmsg);
+
+
+            ////////// REQUIRED PARAMETERS SETTINGS VALIDATION //////////
 
             // SourceDrive
             if (c.SourceDrive.Substring(1) != @":\")
@@ -388,15 +392,21 @@ namespace ATxCommon.Serializables
             if (!Directory.Exists(tmpTransferPath))
                 errmsg += $"can't find (or reach) temporary transfer dir: {tmpTransferPath}\n";
 
+
+            ////////// OPTIONAL PARAMETERS SETTINGS VALIDATION //////////
+
             // DriveName
             foreach (var driveToCheck in c.SpaceMonitoring) {
                 errmsg += CheckLocalDrive(driveToCheck.DriveName, nameof(driveToCheck.DriveName));
             }
 
 
-            // NON-CRITICAL stuff is simply reported to the logs:
+            ////////// WEAK CHECKS ON PARAMETERS SETTINGS //////////
+            // those checks are non-critical and are simply reported to the logs
+
             if (!c.DestinationDirectory.StartsWith(@"\\"))
                 SubOptimal("DestinationDirectory", c.DestinationDirectory, "is not a UNC path!");
+
 
             if (string.IsNullOrWhiteSpace(errmsg))
                 return;
