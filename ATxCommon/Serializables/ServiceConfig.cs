@@ -79,9 +79,9 @@ namespace ATxCommon.Serializables
         #region optional configuration parameters
 
         /// <summary>
-        /// Switch on debug log messages.
+        /// Switch on debug log messages. Default: false.
         /// </summary>
-        public bool Debug { get; set; }
+        public bool Debug { get; set; } = false;
 
         /// <summary>
         /// The name of a marker file to be placed in all **sub**directories
@@ -95,9 +95,9 @@ namespace ATxCommon.Serializables
         public string SmtpHost { get; set; }
 
         /// <summary>
-        /// SMTP port for sending emails (default: 25).
+        /// SMTP port for sending emails. Default: 25.
         /// </summary>
-        public int SmtpPort { get; set; }
+        public int SmtpPort { get; set; } = 25;
 
         /// <summary>
         /// SMTP username to authenticate when sending emails (if required).
@@ -115,9 +115,9 @@ namespace ATxCommon.Serializables
         public string EmailFrom { get; set; }
 
         /// <summary>
-        /// A string to be added as a prefix to the subject when sending emails.
+        /// A prefix to be added to any email subject. Default: "[AutoTx Service] ".
         /// </summary>
-        public string EmailPrefix { get; set; }
+        public string EmailPrefix { get; set; } = "[AutoTx Service] ";
 
         /// <summary>
         /// The mail recipient address for admin notifications (including "Fatal" log messages).
@@ -130,36 +130,34 @@ namespace ATxCommon.Serializables
         public string AdminDebugEmailAdress { get; set; }
 
         /// <summary>
-        /// Flag whether to send a mail notification to the user upon completed transfers.
+        /// Send an email to the user upon completed transfers. Default: true.
         /// </summary>
-        public bool SendTransferNotification { get; set; }
+        public bool SendTransferNotification { get; set; } = true;
 
         /// <summary>
-        /// Flag whether to send explicit mail notifications to the admin on selected events.
+        /// Send email notifications to the admin on selected events. Default: true.
         /// </summary>
-        public bool SendAdminNotification { get; set; }
+        public bool SendAdminNotification { get; set; } = true;
 
         /// <summary>
-        /// Minimum time in minutes between two notifications to the admin, default: 60.
+        /// Minimum time in minutes between two notifications to the admin. Default: 60.
         /// </summary>
-        public int AdminNotificationDelta { get; set; }
+        public int AdminNotificationDelta { get; set; } = 60;
 
         /// <summary>
-        /// Minimum time in minutes between two mails about expired folders in the grace location,
-        /// default: 720 (12h).
+        /// Minimum time in minutes between two mails about expired folders. Default: 720 (12h).
         /// </summary>
-        public int GraceNotificationDelta { get; set; }
+        public int GraceNotificationDelta { get; set; } = 720;
 
         /// <summary>
-        /// Minimum time in minutes between two low-space notifications, default: 720 (12h).
+        /// Minimum time in minutes between two low-space notifications. Default: 720 (12h).
         /// </summary>
-        public int StorageNotificationDelta { get; set; }
+        public int StorageNotificationDelta { get; set; } = 720;
 
         /// <summary>
-        /// GracePeriod: number of days after data in the "DONE" location expires,
-        /// which will trigger a summary email to the admin address, default: 30.
+        /// Number of days after data in the "DONE" location expires. Default: 30.
         /// </summary>
-        public int GracePeriod { get; set; }
+        public int GracePeriod { get; set; } = 30;
 
         /// <summary>
         /// A list of process names causing transfers to be suspended if running.
@@ -169,10 +167,10 @@ namespace ATxCommon.Serializables
         public List<string> BlacklistedProcesses { get; set; }
 
         /// <summary>
-        /// EnforceInheritedACLs: whether to enforce ACL inheritance when moving files and
-        /// directories, see https://support.microsoft.com/en-us/help/320246 for more details.
+        /// Whether to enforce ACL inheritance when moving files and directories, see 
+        /// https://support.microsoft.com/en-us/help/320246 for more details. Default: false.
         /// </summary>
-        public bool EnforceInheritedACLs { get; set; }
+        public bool EnforceInheritedACLs { get; set; } = false;
 
         /// <summary>
         /// A list of drives and thresholds to monitor free space.
@@ -182,10 +180,10 @@ namespace ATxCommon.Serializables
         public List<DriveToCheck> SpaceMonitoring { get; set; }
 
         /// <summary>
-        /// RoboCopy parameter for limiting the bandwidth (mostly for testing purposes).
+        /// Limit RoboCopy transfer bandwidth (mostly for testing purposes). Default: 0.
         /// </summary>
         /// See the RoboCopy documentation for more details.
-        public int InterPacketGap { get; set; }
+        public int InterPacketGap { get; set; } = 0;
 
         #endregion
 
@@ -226,34 +224,10 @@ namespace ATxCommon.Serializables
 
 
         /// <summary>
-        /// Constructor setting default values for optional parameters.
-        /// </summary>
         public ServiceConfig() {
-            Log.Trace("ServiceConfig() constructor, setting defaults.");
-            // set values for the optional XML elements (NOTE: parameters / variables that do not
-            // strictly REQUIRE a value are listed here as comments to denote they have not just
-            // been forgotten but an empty value is fine instead:
-
-            Debug = false;
-            // MarkerFile may be empty
-            // SmtpHost may be empty
-            SmtpPort = 25;
-            // SmtpUserCredential may be empty
-            // SmtpPasswortCredential may be empty
-            // EmailFrom may be empty
-            EmailPrefix = "[AutoTx Service] ";
-            // AdminEmailAdress may be empty
-            // AdminDebugEmailAdress may be empty
-            SendTransferNotification = true;
-            SendAdminNotification = true;
-            AdminNotificationDelta = 60;
-            GraceNotificationDelta = 720;
-            StorageNotificationDelta = 720;
-            GracePeriod = 30;
-            // BlacklistedProcesses may be empty
-            EnforceInheritedACLs = true;
-            // SpaceMonitoring may be empty
-            InterPacketGap = 0;
+        /// ServiceConfig constructor, currently empty.
+        /// </summary>
+            Log.Trace("ServiceConfig() constructor.");
         }
 
         /// <summary>
