@@ -224,9 +224,9 @@ namespace ATxCommon.Serializables
 
 
         /// <summary>
-        public ServiceConfig() {
         /// ServiceConfig constructor, currently empty.
         /// </summary>
+        private ServiceConfig() {
             Log.Trace("ServiceConfig() constructor.");
         }
 
