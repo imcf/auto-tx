@@ -369,6 +369,11 @@ namespace ATxCommon.Serializables
 
             ////////// OPTIONAL PARAMETERS SETTINGS VALIDATION //////////
 
+            // EmailFrom
+            if (!string.IsNullOrWhiteSpace(c.SmtpHost) &&
+                string.IsNullOrWhiteSpace(c.EmailFrom))
+                errmsg += "<EmailFrom> must not be empty if <SmtpHost> is configured!\n";
+            
             // DriveName
             foreach (var driveToCheck in c.SpaceMonitoring) {
                 errmsg += CheckLocalDrive(driveToCheck.DriveName, nameof(driveToCheck.DriveName));
