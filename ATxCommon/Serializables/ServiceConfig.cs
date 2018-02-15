@@ -315,7 +315,7 @@ namespace ATxCommon.Serializables
                 return string.Empty;
             }
 
-            void SubOptimal(string name, string value, string msg) {
+            void SubOptimal(string value, string name, string msg) {
                 Log.Warn(">>> Sub-optimal setting detected: <{0}> [{1}] {2}", name, value, msg);
             }
 
@@ -384,7 +384,7 @@ namespace ATxCommon.Serializables
             // those checks are non-critical and are simply reported to the logs
 
             if (!c.DestinationDirectory.StartsWith(@"\\"))
-                SubOptimal("DestinationDirectory", c.DestinationDirectory, "is not a UNC path!");
+                SubOptimal(c.DestinationDirectory, "DestinationDirectory", "is not a UNC path!");
 
 
             if (string.IsNullOrWhiteSpace(errmsg))
