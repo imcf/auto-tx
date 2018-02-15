@@ -98,6 +98,7 @@ namespace ATxCommon.Serializables
         /// Whether to enforce ACL inheritance when moving files and directories, see 
         /// https://support.microsoft.com/en-us/help/320246 for more details. Default: false.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public bool EnforceInheritedACLs { get; set; } = false;
 
         /// <summary>
