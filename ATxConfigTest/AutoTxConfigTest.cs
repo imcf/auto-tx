@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
@@ -9,8 +8,6 @@ namespace ATxConfigTest
 {
     internal class AutoTxConfigTest
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private static ServiceConfig _config;
 
         private static void Main(string[] args) {
