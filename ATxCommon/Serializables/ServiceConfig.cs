@@ -315,6 +315,11 @@ namespace ATxCommon.Serializables
                 return string.Empty;
             }
 
+            void WarnOnHighValue(int value, string name, int thresh) {
+                if (value > thresh)
+                    SubOptimal(value.ToString(), name, "value is set very high, please check!");
+            }
+
             void SubOptimal(string value, string name, string msg) {
                 Log.Warn(">>> Sub-optimal setting detected: <{0}> [{1}] {2}", name, value, msg);
             }
@@ -382,6 +387,14 @@ namespace ATxCommon.Serializables
 
             ////////// WEAK CHECKS ON PARAMETERS SETTINGS //////////
             // those checks are non-critical and are simply reported to the logs
+
+            WarnOnHighValue(c.ServiceTimer, nameof(c.ServiceTimer), 10000);
+            WarnOnHighValue(c.MaxCpuUsage, nameof(c.MaxCpuUsage), 75);
+            WarnOnHighValue(c.MinAvailableMemory, nameof(c.MinAvailableMemory), 8192);
+            WarnOnHighValue(c.AdminNotificationDelta, nameof(c.AdminNotificationDelta), 1440);
+            WarnOnHighValue(c.GraceNotificationDelta, nameof(c.GraceNotificationDelta), 10080);
+            WarnOnHighValue(c.StorageNotificationDelta, nameof(c.StorageNotificationDelta), 10080);
+            WarnOnHighValue(c.GracePeriod, nameof(c.GracePeriod), 100);
 
             if (!c.DestinationDirectory.StartsWith(@"\\"))
                 SubOptimal(c.DestinationDirectory, "DestinationDirectory", "is not a UNC path!");
