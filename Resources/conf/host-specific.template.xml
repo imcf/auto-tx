@@ -6,7 +6,7 @@
     <HostAlias>Confocal Microscope (Room 123)</HostAlias>
 
     <!-- SourceDrive: local drive to operate on (include the backslash!) -->
-    <SourceDrive>C:\</SourceDrive>
+    <SourceDrive>D:\</SourceDrive>
 
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
