@@ -90,6 +90,42 @@ namespace ATxCommon.Serializables
         public string MarkerFile { get; set; }
 
         /// <summary>
+        /// Number of days after data in the "DONE" location expires. Default: 30.
+        /// </summary>
+        public int GracePeriod { get; set; } = 30;
+
+        /// <summary>
+        /// Whether to enforce ACL inheritance when moving files and directories, see 
+        /// https://support.microsoft.com/en-us/help/320246 for more details. Default: false.
+        /// </summary>
+        public bool EnforceInheritedACLs { get; set; } = false;
+
+        /// <summary>
+        /// Limit RoboCopy transfer bandwidth (mostly for testing purposes). Default: 0.
+        /// </summary>
+        /// See the RoboCopy documentation for more details.
+        public int InterPacketGap { get; set; } = 0;
+
+        /// <summary>
+        /// A list of process names causing transfers to be suspended if running.
+        /// </summary>
+        [XmlArray]
+        [XmlArrayItem(ElementName = "ProcessName")]
+        public List<string> BlacklistedProcesses { get; set; }
+
+        /// <summary>
+        /// A list of drives and thresholds to monitor free space.
+        /// </summary>
+        [XmlArray]
+        [XmlArrayItem(ElementName = "DriveToCheck")]
+        public List<DriveToCheck> SpaceMonitoring { get; set; }
+
+        #endregion
+
+
+        #region optional configuration parameters - notification settings
+
+        /// <summary>
         /// SMTP server to send mails and Fatal/Error log messages. No mails if omitted.
         /// </summary>
         public string SmtpHost { get; set; }
@@ -123,7 +159,7 @@ namespace ATxCommon.Serializables
         /// The mail recipient address for admin notifications (including "Fatal" log messages).
         /// </summary>
         public string AdminEmailAdress { get; set; }
-        
+
         /// <summary>
         /// The mail recipient address for debug notifications (including "Error" log messages).
         /// </summary>
@@ -154,40 +190,9 @@ namespace ATxCommon.Serializables
         /// </summary>
         public int StorageNotificationDelta { get; set; } = 720;
 
-        /// <summary>
-        /// Number of days after data in the "DONE" location expires. Default: 30.
-        /// </summary>
-        public int GracePeriod { get; set; } = 30;
-
-        /// <summary>
-        /// A list of process names causing transfers to be suspended if running.
-        /// </summary>
-        [XmlArray]
-        [XmlArrayItem(ElementName = "ProcessName")]
-        public List<string> BlacklistedProcesses { get; set; }
-
-        /// <summary>
-        /// Whether to enforce ACL inheritance when moving files and directories, see 
-        /// https://support.microsoft.com/en-us/help/320246 for more details. Default: false.
-        /// </summary>
-        public bool EnforceInheritedACLs { get; set; } = false;
-
-        /// <summary>
-        /// A list of drives and thresholds to monitor free space.
-        /// </summary>
-        [XmlArray]
-        [XmlArrayItem(ElementName = "DriveToCheck")]
-        public List<DriveToCheck> SpaceMonitoring { get; set; }
-
-        /// <summary>
-        /// Limit RoboCopy transfer bandwidth (mostly for testing purposes). Default: 0.
-        /// </summary>
-        /// See the RoboCopy documentation for more details.
-        public int InterPacketGap { get; set; } = 0;
-
         #endregion
 
-        
+
         #region wrappers for derived parameters
 
         /// <summary>

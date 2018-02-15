@@ -11,6 +11,9 @@
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
 
+    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
+    <InterPacketGap>0</InterPacketGap>
+
     <!-- A list of drive names and space thresholds to be used for monitoring
          the free space and send notifications if below. -->
     <SpaceMonitoring>
@@ -25,9 +28,6 @@
             <SpaceThreshold>120000</SpaceThreshold>
         </DriveToCheck><-->
     </SpaceMonitoring>
-
-    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
-    <InterPacketGap>0</InterPacketGap>
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
 

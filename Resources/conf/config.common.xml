@@ -40,6 +40,29 @@
          file itself will be ignored for the transfers -->
     <MarkerFile>_DO_NOT_ACQUIRE_HERE_.txt</MarkerFile>
 
+    <!-- GracePeriod: number of days after data in the "DONE" location expires,
+         which will trigger a summary email to the admin address. -->
+    <GracePeriod>30</GracePeriod>
+
+    <!-- EnforceInheritedACLs: whether to enforce ACL inheritance when moving
+         files and directories, see this page for details (DEFAULT: true)
+         https://support.microsoft.com/en-us/help/320246 -->
+    <EnforceInheritedACLs>false</EnforceInheritedACLs>
+
+    <!-- BlacklistedProcesses: a list of "ProcessName" entries denoting
+         programs that will cause a transfer to be suspended immediately if the
+         name is found in the list of running processes -->
+    <BlacklistedProcesses>
+        <ProcessName>calc</ProcessName>
+        <ProcessName>notepad</ProcessName>
+        <ProcessName>wordpad</ProcessName>
+    </BlacklistedProcesses>
+
+    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+
+    <!--  OPTIONAL NOTIFICATION / EMAIL SETTINGS  -->
+
     <!-- SmtpHost: SMTP server hostname -->
     <SmtpHost />
     <!-- SmtpPort: SMTP server port, defaults to 25 if omitted -->
@@ -81,24 +104,6 @@
          in case one of the drives is below the threshold (in minutes) -->
     <StorageNotificationDelta>720</StorageNotificationDelta>
 
-    <!-- GracePeriod: number of days after data in the "DONE" location expires,
-         which will trigger a summary email to the admin address. -->
-    <GracePeriod>30</GracePeriod>
-
-    <!-- BlacklistedProcesses: a list of "ProcessName" entries denoting
-         programs that will cause a transfer to be suspended immediately if the
-         name is found in the list of running processes -->
-    <BlacklistedProcesses>
-        <ProcessName>calc</ProcessName>
-        <ProcessName>notepad</ProcessName>
-        <ProcessName>wordpad</ProcessName>
-    </BlacklistedProcesses>
-
-    <!-- EnforceInheritedACLs: whether to enforce ACL inheritance when moving
-         files and directories, see this page for details (DEFAULT: true)
-         https://support.microsoft.com/en-us/help/320246 -->
-    <EnforceInheritedACLs>false</EnforceInheritedACLs>
-
-    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+    <!--  OPTIONAL NOTIFICATION / EMAIL SETTINGS  -->
 
 </ServiceConfig>
