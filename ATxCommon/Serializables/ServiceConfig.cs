@@ -58,11 +58,6 @@ namespace ATxCommon.Serializables
         public string TmpTransferDir { get; set; }
 
         /// <summary>
-        /// The interval (in ms) for checking for new files and system parameters.
-        /// </summary>
-        public int ServiceTimer { get; set; }
-
-        /// <summary>
         /// Maximum allowed CPU usage across all cores in percent. Running transfers will be paused
         /// if this limit is exceeded.
         /// </summary>
@@ -82,6 +77,11 @@ namespace ATxCommon.Serializables
         /// Switch on debug log messages. Default: false.
         /// </summary>
         public bool Debug { get; set; } = false;
+
+        /// <summary>
+        /// The interval (in ms) for checking for new files and system parameters. Default: 1000.
+        /// </summary>
+        public int ServiceTimer { get; set; } = 1000;
 
         /// <summary>
         /// The name of a marker file to be placed in all **sub**directories

@@ -21,9 +21,6 @@
          to be used for running transfers -->
     <TmpTransferDir>d-vamp-dw</TmpTransferDir>
 
-    <!-- ServiceTimer: interval (in ms) for checking files and parameters -->
-    <ServiceTimer>1000</ServiceTimer>
-
     <!-- MaxCpuUsage: pause transfer if CPU usage is above this value (in %)-->
     <MaxCpuUsage>25</MaxCpuUsage>
 
@@ -35,6 +32,9 @@
 
     <!-- Debug: enable or disable debug log messages -->
     <Debug>true</Debug>
+
+    <!-- ServiceTimer: interval (in ms) for checking files and parameters -->
+    <ServiceTimer>1000</ServiceTimer>
 
     <!-- MarkerFile: a file to place in each user's incoming directory, the
          file itself will be ignored for the transfers -->
