@@ -12,7 +12,6 @@ namespace ATxConfigTest
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private static ServiceConfig _config;
-        private static ServiceStatus _status;
 
         private static void Main(string[] args) {
             var logConfig = new LoggingConfiguration();
@@ -29,19 +28,14 @@ namespace ATxConfigTest
             if (args.Length > 0)
                 baseDir = args[0];
 
-            var statusPath = Path.Combine(baseDir, "status.xml");
+            const string mark = "----------------------------";
 
             try {
-                string msg;
                 Console.WriteLine($"\nTrying to parse configuration files from [{baseDir}]...\n");
                 _config = ServiceConfig.Deserialize(baseDir);
-                msg = "------------------ configuration settings ------------------";
-                Console.WriteLine($"{msg}\n{_config.Summary()}{msg}\n");
-
-                Console.WriteLine($"\nTrying to parse status file [{statusPath}]...\n");
-                _status = ServiceStatus.Deserialize(statusPath, _config);
-                msg = "------------------ status parameters ------------------";
-                Console.WriteLine($"{msg}\n{_status.Summary()}{msg}\n");
+                Console.WriteLine($"\n{mark} configuration settings {mark}");
+                Console.Write(_config.Summary());
+                Console.WriteLine($"{mark} configuration settings {mark}\n");
             }
             catch (Exception ex) {
                 Console.WriteLine(ex);
