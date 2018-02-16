@@ -306,7 +306,7 @@ function Update-ServiceBinaries {
 
 function Upload-LogFiles {
     $Dest = "$($UploadPathLogs)\$($env:COMPUTERNAME)"
-    New-Item -Force -Type Directory $Dest
+    New-Item -Force -Type Directory $Dest | Out-Null
     try {
         Copy-Item -Force -ErrorAction Stop `
             -Path "$($LogPath)\AutoTx.log" `
