@@ -2,10 +2,17 @@ $ResourceDir = "..\ATxService\Resources"
 $RsrcDirCommon = "..\Resources"
 
 
-function Highlight([string]$Message, [string]$Color = "Cyan") {
+function Highlight([string]$Message, [string]$Color = "Cyan", $Indent = $False) {
+    if ($Indent) {
+        Write-Host -NoNewline "    "
+    }
     Write-Host -NoNewline "["
     Write-Host -NoNewline -F $Color $Message
     Write-Host -NoNewline "]"
+    if ($Indent) {
+        Write-Host
+    }
+}
 
 function RelToAbs([string]$RelPath) {
     Join-Path -Resolve $(Get-Location) $RelPath
@@ -37,13 +44,13 @@ $BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
 Write-Host -NoNewline "Creating package "
 Highlight $PkgDir "Red"
 Write-Host " using binaries from:"
-Write-Host $(Highlight $BinariesDirService "Green")
-Write-Host $(Highlight $BinariesDirTrayApp "Green")
-Write-Host $(Highlight $BinariesDirCfgTest "Green")
-Write-Host ""
+Highlight $BinariesDirService "Green" $True
+Highlight $BinariesDirTrayApp "Green" $True
+Highlight $BinariesDirCfgTest "Green" $True
+Write-Host
 
 if (Test-Path $PkgDir) {
-    Write-Host "Removing existing package dir [$($PkgDir)]..."
+    Write-Host "Removing existing package dir [$($PkgDir)]...`n"
     Remove-Item -Recurse -Force $PkgDir
 }
 
@@ -76,10 +83,10 @@ Copy-Item "Install-Service.ps1" $PkgDir
 
 Write-Host -NoNewline "Done creating package "
 Highlight $PkgDir
-Write-Host -NoNewline " using config "
-Highlight $BuildConfiguration
-Write-Host -NoNewline " based on commit "
-Highlight $BuildCommit
+Write-Host
+Highlight "configuration: $($BuildConfiguration)" -Indent $True
+Highlight "commit: $($BuildCommit)" -Indent $True
+Write-Host
 
 Write-Host -NoNewline "Location: "
 Highlight "$(RelToAbs $PkgDir)"
