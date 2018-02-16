@@ -187,8 +187,8 @@ namespace ATxService
         /// </summary>
         private void LoadSettings() {
             try {
-                LoadConfigXml();
-                LoadStatusXml();
+                LoadConfig();
+                LoadStatus();
             }
             catch (Exception ex) {
                 Log.Error("LoadSettings() failed: {0}\n{1}", ex.Message, ex.StackTrace);
@@ -200,9 +200,9 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Load the configuration xml file.
+        /// Load the configuration.
         /// </summary>
-        private void LoadConfigXml() {
+        private void LoadConfig() {
 	        var confPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
 		        "configuration.xml");
             try {
@@ -222,9 +222,9 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Load the status xml file.
+        /// Load the status.
         /// </summary>
-        private void LoadStatusXml() {
+        private void LoadStatus() {
 	        var statusPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
 		        "status.xml");
 			try {
