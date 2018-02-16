@@ -207,17 +207,15 @@ namespace ATxService
 		        "configuration.xml");
             try {
                 _config = ServiceConfig.Deserialize(confPath);
-                Log.Debug("Loaded config from [{0}]", confPath);
             }
             catch (ConfigurationErrorsException ex) {
-                Log.Error("ERROR validating configuration file [{0}]: {1}",
-	                confPath, ex.Message);
+                Log.Error("Validating configuration failed: {0}", ex.Message);
                 throw new Exception("Error validating configuration.");
             }
             catch (Exception ex) {
-                Log.Error("loading configuration XML failed: {0}", ex.Message);
+                Log.Error("Loading configuration failed: {0}", ex.Message);
                 // this should terminate the service process:
-                throw new Exception("Error loading config.");
+                throw new Exception("Error loading configuration.");
             }
         }
 

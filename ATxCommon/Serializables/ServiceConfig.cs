@@ -252,6 +252,7 @@ namespace ATxCommon.Serializables
         /// <param name="path">The path to the configuration files.</param>
         /// <returns>A ServiceConfig object with validated settings.</returns>
         public static ServiceConfig Deserialize(string path) {
+            Log.Trace("ServiceConfig.Deserialize({0})", path);
             ServiceConfig config;
 
             var commonFile = Path.Combine(path, "config.common.xml");
@@ -261,25 +262,25 @@ namespace ATxCommon.Serializables
             // behaviour of the .NET XmlSerializer on duplicates: only the first occurrence is
             // used, all other ones are silentley being discarded - this way we simply append the
             // contents of the common config file to the host-specific and deserialize then:
+            Log.Debug("Loading host specific configuration XML file: [{0}]", specificFile);
             var combined = XElement.Load(specificFile);
-            Log.Debug("Loaded host specific configuration XML file: [{0}]", specificFile);
             // the common configuration file is optional, so check if it exists at all:
             if (File.Exists(commonFile)) {
+                Log.Debug("Loading common configuration XML file: [{0}]", commonFile);
                 var common = XElement.Load(commonFile);
-                Log.Debug("Loaded common configuration XML file: [{0}]", commonFile);
                 combined.Add(common.Nodes());
                 Log.Trace("Combined XML structure:\n\n{0}\n\n", combined);
             }
 
             using (var reader = XmlReader.Create(new StringReader(combined.ToString()))) {
-                Log.Debug("Trying to parse combined XML.");
+                Log.Debug("Trying to parse combined XML...");
                 var serializer = new XmlSerializer(typeof(ServiceConfig));
                 config = (ServiceConfig) serializer.Deserialize(reader);
             }
 
             ValidateConfiguration(config);
             
-            Log.Debug("Successfully parsed and validated configuration XML.");
+            Log.Debug("Successfully parsed a valid configuration from [{0}].", path);
             return config;
         }
 
@@ -287,6 +288,7 @@ namespace ATxCommon.Serializables
         /// Validate the configuration, throwing exceptions on invalid parameters.
         /// </summary>
         private static void ValidateConfiguration(ServiceConfig c) {
+            Log.Debug("Validating configuration...");
             var errmsg = "";
 
             string CheckEmpty(string value, string name) {
