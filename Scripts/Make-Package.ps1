@@ -6,6 +6,9 @@ function Highlight([string]$Message, [string]$Color = "Cyan") {
     Write-Host -NoNewline "["
     Write-Host -NoNewline -F $Color $Message
     Write-Host -NoNewline "]"
+
+function RelToAbs([string]$RelPath) {
+    Join-Path -Resolve $(Get-Location) $RelPath
 }
 
 
@@ -27,9 +30,9 @@ catch {
 
 $PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
 $PkgDir = "build_" + $PkgDir
-$BinariesDirService = "..\ATxService\bin\$($BuildConfiguration)"
-$BinariesDirTrayApp = "..\ATxTray\bin\$($BuildConfiguration)"
-$BinariesDirCfgTest = "..\ATxConfigTest\bin\$($BuildConfiguration)"
+$BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
+$BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
+$BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
 
 Write-Host -NoNewline "Creating package "
 Highlight $PkgDir "Red"
@@ -77,4 +80,7 @@ Write-Host -NoNewline " using config "
 Highlight $BuildConfiguration
 Write-Host -NoNewline " based on commit "
 Highlight $BuildCommit
+
+Write-Host -NoNewline "Location: "
+Highlight "$(RelToAbs $PkgDir)"
 Write-Host
