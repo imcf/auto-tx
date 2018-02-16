@@ -203,10 +203,9 @@ namespace ATxService
         /// Load the configuration.
         /// </summary>
         private void LoadConfig() {
-	        var confPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-		        "configuration.xml");
             try {
-                _config = ServiceConfig.Deserialize(confPath);
+                _config = ServiceConfig.Deserialize(
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "conf"));
             }
             catch (ConfigurationErrorsException ex) {
                 Log.Error("Validating configuration failed: {0}", ex.Message);
