@@ -435,7 +435,7 @@ namespace ATxCommon.Serializables
                 $"Debug: {Debug}\n" +
                 $"ServiceTimer: {ServiceTimer} ms\n" +
                 $"MarkerFile: {MarkerFile}\n" +
-                $"GracePeriod: {GracePeriod} (" +
+                $"GracePeriod: {GracePeriod} days (" +
                 TimeUtils.DaysToHuman(GracePeriod, false) + ")\n" +
                 $"EnforceInheritedACLs: {EnforceInheritedACLs}\n" +
                 $"InterPacketGap: {InterPacketGap}\n" +
@@ -471,11 +471,11 @@ namespace ATxCommon.Serializables
                     $"AdminDebugEmailAdress: {AdminDebugEmailAdress}\n" +
                     $"SendTransferNotification: {SendTransferNotification}\n" +
                     $"SendAdminNotification: {SendAdminNotification}\n" +
-                    $"AdminNotificationDelta: {AdminNotificationDelta} (" +
+                    $"AdminNotificationDelta: {AdminNotificationDelta} min (" +
                     TimeUtils.MinutesToHuman(AdminNotificationDelta, false) + ")\n" +
-                    $"GraceNotificationDelta: {GraceNotificationDelta} (" +
+                    $"GraceNotificationDelta: {GraceNotificationDelta} min (" +
                     TimeUtils.MinutesToHuman(GraceNotificationDelta, false) + ")\n" +
-                    $"StorageNotificationDelta: {StorageNotificationDelta} (" +
+                    $"StorageNotificationDelta: {StorageNotificationDelta} min (" +
                     TimeUtils.MinutesToHuman(StorageNotificationDelta, false) + ")\n" +
                     "";
             }
