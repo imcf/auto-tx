@@ -333,11 +333,11 @@ function Copy-ServiceFiles {
 
 
 function Update-ServiceBinaries {
-    $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
-    if (Test-Path "$MarkerFile" -Type Leaf) {
-        Log-Debug "Found marker [$($MarkerFile)], not updating service."
+    $NewService = NewServiceBinaries-Available
+    if (-Not ($NewService)) {
         Return $False
     }
+
     Stop-TrayApp
     Copy-ServiceFiles
     try {
@@ -348,6 +348,16 @@ function Update-ServiceBinaries {
         Log-Error "Creating [$($MarkerFile)] FAILED!`n$($_.Exception.Message)"
         Exit
     }
+    Return $True
+}
+
+function NewServiceBinaries-Available {
+    $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
+    if (Test-Path "$MarkerFile" -Type Leaf) {
+        Log-Debug "Found marker [$($MarkerFile)], not updating service."
+        Return $False
+    }
+    Write-Verbose "Marker [$($MarkerFile)] missing, service should be updated!"
     Return $True
 }
 
