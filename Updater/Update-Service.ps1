@@ -263,6 +263,48 @@ function Update-Configuration {
 }
 
 
+function NewConfig-Available {
+    # Check the configuration update path and the given $DstPath for both
+    # configuration files (common and host-specific) and compare their
+    # respective file write-time.
+    #
+    # Return $True if the update path contains any newer file, $False otherwise.
+    Param (
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({(Get-Item $_).PSIsContainer})]
+        [String]$DstPath
+    )
+
+    # old and new common configuration
+    $OComm = Join-Path $DstPath "config.common.xml"
+    $NComm = Join-Path $UpdPathConfig "config.common.xml"
+
+    # old and new host-specific configuration
+    $OHost = Join-Path $DstPath "$($env:COMPUTERNAME).xml"
+    $NHost = Join-Path $UpdPathConfig "$($env:COMPUTERNAME).xml"
+
+    $Ret = $True
+    try {
+        $Ret = (
+            $(File-IsUpToDate -ExistingFile $OHost -UpdateCandidate $NHost) -And
+            $(File-IsUpToDate -ExistingFile $OComm -UpdateCandidate $NComm)
+        )
+    }
+    catch {
+        Log-Error $("Checking for new configuration files failed:"
+            "$($_.Exception.Message)")
+        Return $False
+    }
+
+    if ($Ret) {
+        Write-Verbose "Configuration is up to date, no new files available."
+        Return $False
+    }
+    Log-Info "New configuration files found!"
+    Return $True
+}
+
+
 function Copy-ServiceFiles {
     try {
         Write-Verbose "Looking for source package using pattern: $($Pattern)"
