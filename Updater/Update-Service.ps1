@@ -139,6 +139,11 @@ function Get-WriteTime([string]$FileName) {
     try {
         $TimeStamp = (Get-Item "$FileName" -EA Stop).LastWriteTime
     }
+    catch [System.Management.Automation.ItemNotFoundException] {
+        Write-Verbose "File [$($FileName)] can't be found!"
+        throw [System.Management.Automation.ItemNotFoundException] `
+            "File not found: $($FileName)."
+    }
     catch {
         $ex = $_.Exception.Message
         Log-Error "Error determining file age of [$($FileName)]!`n$($ex)"
