@@ -137,7 +137,7 @@ function Start-MyService {
 
 function Get-WriteTime([string]$FileName) {
     try {
-        $TimeStamp = (Get-Item "$FileName").LastWriteTime
+        $TimeStamp = (Get-Item "$FileName" -EA Stop).LastWriteTime
     }
     catch {
         $ex = $_.Exception.Message
