@@ -157,6 +157,7 @@ function File-IsUpToDate([string]$ExistingFile, [string]$UpdateCandidate) {
         Log-Debug "File [$($ExistingFile)] is up-to-date."
         Return $True
     }
+    Write-Verbose "File [$($UpdateCandidate)] is newer than [$($ExistingFile)]."
     Return $False
 }
 
