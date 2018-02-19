@@ -306,6 +306,36 @@ function NewConfig-Available {
 }
 
 
+function NewConfig-IsValid {
+    # Check if the new configuration provided at $UpdPathConfig validates with
+    # the appropriate "AutoTxConfigTest" binary (either the existing one in the
+    # service installation directory (if the service binaries won't be updated)
+    # or the new one at the $UpdPathBinaries location in case the service itself
+    # will be updated as well).
+    #
+    # Returns an array with two elements, the first one being $True in case the
+    # configuration was successfully validated ($False otherwise) and the second
+    # one containing the output of the configuration test tool as a string.
+    Param (
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({(Test-Path $_ -PathType Leaf)})]
+        [String]$ConfigTest
+    )
+    Write-Verbose "Running [$($ConfigTest) $($UpdPathConfig)]..."
+    $Summary = & $ConfigTest $UpdPathConfig
+    $Ret = $?
+    # pipe through Out-String to preserve line breaks:
+    $Summary = "$("=" * 80)`n$($Summary | Out-String)`n$("=" * 80)"
+
+    if ($Ret) {
+        Log-Debug "Successfully validated new configuration files!`n$($Summary)"
+        Return $Ret, $Summary
+    }
+    Log-Error "Config at [$($UpdPathConfig)] failed validation!`n$($Summary)"
+    Return $Ret, $Summary
+}
+
+
 function Copy-ServiceFiles {
     try {
         Write-Verbose "Looking for source package using pattern: $($Pattern)"
