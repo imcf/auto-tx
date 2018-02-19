@@ -411,7 +411,7 @@ function Upload-LogFiles {
 
 function Get-HostDescription() {
     $Desc = $env:COMPUTERNAME
-    $ConfigXml = "$($InstallationPath)\configuration.xml"
+    $ConfigXml = "$($ConfigPath)\$($Desc).xml"
     try {
         [xml]$XML = Get-Content $ConfigXml -ErrorAction Stop
         # careful, we need a string comparison here:
