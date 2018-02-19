@@ -52,6 +52,7 @@ function ServiceIsBusy {
     }
 }
 
+
 function Stop-TrayApp() {
     try {
         Stop-Process -Name "ATxTray" -Force -ErrorAction Stop
@@ -350,6 +351,7 @@ function Update-ServiceBinaries {
     }
     Return $True
 }
+
 
 function NewServiceBinaries-Available {
     $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
