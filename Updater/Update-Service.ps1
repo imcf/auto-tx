@@ -473,6 +473,7 @@ function Log-Debug([string]$Message) {
 ################################################################################
 
 
+$ErrorActionPreference = "Stop"
 
 try {
     . $UpdaterSettings
