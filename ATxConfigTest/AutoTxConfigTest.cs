@@ -11,19 +11,33 @@ namespace ATxConfigTest
         private static ServiceConfig _config;
 
         private static void Main(string[] args) {
-            var logConfig = new LoggingConfiguration();
-            var consoleTarget = new ConsoleTarget {
-                Name = "console",
-                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}",
-            };
-            logConfig.AddTarget("console", consoleTarget);
-            var logRuleConsole = new LoggingRule("*", LogLevel.Debug, consoleTarget);
-            logConfig.LoggingRules.Add(logRuleConsole);
-            LogManager.Configuration = logConfig;
-
+            var logLevel = LogLevel.Info;
+            var logPrefix = "";
+            
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             if (args.Length > 0)
                 baseDir = args[0];
+
+            if (args.Length > 1) {
+                if (args[1] == "debug") {
+                    logLevel = LogLevel.Debug;
+                    logPrefix = @"${date:format=yyyy-MM-dd HH\:mm\:ss} ";
+                }
+                if (args[1] == "trace") {
+                    logLevel = LogLevel.Trace;
+                    logPrefix = @"${date:format=yyyy-MM-dd HH\:mm\:ss} (${logger}) ";
+                }
+            }
+
+            var logConfig = new LoggingConfiguration();
+            var consoleTarget = new ConsoleTarget {
+                Name = "console",
+                Layout = logPrefix + @"[${level}] ${message}",
+            };
+            logConfig.AddTarget("console", consoleTarget);
+            var logRuleConsole = new LoggingRule("*", logLevel, consoleTarget);
+            logConfig.LoggingRules.Add(logRuleConsole);
+            LogManager.Configuration = logConfig;
 
             const string mark = "----------------------------";
 
