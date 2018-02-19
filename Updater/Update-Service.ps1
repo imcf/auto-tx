@@ -336,6 +336,23 @@ function NewConfig-IsValid {
 }
 
 
+function Find-InstallationPackage {
+    Write-Verbose "Looking for installation package using pattern: $($Pattern)"
+    $PkgDir = Get-ChildItem -Path $UpdPathBinaries -Directory -Name |
+        Where-Object {$_ -match $Pattern} |
+        Sort-Object |
+        Select-Object -Last 1
+    
+    if ([string]::IsNullOrEmpty($PkgDir)) {
+        Log-Error "couldn't find installation package matching '$($Pattern)'!"
+        Exit
+    }
+    $PkgDir = "$($UpdPathBinaries)\$($PkgDir)"
+    Write-Verbose "Found update installation package: [$($PkgDir)]"
+    Return $PkgDir
+}
+
+
 function Copy-ServiceFiles {
     try {
         Write-Verbose "Looking for source package using pattern: $($Pattern)"
