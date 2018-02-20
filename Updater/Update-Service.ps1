@@ -169,6 +169,10 @@ function File-IsUpToDate([string]$ExistingFile, [string]$UpdateCandidate) {
 
 
 function Create-Backup {
+    # Rename a file using a time-stamp suffix like "2017-12-04T16.41.35" while
+    # preserving its original suffix / extension.
+    #
+    # Return $True if the backup was created successfully, $False otherwise.
     Param (
         [Parameter(Mandatory=$True)]
         [ValidateScript({Test-Path -PathType Leaf $_})]
@@ -178,19 +182,20 @@ function Create-Backup {
     $FileWithoutSuffix = [io.path]::GetFileNameWithoutExtension($FileName)
     $FileSuffix = [io.path]::GetExtension($FileName)
     $BaseDir = Split-Path -Parent $FileName
-    
+
     # assemble a timestamp string like "2017-12-04T16.41.35"
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
     $BakName = "$($FileWithoutSuffix)_pre-$($BakTimeStamp)$($FileSuffix)"
     Log-Info "Creating backup of [$($FileName)] as [$($BaseDir)\$($BakName)]."
+
     try {
-        Rename-Item "$FileName" "$BaseDir\$BakName" -ErrorAction Stop
+        Rename-Item "$FileName" "$BaseDir\$BakName"
     }
     catch {
-        $ex = $_.Exception.Message
-        Log-Error "Backing up [$($FileName)] as [$($BakName)] FAILED!`n$($ex)"
-        Exit
+        Log-Error "Backing up [$($DstFile)] FAILED:`n> $($_.Exception.Message)"
+        Return $False
     }
+    Return $True
 }
 
 
@@ -225,12 +230,8 @@ function Update-File {
 
     Stop-MyService "Found newer file at $($SrcFile), updating..."
 
-    try {
-        Create-Backup -FileName $DstFile
-    }
-    catch {
-        Exit
-        Log-Error "Backing up [$($DstFile)] FAILED:`n> $($_.Exception.Message)"
+    if (-Not (Create-Backup -FileName $DstFile)) {
+        Return $False
     }
 
     try {
