@@ -389,7 +389,7 @@ function Update-ServiceBinaries {
     }
     catch {
         Log-Error "Creating [$($MarkerFile)] FAILED:`n> $($_.Exception.Message)"
-        Exit
+        Return $False
     }
     Return $True
 }
