@@ -617,7 +617,6 @@ if ($ConfigShouldBeUpdated) {
         Log-Error "Updating the configuration failed, $($Me) terminating!"
         Exit
     }
-    $UpdSummary += "The configuration files were updated.`n"
 }
 
 if ($ServiceShouldBeUpdated) {
@@ -628,19 +627,25 @@ if ($ServiceShouldBeUpdated) {
     }
 }
 
-Exit
+$UpdSummary = "Updated $($UpdItems -join " and ")."
 
 
-if ($msg -ne "") {
-    if ($ServiceRunningBefore) {
-        Log-Debug "Update action occurred, finishing up..."
-        Start-MyService
-    } else {
-        Log-Debug "Not starting the service as it was not running before."
-    }
-    Send-MailReport -Subject "Config and / or service has been updated!" `
-        -Body $msg
+
+if ($ServiceRunningBefore) {
+    Log-Debug "$($UpdSummary) Trying to start the service again..."
+    Start-MyService
+} else {
+    Log-Debug "$($UpdSummary) Leaving the service stopped, as it was before."
 }
+
+$UpdDetails = $("An $($Me) run completed successfully. Updated items:"
+    "`n> - $($UpdItems -join "`n> - ")")
+if ($ConfigUpdated) {
+    $UpdDetails += "`n`nConfiguration validation summary:`n$($ConfigSummary)"
+}
+
+Send-MailReport -Subject "$UpdSummary" -Body "$UpdDetails"
+
 
 Upload-LogFiles
 
