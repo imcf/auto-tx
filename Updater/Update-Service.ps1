@@ -356,7 +356,6 @@ function Copy-ServiceFiles {
     # Returns $True for success, $False otherwise.
     Write-Verbose "Copying service binaries from [$($UpdPackage)]..."
     try {
-        Stop-MyService "Trying to update service using package [$($PkgDir)]."
         Copy-Item -Recurse -Force `
             -Path "$($UpdPackage)\$($ServiceName)\*" `
             -Destination "$InstallationPath"
@@ -371,15 +370,21 @@ function Copy-ServiceFiles {
 
 
 function Update-ServiceBinaries {
-    $NewService = NewServiceBinaries-Available
-    if (-Not ($NewService)) {
+    # Stop the tray application and the service, update the service binaries and
+    # create a marker file indicating the service on this host has been updated.
+    #
+    # Returns $True if binaries were updated successfully and the marker file
+    # has been created, $False otherwise.
+    Stop-TrayApp
+    Stop-MyService "Trying to update service using package [$($UpdPackage)]."
+    $Ret = Copy-ServiceFiles
+    if (-Not $Ret) {
         Return $False
     }
 
-    Stop-TrayApp
-    Copy-ServiceFiles
+    $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
     try {
-        New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
+        New-Item -Type File "$MarkerFile" | Out-Null
         Log-Debug "Created marker file [$($MarkerFile)]."
     }
     catch {
