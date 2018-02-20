@@ -620,10 +620,16 @@ if ($ConfigShouldBeUpdated) {
     $UpdSummary += "The configuration files were updated.`n"
 }
 
+if ($ServiceShouldBeUpdated) {
+    $ServiceUpdated = Update-ServiceBinaries
+    if (-Not $ServiceUpdated) {
+        Log-Error "Updating the service binaries failed, $($Me) terminating!"
+        Exit        
+    }
+}
 
 Exit
 
-$ServiceUpdated = Update-ServiceBinaries
 
 if ($msg -ne "") {
     if ($ServiceRunningBefore) {
