@@ -229,17 +229,17 @@ function Update-File {
         Create-Backup -FileName $DstFile
     }
     catch {
-        Log-Error "Backing up $($DstFile) FAILED!`n$($_.Exception.Message)"
         Exit
+        Log-Error "Backing up [$($DstFile)] FAILED:`n> $($_.Exception.Message)"
     }
 
     try {
         Copy-Item -Path $SrcFile -Destination $DstPath -ErrorAction Stop
-        Log-Info "Updated config file '$($DstFile)'."
+        Log-Info "Updated config file [$($DstFile)]."
     }
     catch {
-        Log-Error "Copying $($SrcFile) FAILED!`n$($_.Exception.Message)"
         Exit
+        Log-Error "Copying [$($SrcFile)] FAILED:`n> $($_.Exception.Message)"
     }
     Return $True
 }
@@ -332,10 +332,10 @@ function Config-IsValid {
     $Summary = "$("=" * 80)`n$($Summary | Out-String)`n$("=" * 80)"
 
     if ($Ret) {
-        Log-Debug "Validated config files at [$($ConfigPath)]!`n$($Summary)"
+        Log-Debug "Validated config files at [$($ConfigPath)]:`n$($Summary)"
         Return $Ret, $Summary
     }
-    Log-Error "Config at [$($ConfigPath)] FAILED VALIDATION!`n$($Summary)"
+    Log-Error "Config at [$($ConfigPath)] FAILED VALIDATION:`n$($Summary)"
     Return $Ret, $Summary
 }
 
@@ -377,8 +377,8 @@ function Copy-ServiceFiles {
             -Destination "$InstallationPath"
     }
     catch {
-        Log-Error "Updating service binaries FAILED!`n$($_.Exception.Message)"
         Exit
+        Log-Error "Updating service binaries FAILED:`n> $($_.Exception.Message)"
     }
     Log-Info "Updated service binaries with [$($PkgDir)]."
 }
@@ -397,7 +397,7 @@ function Update-ServiceBinaries {
         Log-Debug "Created marker file [$($MarkerFile)]."
     }
     catch {
-        Log-Error "Creating [$($MarkerFile)] FAILED!`n$($_.Exception.Message)"
+        Log-Error "Creating [$($MarkerFile)] FAILED:`n> $($_.Exception.Message)"
         Exit
     }
     Return $True
