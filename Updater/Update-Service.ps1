@@ -396,7 +396,9 @@ function Update-ServiceBinaries {
 }
 
 
-function NewServiceBinaries-Available {
+function ServiceUpdate-Requested {
+    # Check for a host-specific marker file indicating whether the service
+    # binaries on this host should be updated.
     $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
     if (Test-Path "$MarkerFile" -Type Leaf) {
         Log-Debug "Found marker [$($MarkerFile)], not updating service."
@@ -567,7 +569,7 @@ Exit-IfDirMissing $UploadPathLogs "log file target"
 Upload-LogFiles
 
 $ConfigShouldBeUpdated = NewConfig-Available $ConfigPath
-$ServiceShouldBeUpdated = NewServiceBinaries-Available
+$ServiceShouldBeUpdated = ServiceUpdate-Requested
 if (-Not ($ConfigShouldBeUpdated -Or $ServiceShouldBeUpdated)) {
     Log-Debug "No update action found to be necessary."
     Exit
