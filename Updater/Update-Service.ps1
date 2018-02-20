@@ -614,7 +614,9 @@ Write-Verbose "Required update action items:`n> - $($UpdItems -join "`n> - ")`n"
 if ($ConfigShouldBeUpdated) {
     $ConfigUpdated = Update-Configuration
     if (-Not $ConfigUpdated) {
-        Log-Error "Updating the configuration failed, $($Me) terminating!"
+        $msg = "Updating the configuration failed, $($Me) terminating!"
+        Log-Error $msg
+        Send-MailReport -Subject "updated failed!" -Body $msg
         Exit
     }
 }
@@ -622,7 +624,9 @@ if ($ConfigShouldBeUpdated) {
 if ($ServiceShouldBeUpdated) {
     $ServiceUpdated = Update-ServiceBinaries
     if (-Not $ServiceUpdated) {
-        Log-Error "Updating the service binaries failed, $($Me) terminating!"
+        $msg = "Updating the service binaries failed, $($Me) terminating!"
+        Log-Error $msg
+        Send-MailReport -Subject "updated failed!" -Body $msg
         Exit        
     }
 }
