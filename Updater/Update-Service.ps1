@@ -600,6 +600,23 @@ if (-Not ($ConfigValid)) {
     Exit
 }
 
+
+# reaching this point means
+#    (1) something needs to be updated (config, service or both)
+#  AND
+#    (2) the configuration validates with the corresponding service version
+$UpdSummary = ""
+
+if ($ConfigShouldBeUpdated) {
+    $ConfigUpdated = Update-Configuration
+    if (-Not $ConfigUpdated) {
+        Log-Error "Updating the configuration failed, $($Me) terminating!"
+        Exit
+    }
+    $UpdSummary += "The configuration files were updated.`n"
+}
+
+
 Exit
 
 $ServiceUpdated = Update-ServiceBinaries
