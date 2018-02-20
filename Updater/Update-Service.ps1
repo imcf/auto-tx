@@ -568,6 +568,7 @@ Exit-IfDirMissing $UploadPathLogs "log file target"
 #       terminates the entire script:
 Upload-LogFiles
 
+$UpdItems = @()
 $ConfigShouldBeUpdated = NewConfig-Available $ConfigPath
 $ServiceShouldBeUpdated = ServiceUpdate-Requested
 if (-Not ($ConfigShouldBeUpdated -Or $ServiceShouldBeUpdated)) {
@@ -579,13 +580,15 @@ if (-Not ($ConfigShouldBeUpdated -Or $ServiceShouldBeUpdated)) {
 $ConfigToTest = $ConfigPath
 if ($ConfigShouldBeUpdated) {
     $ConfigToTest = $UpdPathConfig
+    $UpdItems += "configuration files"
 }
 
 # define which configuration checker executable should be used for testing:
 $ConfigTestBinary = "$($InstallationPath)\AutoTxConfigTest.exe"
 if ($ServiceShouldBeUpdated) {
     $UpdPackage = Find-InstallationPackage
-    $ConfigTestBinary = "$($UpdPackage)\AutoTx\AutoTxConfigTest.exe"
+    $ConfigTestBinary = "$($UpdPackage)\$($ServiceName)\AutoTxConfigTest.exe"
+    $UpdItems += "service binaries"
 }
 
 # now we're all set and can run the config test:
@@ -607,7 +610,7 @@ if (-Not ($ConfigValid)) {
 #    (1) something needs to be updated (config, service or both)
 #  AND
 #    (2) the configuration validates with the corresponding service version
-$UpdSummary = ""
+Write-Verbose "Required update action items:`n> - $($UpdItems -join "`n> - ")`n"
 
 if ($ConfigShouldBeUpdated) {
     $ConfigUpdated = Update-Configuration
