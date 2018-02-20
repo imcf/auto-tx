@@ -91,7 +91,7 @@ namespace ATxTray
 
             Log.Trace("Trying to read service config and status files...");
             try {
-                _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "configuration.xml"));
+                _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "conf"));
                 UpdateStatusInformation();
                 SetupContextMenu();
             }
