@@ -583,15 +583,15 @@ if ($ConfigShouldBeUpdated) {
 }
 
 # define which configuration checker executable should be used for testing:
-$ConfigTestBinary = "$($InstallationPath)\AutoTxConfigTest.exe"
+$ConftestExe = "$($InstallationPath)\AutoTxConfigTest.exe"
 if ($ServiceShouldBeUpdated) {
     $UpdPackage = Find-InstallationPackage
-    $ConfigTestBinary = "$($UpdPackage)\$($ServiceName)\AutoTxConfigTest.exe"
+    $ConftestExe = "$($UpdPackage)\$($ServiceName)\AutoTxConfigTest.exe"
     $UpdItems += "service binaries"
 }
 
 # now we're all set and can run the config test:
-$ConfigValid, $ConfigSummary = Config-IsValid $ConfigTestBinary $ConfigToTest
+$ConfigValid, $ConfigSummary = Config-IsValid $ConftestExe $ConfigToTest
 
 
 # if we don't have a valid configuration we complain and terminate the update:
