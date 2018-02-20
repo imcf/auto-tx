@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- HostAlias: friendly name to be used for this machine in mails -->
+    <HostAlias>Confocal Microscope (Room 123)</HostAlias>
+
+    <!-- SourceDrive: local drive to operate on (include the backslash!) -->
+    <SourceDrive>D:\</SourceDrive>
+
+
+    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+  </ServiceConfig>

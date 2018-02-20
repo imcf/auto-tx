@@ -3,30 +3,23 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
     <!-- IncomingDirectory: directory on SourceDrive to watch for new files -->
-    <IncomingDirectory>ATX\INCOMING</IncomingDirectory>
+    <IncomingDirectory>ProgramData\AUTOTRANSFER\INCOMING</IncomingDirectory>
 
     <!-- ManagedDirectory: directory on SourceDrive where files and folders are
          moved while queueing for their transfer (sub-directory "PROCESSING")
          and to store them for deferred delection after a grace period after
          the transfer (sub-directory "DONE"). -->
-    <ManagedDirectory>ATX\MANAGED</ManagedDirectory>
-
-    <!-- GracePeriod: number of days after data in the "DONE" location expires,
-         which will trigger a summary email to the admin address. -->
-    <GracePeriod>30</GracePeriod>
+    <ManagedDirectory>ProgramData\AUTOTRANSFER</ManagedDirectory>
 
     <!-- DestinationAlias: friendly name for the target to be used in mails -->
     <DestinationAlias>Core Facility Storage</DestinationAlias>
 
     <!-- DestinationDirectory: where files should be transferred to -->
-    <DestinationDirectory>C:\ATX\TARGET</DestinationDirectory>
+    <DestinationDirectory>\\fileserver.mydomain.xy\share\</DestinationDirectory>
 
     <!-- TmpTransferDir: temporary directory relative to DestinationDirectory
          to be used for running transfers -->
-    <TmpTransferDir>d-vamp-dw</TmpTransferDir>
-
-    <!-- ServiceTimer: interval (in ms) for checking files and parameters -->
-    <ServiceTimer>1000</ServiceTimer>
+    <TmpTransferDir>AUTOTRANSFER-TMP</TmpTransferDir>
 
     <!-- MaxCpuUsage: pause transfer if CPU usage is above this value (in %)-->
     <MaxCpuUsage>25</MaxCpuUsage>
@@ -40,9 +33,35 @@
     <!-- Debug: enable or disable debug log messages -->
     <Debug>true</Debug>
 
+    <!-- ServiceTimer: interval (in ms) for checking files and parameters -->
+    <ServiceTimer>1000</ServiceTimer>
+
     <!-- MarkerFile: a file to place in each user's incoming directory, the
          file itself will be ignored for the transfers -->
     <MarkerFile>_DO_NOT_ACQUIRE_HERE_.txt</MarkerFile>
+
+    <!-- GracePeriod: number of days after data in the "DONE" location expires,
+         which will trigger a summary email to the admin address. -->
+    <GracePeriod>30</GracePeriod>
+
+    <!-- EnforceInheritedACLs: whether to enforce ACL inheritance when moving
+         files and directories, see this page for details (DEFAULT: true)
+         https://support.microsoft.com/en-us/help/320246 -->
+    <EnforceInheritedACLs>false</EnforceInheritedACLs>
+
+    <!-- BlacklistedProcesses: a list of "ProcessName" entries denoting
+         programs that will cause a transfer to be suspended immediately if the
+         name is found in the list of running processes -->
+    <BlacklistedProcesses>
+        <ProcessName>calc</ProcessName>
+        <ProcessName>notepad</ProcessName>
+        <ProcessName>wordpad</ProcessName>
+    </BlacklistedProcesses>
+
+    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+
+    <!--  OPTIONAL NOTIFICATION / EMAIL SETTINGS  -->
 
     <!-- SmtpHost: SMTP server hostname -->
     <SmtpHost />
@@ -85,20 +104,6 @@
          in case one of the drives is below the threshold (in minutes) -->
     <StorageNotificationDelta>720</StorageNotificationDelta>
 
-    <!-- BlacklistedProcesses: a list of "ProcessName" entries denoting
-         programs that will cause a transfer to be suspended immediately if the
-         name is found in the list of running processes -->
-    <BlacklistedProcesses>
-        <ProcessName>calc</ProcessName>
-        <ProcessName>notepad</ProcessName>
-        <ProcessName>wordpad</ProcessName>
-    </BlacklistedProcesses>
-
-    <!-- EnforceInheritedACLs: whether to enforce ACL inheritance when moving
-         files and directories, see this page for details (DEFAULT: true)
-         https://support.microsoft.com/en-us/help/320246 -->
-    <EnforceInheritedACLs>false</EnforceInheritedACLs>
-
-    <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+    <!--  OPTIONAL NOTIFICATION / EMAIL SETTINGS  -->
 
 </ServiceConfig>

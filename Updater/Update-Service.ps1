@@ -52,6 +52,7 @@ function ServiceIsBusy {
     }
 }
 
+
 function Stop-TrayApp() {
     try {
         Stop-Process -Name "ATxTray" -Force -ErrorAction Stop
@@ -137,7 +138,12 @@ function Start-MyService {
 
 function Get-WriteTime([string]$FileName) {
     try {
-        $TimeStamp = (Get-Item "$FileName").LastWriteTime
+        $TimeStamp = (Get-Item "$FileName" -EA Stop).LastWriteTime
+    }
+    catch [System.Management.Automation.ItemNotFoundException] {
+        Write-Verbose "File [$($FileName)] can't be found!"
+        throw [System.Management.Automation.ItemNotFoundException] `
+            "File not found: $($FileName)."
     }
     catch {
         $ex = $_.Exception.Message
@@ -157,11 +163,16 @@ function File-IsUpToDate([string]$ExistingFile, [string]$UpdateCandidate) {
         Log-Debug "File [$($ExistingFile)] is up-to-date."
         Return $True
     }
+    Write-Verbose "File [$($UpdateCandidate)] is newer than [$($ExistingFile)]."
     Return $False
 }
 
 
 function Create-Backup {
+    # Rename a file using a time-stamp suffix like "2017-12-04T16.41.35" while
+    # preserving its original suffix / extension.
+    #
+    # Return $True if the backup was created successfully, $False otherwise.
     Param (
         [Parameter(Mandatory=$True)]
         [ValidateScript({Test-Path -PathType Leaf $_})]
@@ -171,31 +182,28 @@ function Create-Backup {
     $FileWithoutSuffix = [io.path]::GetFileNameWithoutExtension($FileName)
     $FileSuffix = [io.path]::GetExtension($FileName)
     $BaseDir = Split-Path -Parent $FileName
-    
+
     # assemble a timestamp string like "2017-12-04T16.41.35"
     $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
     $BakName = "$($FileWithoutSuffix)_pre-$($BakTimeStamp)$($FileSuffix)"
     Log-Info "Creating backup of [$($FileName)] as [$($BaseDir)\$($BakName)]."
+
     try {
-        Rename-Item "$FileName" "$BaseDir\$BakName" -ErrorAction Stop
+        Rename-Item "$FileName" "$BaseDir\$BakName"
     }
     catch {
-        $ex = $_.Exception.Message
-        Log-Error "Backing up [$($FileName)] as [$($BakName)] FAILED!`n$($ex)"
-        Exit
+        Log-Error "Backing up [$($DstFile)] FAILED:`n> $($_.Exception.Message)"
+        Return $False
     }
+    Return $True
 }
 
 
 function Update-File {
-    # Check the given $SrcFile if a file with the same name is existing in
-    # $DstPath. If $SrcFile is newer, stop the service, create a backup of the
-    # file in $DstPath and finally copy the file from $SrcFile to $DstPath.
+    # Use the given $SrcFile to update the file with the same name in $DstPath,
+    # creating a backup of the original file before replacing it.
     #
     # Return $True if the file was updated, $False otherwise.
-    #
-    # WARNING: the function TERMINATES the script on any error!
-    #
     Param (
         [Parameter(Mandatory=$True)]
         [ValidateScript({[IO.Path]::IsPathRooted($_)})]
@@ -207,106 +215,204 @@ function Update-File {
     )
 
     $DstFile = "$($DstPath)\$(Split-Path -Leaf $SrcFile)"
-    if (-Not (Test-Path "$DstFile")) {
-        Log-Info "File not existing in destination, NOT UPDATING: [$($DstFile)]"
+    Write-Verbose "Trying to update [$($DstFile)] with [$($SrcFile)]..."
+
+    if (-Not (Create-Backup -FileName $DstFile)) {
         Return $False
     }
 
-    if (File-IsUpToDate -ExistingFile $DstFile -UpdateCandidate $SrcFile) {
+    try {
+        Copy-Item -Path $SrcFile -Destination $DstPath
+        Log-Info "Updated config file [$($DstFile)]."
+    }
+    catch {
+        Log-Error "Copying [$($SrcFile)] FAILED:`n> $($_.Exception.Message)"
         Return $False
-    }
-
-    Stop-MyService "Found newer file at $($SrcFile), updating..."
-
-    try {
-        Create-Backup -FileName $DstFile
-    }
-    catch {
-        Log-Error "Backing up $($DstFile) FAILED!`n$($_.Exception.Message)"
-        Exit
-    }
-
-    try {
-        Copy-Item -Path $SrcFile -Destination $DstPath -ErrorAction Stop
-        Log-Info "Updated config file '$($DstFile)'."
-    }
-    catch {
-        Log-Error "Copying $($SrcFile) FAILED!`n$($_.Exception.Message)"
-        Exit
     }
     Return $True
 }
 
 
 function Update-Configuration {
-    $RetOr = $False
-    # common config files first:
-    ForEach ($NewConfig in Get-ChildItem $UpdPathConfigCommon) {
-        $ret = Update-File $NewConfig.FullName $ConfigPath
-        $RetOr = $RetOr -Or $ret
+    # Update the common and host-specific configuration files with their new
+    # versions, stopping the service if necessary.
+    # The function DOES NOT do any checks, it simply runs the necessary update
+    # commands - meaning everything else (do the files exist, is an update
+    # required) has to be checked beforehand!!
+    #
+    # Return $True if all files were updated successfully.
+    $NewComm = Join-Path $UpdPathConfig "config.common.xml"
+    $NewHost = Join-Path $UpdPathConfig "$($env:COMPUTERNAME).xml"
+    Write-Verbose "Updating configuration files:`n> $($NewComm)`n> $($NewHost)"
+
+    Stop-MyService "Updating configuration using files at [$($UpdPathConfig)]."
+    
+    $Ret = Update-File $NewComm $ConfigPath
+    # only continue if the first update worked:
+    if ($Ret) {
+        $Ret = Update-File $NewHost $ConfigPath
     }
-    # then host specific config files:
-    ForEach ($NewConfig in Get-ChildItem $UpdPathConfig) {
-        $ret = Update-File $NewConfig.FullName $ConfigPath
-        $RetOr = $RetOr -Or $ret
+    Return $Ret
+}
+
+
+function NewConfig-Available {
+    # Check the configuration update path and the given $DstPath for both
+    # configuration files (common and host-specific) and compare their
+    # respective file write-time.
+    #
+    # Return $True if the update path contains any newer file, $False otherwise.
+    Param (
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({(Get-Item $_).PSIsContainer})]
+        [String]$DstPath
+    )
+
+    # old and new common configuration
+    $OComm = Join-Path $DstPath "config.common.xml"
+    $NComm = Join-Path $UpdPathConfig "config.common.xml"
+
+    # old and new host-specific configuration
+    $OHost = Join-Path $DstPath "$($env:COMPUTERNAME).xml"
+    $NHost = Join-Path $UpdPathConfig "$($env:COMPUTERNAME).xml"
+
+    $Ret = $True
+    try {
+        $Ret = (
+            $(File-IsUpToDate -ExistingFile $OHost -UpdateCandidate $NHost) -And
+            $(File-IsUpToDate -ExistingFile $OComm -UpdateCandidate $NComm)
+        )
     }
-    if (-Not ($RetOr)) {
-        Log-Debug "No (new) configuration file(s) found."
+    catch {
+        Log-Error $("Checking for new configuration files failed:"
+            "$($_.Exception.Message)")
+        Return $False
     }
-    Return $RetOr
+
+    if ($Ret) {
+        Write-Verbose "Configuration is up to date, no new files available."
+        Return $False
+    }
+    Log-Info "New configuration files found!"
+    Return $True
+}
+
+
+function Config-IsValid {
+    # Check if the new configuration provided at $UpdPathConfig validates with
+    # the appropriate "AutoTxConfigTest" binary (either the existing one in the
+    # service installation directory (if the service binaries won't be updated)
+    # or the new one at the $UpdPathBinaries location in case the service itself
+    # will be updated as well).
+    #
+    # Returns an array with two elements, the first one being $True in case the
+    # configuration was successfully validated ($False otherwise) and the second
+    # one containing the output of the configuration test tool as a string.
+    Param (
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({(Test-Path $_ -PathType Leaf)})]
+        [String]$ConfigTest,
+
+        [Parameter(Mandatory=$True)]
+        [ValidateScript({(Test-Path $_ -PathType Container)})]
+        [String]$ConfigPath
+    )
+    Write-Verbose "Running [$($ConfigTest) $($ConfigPath)]..."
+    $Summary = & $ConfigTest $ConfigPath
+    $Ret = $?
+    # pipe through Out-String to preserve line breaks:
+    $Summary = "$("=" * 80)`n$($Summary | Out-String)`n$("=" * 80)"
+
+    if ($Ret) {
+        Log-Debug "Validated config files at [$($ConfigPath)]:`n$($Summary)"
+        Return $Ret, $Summary
+    }
+    Log-Error "Config at [$($ConfigPath)] FAILED VALIDATION:`n$($Summary)"
+    Return $Ret, $Summary
+}
+
+
+function Find-InstallationPackage {
+    # Try to locate the latest installation package using the pattern defined
+    # in the updater configuration.
+    Write-Verbose "Looking for installation package using pattern: $($Pattern)"
+    $PkgDir = Get-ChildItem -Path $UpdPathBinaries -Directory -Name |
+        Where-Object {$_ -match $Pattern} |
+        Sort-Object |
+        Select-Object -Last 1
+    
+    if ([string]::IsNullOrEmpty($PkgDir)) {
+        Log-Error "couldn't find installation package matching '$($Pattern)'!"
+        Exit
+    }
+    $PkgDir = "$($UpdPathBinaries)\$($PkgDir)"
+    Write-Verbose "Found update installation package: [$($PkgDir)]"
+    Return $PkgDir
 }
 
 
 function Copy-ServiceFiles {
+    # Copy the files from an update package to the service installation
+    # directory, overwriting existing ones.
+    #
+    # Returns $True for success, $False otherwise.
+    Write-Verbose "Copying service binaries from [$($UpdPackage)]..."
     try {
-        Write-Verbose "Looking for source package using pattern: $($Pattern)"
-        $PkgDir = Get-ChildItem -Path $UpdPathBinaries -Directory -Name |
-            Where-Object {$_ -match $Pattern} |
-            Sort-Object |
-            Select-Object -Last 1
-        
-        if ([string]::IsNullOrEmpty($PkgDir)) {
-            Write-Host "ERROR: couldn't find package matching '$($Pattern)'!"
-            Exit
-        }
-        Write-Verbose "Found update source package: [$($PkgDir)]"
-
-        Stop-MyService "Trying to update service using package [$($PkgDir)]."
-        Copy-Item -Recurse -Force -ErrorAction Stop `
-            -Path "$($UpdPathBinaries)\$($PkgDir)\$($ServiceName)\*" `
+        Copy-Item -Recurse -Force `
+            -Path "$($UpdPackage)\$($ServiceName)\*" `
             -Destination "$InstallationPath"
     }
     catch {
-        Log-Error "Updating service binaries FAILED!`n$($_.Exception.Message)"
-        Exit
+        Log-Error "Updating service binaries FAILED:`n> $($_.Exception.Message)"
+        Return $False
     }
-    Log-Info "Updated service binaries with [$($PkgDir)]."
+    Log-Info "Updated service binaries with [$($UpdPackage)]."
+    Return $True
 }
 
 
 function Update-ServiceBinaries {
+    # Stop the tray application and the service, update the service binaries and
+    # create a marker file indicating the service on this host has been updated.
+    #
+    # Returns $True if binaries were updated successfully and the marker file
+    # has been created, $False otherwise.
+    Stop-TrayApp
+    Stop-MyService "Trying to update service using package [$($UpdPackage)]."
+    $Ret = Copy-ServiceFiles
+    if (-Not $Ret) {
+        Return $False
+    }
+
+    $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
+    try {
+        New-Item -Type File "$MarkerFile" | Out-Null
+        Log-Debug "Created marker file [$($MarkerFile)]."
+    }
+    catch {
+        Log-Error "Creating [$($MarkerFile)] FAILED:`n> $($_.Exception.Message)"
+        Return $False
+    }
+    Return $True
+}
+
+
+function ServiceUpdate-Requested {
+    # Check for a host-specific marker file indicating whether the service
+    # binaries on this host should be updated.
     $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
     if (Test-Path "$MarkerFile" -Type Leaf) {
         Log-Debug "Found marker [$($MarkerFile)], not updating service."
         Return $False
     }
-    Stop-TrayApp
-    Copy-ServiceFiles
-    try {
-        New-Item -Type File "$MarkerFile" -ErrorAction Stop | Out-Null
-        Log-Debug "Created marker file [$($MarkerFile)]."
-    }
-    catch {
-        Log-Error "Creating [$($MarkerFile)] FAILED!`n$($_.Exception.Message)"
-        Exit
-    }
+    Write-Verbose "Marker [$($MarkerFile)] missing, service should be updated!"
     Return $True
 }
 
 
 function Upload-LogFiles {
     $Dest = "$($UploadPathLogs)\$($env:COMPUTERNAME)"
-    New-Item -Force -Type Directory $Dest
+    New-Item -Force -Type Directory $Dest | Out-Null
     try {
         Copy-Item -Force -ErrorAction Stop `
             -Path "$($LogPath)\AutoTx.log" `
@@ -321,7 +427,7 @@ function Upload-LogFiles {
 
 function Get-HostDescription() {
     $Desc = $env:COMPUTERNAME
-    $ConfigXml = "$($InstallationPath)\configuration.xml"
+    $ConfigXml = "$($ConfigPath)\$($Desc).xml"
     try {
         [xml]$XML = Get-Content $ConfigXml -ErrorAction Stop
         # careful, we need a string comparison here:
@@ -413,6 +519,7 @@ function Log-Debug([string]$Message) {
 ################################################################################
 
 
+$ErrorActionPreference = "Stop"
 
 try {
     . $UpdaterSettings
@@ -442,8 +549,7 @@ Log-Debug "$($Me) started..."
 # first check if the service is installed and running at all
 $ServiceRunningBefore = ServiceIsRunning $ServiceName
 
-$UpdPathConfig = "$($UpdateSourcePath)\Configs\$($env:COMPUTERNAME)"
-$UpdPathConfigCommon = "$($UpdateSourcePath)\Configs\_COMMON_"
+$UpdPathConfig = "$($UpdateSourcePath)\Configs"
 $UpdPathMarkerFiles = "$($UpdateSourcePath)\Service\UpdateMarkers"
 $UpdPathBinaries = "$($UpdateSourcePath)\Service\Binaries"
 $UploadPathLogs = "$($UpdateSourcePath)\Logs"
@@ -453,7 +559,6 @@ Exit-IfDirMissing $LogPath "log files"
 Exit-IfDirMissing $ConfigPath "configuration files"
 Exit-IfDirMissing $UpdateSourcePath "update source"
 Exit-IfDirMissing $UpdPathConfig "configuration update"
-Exit-IfDirMissing $UpdPathConfigCommon "common configuration update"
 Exit-IfDirMissing $UpdPathMarkerFiles "update marker"
 Exit-IfDirMissing $UpdPathBinaries "service binaries update"
 Exit-IfDirMissing $UploadPathLogs "log file target"
@@ -463,29 +568,99 @@ Exit-IfDirMissing $UploadPathLogs "log file target"
 #       the logfiles are uploaded no matter if one of the other tasks fails and
 #       terminates the entire script:
 Upload-LogFiles
-$ConfigUpdated = Update-Configuration
-$ServiceUpdated = Update-ServiceBinaries
 
-$msg = ""
-if ($ConfigUpdated) {
-    $msg += "The configuration files were updated.`n"
-}
-if ($ServiceUpdated) {
-    $msg += "The service binaries were updated.`n"
-}
+try {
+    $UpdItems = @()
+    $ConfigShouldBeUpdated = NewConfig-Available $ConfigPath
+    $ServiceShouldBeUpdated = ServiceUpdate-Requested
+    if (-Not ($ConfigShouldBeUpdated -Or $ServiceShouldBeUpdated)) {
+        Log-Debug "No update action found to be necessary."
+        Exit
+    }
 
-if ($msg -ne "") {
+    # define where the configuration is located that should be tested:
+    $ConfigToTest = $ConfigPath
+    if ($ConfigShouldBeUpdated) {
+        $ConfigToTest = $UpdPathConfig
+        $UpdItems += "configuration files"
+    }
+
+    # define which configuration checker executable to use for testing:
+    $ConftestExe = "$($InstallationPath)\AutoTxConfigTest.exe"
+    if ($ServiceShouldBeUpdated) {
+        $UpdPackage = Find-InstallationPackage
+        $ConftestExe = "$($UpdPackage)\$($ServiceName)\AutoTxConfigTest.exe"
+        $UpdItems += "service binaries"
+    }
+
+    # now we're all set and can run the config test:
+    $ConfigValid, $ConfigSummary = Config-IsValid $ConftestExe $ConfigToTest
+
+
+    # if we don't have a valid configuration we complain and terminate:
+    if (-Not ($ConfigValid)) {
+        Log-Error "Configuration not valid for service, $($Me) terminating!"
+        Send-MailReport -Subject "Update failed, configuration invalid!" `
+            -Body $("An update action was found to be necessary, however the"
+                "configuration didn't`npass the validator.`n`nThe following"
+                "summary was generated by the configuration checker:"
+                "`n`n$($ConfigSummary)")
+        Exit
+    }
+
+
+    # reaching this point means
+    #    (1) something needs to be updated (config, service or both)
+    #  AND
+    #    (2) the config validates with the corresponding service version
+    Write-Verbose "Required update items:`n> - $($UpdItems -join "`n> - ")`n"
+
+    if ($ConfigShouldBeUpdated) {
+        $ConfigUpdated = Update-Configuration
+        if (-Not $ConfigUpdated) {
+            $msg = "Updating the configuration failed, $($Me) terminating!"
+            Log-Error $msg
+            Send-MailReport -Subject "updated failed!" -Body $msg
+            Exit
+        }
+    }
+
+    if ($ServiceShouldBeUpdated) {
+        $ServiceUpdated = Update-ServiceBinaries
+        if (-Not $ServiceUpdated) {
+            $msg = "Updating the service binaries failed, $($Me) terminating!"
+            Log-Error $msg
+            Send-MailReport -Subject "updated failed!" -Body $msg
+            Exit        
+        }
+    }
+
+    $UpdSummary = "Updated $($UpdItems -join " and ")."
+
+
+
     if ($ServiceRunningBefore) {
-        Log-Debug "Update action occurred, finishing up..."
+        Log-Debug "$($UpdSummary) Trying to start the service again..."
         Start-MyService
     } else {
-        Log-Debug "Not starting the service as it was not running before."
+        Log-Debug "$($UpdSummary) Leaving the service stopped, as before."
     }
-    Send-MailReport -Subject "Config and / or service has been updated!" `
-        -Body $msg
-} else {
-    Log-Debug "No update action found to be necessary."
+
+    $UpdDetails = $("An $($Me) run completed successfully. Updated items:"
+        "`n> - $($UpdItems -join "`n> - ")")
+    if ($ConfigUpdated) {
+        $UpdDetails += "`n`nConfig validation summary:`n$($ConfigSummary)"
+    }
 }
+catch {
+    $UpdDetails = $("Unexpected problem, check logs! $($Me) terminating."
+        "`n`n$($_.Exception.Message)")
+    $UpdSummary = "ERROR, unhandled problem occurered!"
+    Log-Error $UpdDetails
+}
+
+
+Send-MailReport -Subject "$UpdSummary" -Body "$UpdDetails"
 
 Upload-LogFiles
 

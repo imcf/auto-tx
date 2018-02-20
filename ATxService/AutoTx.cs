@@ -187,8 +187,8 @@ namespace ATxService
         /// </summary>
         private void LoadSettings() {
             try {
-                LoadConfigXml();
-                LoadStatusXml();
+                LoadConfig();
+                LoadStatus();
             }
             catch (Exception ex) {
                 Log.Error("LoadSettings() failed: {0}\n{1}", ex.Message, ex.StackTrace);
@@ -200,31 +200,28 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Load the configuration xml file.
+        /// Load the configuration.
         /// </summary>
-        private void LoadConfigXml() {
-	        var confPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-		        "configuration.xml");
+        private void LoadConfig() {
             try {
-                _config = ServiceConfig.Deserialize(confPath);
-                Log.Debug("Loaded config from [{0}]", confPath);
+                _config = ServiceConfig.Deserialize(
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "conf"));
             }
             catch (ConfigurationErrorsException ex) {
-                Log.Error("ERROR validating configuration file [{0}]: {1}",
-	                confPath, ex.Message);
+                Log.Error("Validating configuration failed: {0}", ex.Message);
                 throw new Exception("Error validating configuration.");
             }
             catch (Exception ex) {
-                Log.Error("loading configuration XML failed: {0}", ex.Message);
+                Log.Error("Loading configuration failed: {0}", ex.Message);
                 // this should terminate the service process:
-                throw new Exception("Error loading config.");
+                throw new Exception("Error loading configuration.");
             }
         }
 
         /// <summary>
-        /// Load the status xml file.
+        /// Load the status.
         /// </summary>
-        private void LoadStatusXml() {
+        private void LoadStatus() {
 	        var statusPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
 		        "status.xml");
 			try {

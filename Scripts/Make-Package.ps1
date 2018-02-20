@@ -2,10 +2,20 @@ $ResourceDir = "..\ATxService\Resources"
 $RsrcDirCommon = "..\Resources"
 
 
-function Highlight([string]$Message, [string]$Color = "Cyan") {
+function Highlight([string]$Message, [string]$Color = "Cyan", $Indent = $False) {
+    if ($Indent) {
+        Write-Host -NoNewline "    "
+    }
     Write-Host -NoNewline "["
     Write-Host -NoNewline -F $Color $Message
     Write-Host -NoNewline "]"
+    if ($Indent) {
+        Write-Host
+    }
+}
+
+function RelToAbs([string]$RelPath) {
+    Join-Path -Resolve $(Get-Location) $RelPath
 }
 
 
@@ -27,20 +37,20 @@ catch {
 
 $PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
 $PkgDir = "build_" + $PkgDir
-$BinariesDirService = "..\ATxService\bin\$($BuildConfiguration)"
-$BinariesDirTrayApp = "..\ATxTray\bin\$($BuildConfiguration)"
-$BinariesDirCfgTest = "..\ATxConfigTest\bin\$($BuildConfiguration)"
+$BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
+$BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
+$BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
 
 Write-Host -NoNewline "Creating package "
 Highlight $PkgDir "Red"
 Write-Host " using binaries from:"
-Write-Host $(Highlight $BinariesDirService "Green")
-Write-Host $(Highlight $BinariesDirTrayApp "Green")
-Write-Host $(Highlight $BinariesDirCfgTest "Green")
-Write-Host ""
+Highlight $BinariesDirService "Green" $True
+Highlight $BinariesDirTrayApp "Green" $True
+Highlight $BinariesDirCfgTest "Green" $True
+Write-Host
 
 if (Test-Path $PkgDir) {
-    Write-Host "Removing existing package dir [$($PkgDir)]..."
+    Write-Host "Removing existing package dir [$($PkgDir)]...`n"
     Remove-Item -Recurse -Force $PkgDir
 }
 
@@ -52,10 +62,10 @@ Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirCfgTest)\*" $tgt -EA Ignore
 # provide an up-to-date version of the example config file:
-Copy-Item "$($RsrcDirCommon)\configuration-example.xml" $tgt
+$example = New-Item -ItemType Container -Path $PkgDir -Name "conf-example"
+Copy-Item "$($RsrcDirCommon)\conf\config.common.xml" $example
+Copy-Item "$($RsrcDirCommon)\conf\host-specific.template.xml" $example
 
-Copy-Item "$($RsrcDirCommon)\configuration-example.xml" "$($PkgDir)\configuration.xml"
-Copy-Item "$($RsrcDirCommon)\status-example.xml" "$($PkgDir)\status.xml"
 Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\AutoTx.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 try {
@@ -74,8 +84,11 @@ Copy-Item "Install-Service.ps1" $PkgDir
 
 Write-Host -NoNewline "Done creating package "
 Highlight $PkgDir
-Write-Host -NoNewline " using config "
-Highlight $BuildConfiguration
-Write-Host -NoNewline " based on commit "
-Highlight $BuildCommit
+Write-Host
+Highlight "configuration: $($BuildConfiguration)" -Indent $True
+Highlight "commit: $($BuildCommit)" -Indent $True
+Write-Host
+
+Write-Host -NoNewline "Location: "
+Highlight "$(RelToAbs $PkgDir)"
 Write-Host

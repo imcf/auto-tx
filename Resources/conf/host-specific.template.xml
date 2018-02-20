@@ -6,10 +6,13 @@
     <HostAlias>Confocal Microscope (Room 123)</HostAlias>
 
     <!-- SourceDrive: local drive to operate on (include the backslash!) -->
-    <SourceDrive>C:\</SourceDrive>
+    <SourceDrive>D:\</SourceDrive>
 
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
+
+    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
+    <InterPacketGap>0</InterPacketGap>
 
     <!-- A list of drive names and space thresholds to be used for monitoring
          the free space and send notifications if below. -->
@@ -25,9 +28,6 @@
             <SpaceThreshold>120000</SpaceThreshold>
         </DriveToCheck><-->
     </SpaceMonitoring>
-
-    <!-- InterPacketGap: RoboCopy parameter to limit the bandwidth -->
-    <InterPacketGap />
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
 

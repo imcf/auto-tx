@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
@@ -9,40 +8,45 @@ namespace ATxConfigTest
 {
     internal class AutoTxConfigTest
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private static ServiceConfig _config;
-        private static ServiceStatus _status;
 
         private static void Main(string[] args) {
-            var logConfig = new LoggingConfiguration();
-            var consoleTarget = new ConsoleTarget {
-                Name = "console",
-                Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}",
-            };
-            logConfig.AddTarget("console", consoleTarget);
-            var logRuleConsole = new LoggingRule("*", LogLevel.Debug, consoleTarget);
-            logConfig.LoggingRules.Add(logRuleConsole);
-            LogManager.Configuration = logConfig;
-
+            var logLevel = LogLevel.Info;
+            var logPrefix = "";
+            
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             if (args.Length > 0)
                 baseDir = args[0];
 
-            var configPath = Path.Combine(baseDir, "configuration.xml");
-            var statusPath = Path.Combine(baseDir, "status.xml");
+            if (args.Length > 1) {
+                if (args[1] == "debug") {
+                    logLevel = LogLevel.Debug;
+                    logPrefix = @"${date:format=yyyy-MM-dd HH\:mm\:ss} ";
+                }
+                if (args[1] == "trace") {
+                    logLevel = LogLevel.Trace;
+                    logPrefix = @"${date:format=yyyy-MM-dd HH\:mm\:ss} (${logger}) ";
+                }
+            }
+
+            var logConfig = new LoggingConfiguration();
+            var consoleTarget = new ConsoleTarget {
+                Name = "console",
+                Layout = logPrefix + @"[${level}] ${message}",
+            };
+            logConfig.AddTarget("console", consoleTarget);
+            var logRuleConsole = new LoggingRule("*", logLevel, consoleTarget);
+            logConfig.LoggingRules.Add(logRuleConsole);
+            LogManager.Configuration = logConfig;
+
+            const string mark = "----------------------------";
 
             try {
-                string msg;
-                Console.WriteLine($"\nTrying to parse configuration file [{configPath}]...\n");
-                _config = ServiceConfig.Deserialize(configPath);
-                msg = "------------------ configuration settings ------------------";
-                Console.WriteLine($"{msg}\n{_config.Summary()}{msg}\n");
-
-                Console.WriteLine($"\nTrying to parse status file [{statusPath}]...\n");
-                _status = ServiceStatus.Deserialize(statusPath, _config);
-                msg = "------------------ status parameters ------------------";
-                Console.WriteLine($"{msg}\n{_status.Summary()}{msg}\n");
+                Console.WriteLine($"\nTrying to parse configuration files from [{baseDir}]...\n");
+                _config = ServiceConfig.Deserialize(baseDir);
+                Console.WriteLine($"\n{mark} configuration settings {mark}");
+                Console.Write(_config.Summary());
+                Console.WriteLine($"{mark} configuration settings {mark}\n");
             }
             catch (Exception ex) {
                 Console.WriteLine(ex);

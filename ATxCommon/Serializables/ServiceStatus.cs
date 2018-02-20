@@ -40,7 +40,7 @@ namespace ATxCommon.Serializables
         /// <summary>
         /// The constructor, setting default values.
         /// </summary>
-        public ServiceStatus() {
+        private ServiceStatus() {
             _currentTransferSrc = "";
             _currentTargetTmp = "";
             _transferInProgress = false;
