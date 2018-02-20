@@ -350,29 +350,23 @@ function Find-InstallationPackage {
 
 
 function Copy-ServiceFiles {
+    # Copy the files from an update package to the service installation
+    # directory, overwriting existing ones.
+    #
+    # Returns $True for success, $False otherwise.
+    Write-Verbose "Copying service binaries from [$($UpdPackage)]..."
     try {
-        Write-Verbose "Looking for source package using pattern: $($Pattern)"
-        $PkgDir = Get-ChildItem -Path $UpdPathBinaries -Directory -Name |
-            Where-Object {$_ -match $Pattern} |
-            Sort-Object |
-            Select-Object -Last 1
-        
-        if ([string]::IsNullOrEmpty($PkgDir)) {
-            Write-Host "ERROR: couldn't find package matching '$($Pattern)'!"
-            Exit
-        }
-        Write-Verbose "Found update source package: [$($PkgDir)]"
-
         Stop-MyService "Trying to update service using package [$($PkgDir)]."
-        Copy-Item -Recurse -Force -ErrorAction Stop `
-            -Path "$($UpdPathBinaries)\$($PkgDir)\$($ServiceName)\*" `
+        Copy-Item -Recurse -Force `
+            -Path "$($UpdPackage)\$($ServiceName)\*" `
             -Destination "$InstallationPath"
     }
     catch {
-        Exit
         Log-Error "Updating service binaries FAILED:`n> $($_.Exception.Message)"
+        Return $False
     }
-    Log-Info "Updated service binaries with [$($PkgDir)]."
+    Log-Info "Updated service binaries with [$($UpdPackage)]."
+    Return $True
 }
 
 
