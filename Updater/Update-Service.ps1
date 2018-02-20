@@ -333,6 +333,8 @@ function Config-IsValid {
 
 
 function Find-InstallationPackage {
+    # Try to locate the latest installation package using the pattern defined
+    # in the updater configuration.
     Write-Verbose "Looking for installation package using pattern: $($Pattern)"
     $PkgDir = Get-ChildItem -Path $UpdPathBinaries -Directory -Name |
         Where-Object {$_ -match $Pattern} |
