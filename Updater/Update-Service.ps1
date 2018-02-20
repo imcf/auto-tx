@@ -200,14 +200,10 @@ function Create-Backup {
 
 
 function Update-File {
-    # Check the given $SrcFile if a file with the same name is existing in
-    # $DstPath. If $SrcFile is newer, stop the service, create a backup of the
-    # file in $DstPath and finally copy the file from $SrcFile to $DstPath.
+    # Use the given $SrcFile to update the file with the same name in $DstPath,
+    # creating a backup of the original file before replacing it.
     #
     # Return $True if the file was updated, $False otherwise.
-    #
-    # WARNING: the function TERMINATES the script on any error!
-    #
     Param (
         [Parameter(Mandatory=$True)]
         [ValidateScript({[IO.Path]::IsPathRooted($_)})]
@@ -219,49 +215,44 @@ function Update-File {
     )
 
     $DstFile = "$($DstPath)\$(Split-Path -Leaf $SrcFile)"
-    if (-Not (Test-Path "$DstFile")) {
-        Log-Info "File not existing in destination, NOT UPDATING: [$($DstFile)]"
-        Return $False
-    }
-
-    if (File-IsUpToDate -ExistingFile $DstFile -UpdateCandidate $SrcFile) {
-        Return $False
-    }
-
-    Stop-MyService "Found newer file at $($SrcFile), updating..."
+    Write-Verbose "Trying to update [$($DstFile)] with [$($SrcFile)]..."
 
     if (-Not (Create-Backup -FileName $DstFile)) {
         Return $False
     }
 
     try {
-        Copy-Item -Path $SrcFile -Destination $DstPath -ErrorAction Stop
+        Copy-Item -Path $SrcFile -Destination $DstPath
         Log-Info "Updated config file [$($DstFile)]."
     }
     catch {
-        Exit
         Log-Error "Copying [$($SrcFile)] FAILED:`n> $($_.Exception.Message)"
+        Return $False
     }
     Return $True
 }
 
 
 function Update-Configuration {
-    $RetOr = $False
-    # common config files first:
-    ForEach ($NewConfig in Get-ChildItem $UpdPathConfigCommon) {
-        $ret = Update-File $NewConfig.FullName $ConfigPath
-        $RetOr = $RetOr -Or $ret
+    # Update the common and host-specific configuration files with their new
+    # versions, stopping the service if necessary.
+    # The function DOES NOT do any checks, it simply runs the necessary update
+    # commands - meaning everything else (do the files exist, is an update
+    # required) has to be checked beforehand!!
+    #
+    # Return $True if all files were updated successfully.
+    $NewComm = Join-Path $UpdPathConfig "config.common.xml"
+    $NewHost = Join-Path $UpdPathConfig "$($env:COMPUTERNAME).xml"
+    Write-Verbose "Updating configuration files:`n> $($NewComm)`n> $($NewHost)"
+
+    Stop-MyService "Updating configuration using files at [$($UpdPathConfig)]."
+    
+    $Ret = Update-File $NewComm $ConfigPath
+    # only continue if the first update worked:
+    if ($Ret) {
+        $Ret = Update-File $NewHost $ConfigPath
     }
-    # then host specific config files:
-    ForEach ($NewConfig in Get-ChildItem $UpdPathConfig) {
-        $ret = Update-File $NewConfig.FullName $ConfigPath
-        $RetOr = $RetOr -Or $ret
-    }
-    if (-Not ($RetOr)) {
-        Log-Debug "No (new) configuration file(s) found."
-    }
-    Return $RetOr
+    Return $Ret
 }
 
 
