@@ -79,7 +79,7 @@ namespace ATxService
                 _roboCommand.SelectionOptions.ExcludeOlder = true;
                 // retry options
                 _roboCommand.RetryOptions.RetryCount = 0;
-                _roboCommand.RetryOptions.RetryWaitTime = 2;
+                _roboCommand.RetryOptions.RetryWaitTime = 0;
                 _roboCommand.Start();
                 Log.Info("Transfer started, total size: {0}",
                     Conv.BytesToString(_status.CurrentTransferSize));
