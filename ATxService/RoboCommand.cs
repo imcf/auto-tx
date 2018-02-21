@@ -73,7 +73,7 @@ namespace ATxService
                 // _roboCommand.CopyOptions.CopyFilesWithSecurity = true;
                 // /COPYALL :: copy all file info (equivalent to /COPY:DATSOU)
                 // _roboCommand.CopyOptions.CopyAll = true;
-                _roboCommand.CopyOptions.CopyFlags = "DATO";
+                _roboCommand.CopyOptions.CopyFlags = "DT";
 
                 // select options
                 _roboCommand.SelectionOptions.ExcludeOlder = true;
