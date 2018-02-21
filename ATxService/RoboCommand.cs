@@ -75,6 +75,8 @@ namespace ATxService
                 // _roboCommand.CopyOptions.CopyAll = true;
                 _roboCommand.CopyOptions.CopyFlags = "DT";
 
+                _roboCommand.CopyOptions.DirectoryCopyFlags = "T";
+
                 // select options
                 _roboCommand.SelectionOptions.ExcludeOlder = true;
                 // retry options
