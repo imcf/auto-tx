@@ -3,6 +3,30 @@ Param(
     [Parameter(Mandatory=$True)][string] $ProjectDir
 )
 
+function Write-BuildDetails {
+    Param (
+        [Parameter(Mandatory=$True)]
+        [String]$Target,
+
+        [Parameter(Mandatory=$True)]
+        [String]$CommitName,
+
+        [Parameter(Mandatory=$True)]
+        [String]$Branch,
+
+        [Parameter(Mandatory=$True)]
+        [String]$Date
+    )
+
+    Write-Output "Generating [$($Target)]..."
+    Write-Output $("
+    public static class BuildDetails
+    {
+        public const string GitCommitName = `"$($CommitName)`";
+        public const string GitBranch = `"$($Branch)`";
+        public const string BuildDate = `"$($Date)`";
+    }") > $Target
+}
 
 $ErrorActionPreference = "Stop"
 
@@ -35,6 +59,7 @@ $Date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
 $BCommit = "$($ProjectDir)\Resources\BuildCommit.txt"
 $BuildDate = "$($ProjectDir)\Resources\BuildDate.txt"
+$BuildDetailsCS = "$($ProjectDir)\..\Resources\BuildDetails.cs"
 
 Write-Output $CommitName > $BCommit
 Write-Output $Date > $BuildDate
@@ -42,5 +67,7 @@ Write-Output $Date > $BuildDate
 Write-Output $Date
 Write-Output $CommitName
 Write-Output $GitBranch
+
+Write-BuildDetails $BuildDetailsCS $CommitName $GitBranch $Date 
 
 cd $oldpwd
