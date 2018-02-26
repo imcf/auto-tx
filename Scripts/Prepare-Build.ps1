@@ -14,6 +14,8 @@ try {
     if (-Not $?) { throw }
     $GitStatus = & git status --porcelain
     if (-Not $?) { throw }
+    $GitBranch = & git symbolic-ref --short HEAD
+    if (-Not $?) { throw }
 
     if ($GitStatus.Length -gt 0) {
         Write-Output "NOTE: repository has uncommitted changes!"
@@ -23,6 +25,7 @@ try {
 catch {
     $CommitName = "commit unknown"
     $GitStatus = "status unknown"
+    $GitBranch = "branch unknown"
     Write-Output "$(">"*8) Running git failed, using default values! $("<"*8)"
 }
 
@@ -38,5 +41,6 @@ Write-Output $Date > $BuildDate
 
 Write-Output $Date
 Write-Output $CommitName
+Write-Output $GitBranch
 
 cd $oldpwd
