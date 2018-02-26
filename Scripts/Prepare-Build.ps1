@@ -3,23 +3,29 @@ Param(
     [Parameter(Mandatory=$True)][string] $ProjectDir
 )
 
+
+$ErrorActionPreference = "Stop"
+
 $oldpwd = pwd
 cd $ProjectDir -ErrorAction Stop
 
 try {
-    $CommitName = git describe --tags
-    $GitStatus = git status --porcelain
+    $CommitName = & git describe --tags
+    if (-Not $?) { throw }
+    $GitStatus = & git status --porcelain
+    if (-Not $?) { throw }
+
+    if ($GitStatus.Length -gt 0) {
+        Write-Output "NOTE: repository has uncommitted changes!"
+        $CommitName = "$($CommitName)-unclean"
+    }
 }
 catch {
     $CommitName = "commit unknown"
     $GitStatus = "status unknown"
+    Write-Output "$(">"*8) Running git failed, using default values! $("<"*8)"
 }
 
-
-if ($GitStatus.Length -gt 0) {
-    Write-Output "NOTE: repository has uncommitted changes!"
-    $CommitName = "$($CommitName)-unclean"
-}
 
 $Date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
