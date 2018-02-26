@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3E945C19-14E3-4FE8-9008-480D4EA57F45}"
 	ProjectSection(SolutionItems) = preProject
 		Resources\auto-tx-logo.png = Resources\auto-tx-logo.png
+		Resources\BuildDetails.cs = Resources\BuildDetails.cs
 		Resources\Mail-Templates\DiskSpace-Low.txt = Resources\Mail-Templates\DiskSpace-Low.txt
 		Resources\Mail-Templates\Transfer-Interrupted.txt = Resources\Mail-Templates\Transfer-Interrupted.txt
 		Resources\Mail-Templates\Transfer-Success.txt = Resources\Mail-Templates\Transfer-Success.txt
