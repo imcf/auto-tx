@@ -549,6 +549,9 @@ Log-Debug "$($Me) started..."
 # first check if the service is installed and running at all
 $ServiceRunningBefore = ServiceIsRunning $ServiceName
 
+$ConfigPath = "$($InstallationPath)\conf"
+$LogPath = "$($InstallationPath)"
+
 $UpdPathConfig = "$($UpdateSourcePath)\Configs"
 $UpdPathMarkerFiles = "$($UpdateSourcePath)\Service\UpdateMarkers"
 $UpdPathBinaries = "$($UpdateSourcePath)\Service\Binaries"
