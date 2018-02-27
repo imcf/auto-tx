@@ -100,7 +100,7 @@ $DateShort = Get-Date -Format 'yyyy.MM.dd.HHmm'
 $BCommit = "$($SolutionDir)\Resources\BuildCommit.txt"
 $BuildDate = "$($SolutionDir)\Resources\BuildDate.txt"
 $BuildConfig = "$($SolutionDir)\Resources\BuildConfiguration.txt"
-$BuildDetailsCS = "$($SolutionDir)\Resources\BuildDetails.cs"
+$BuildDetailsCS = "$($SolutionDir)\ATxCommon\BuildDetails.cs"
 
 
 $Date | Out-File $BuildDate

@@ -78,9 +78,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Resources\BuildDetails.cs">
-      <Link>BuildDetails.cs</Link>
-    </Compile>
     <Compile Include="AutoTx.cs">
       <SubType>Component</SubType>
     </Compile>
