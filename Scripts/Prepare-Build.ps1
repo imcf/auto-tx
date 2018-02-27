@@ -1,6 +1,7 @@
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory=$True)][string] $ProjectDir
+    [Parameter(Mandatory=$True)][string] $ProjectDir,
+    [Parameter(Mandatory=$True)][string] $ConfigurationName
 )
 
 function Write-BuildDetails {
@@ -81,14 +82,20 @@ $Date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
 $BCommit = "$($ProjectDir)\Resources\BuildCommit.txt"
 $BuildDate = "$($ProjectDir)\Resources\BuildDate.txt"
+$BuildConfig = "$($ProjectDir)\Resources\BuildConfiguration.txt"
 $BuildDetailsCS = "$($ProjectDir)\..\Resources\BuildDetails.cs"
 
-Write-Output $CommitName > $BCommit
-Write-Output $Date > $BuildDate
 
-Write-Output "build-date: $($Date)"
-Write-Output "git-branch: $($GitBranch)"
-Write-Output "git-description: $($CommitName)$($StatusWarning)"
+Write-Output $Date > $BuildDate
+Write-Output $CommitName > $BCommit
+Write-Output $ConfigurationName > $BuildConfig
+
+Write-Output $(
+    "build-config: [$($ConfigurationName)]"
+    "build-date:   [$($Date)]"
+    "git-branch:   [$($GitBranch)]"
+    "git-describe: [$($CommitName)]$($StatusWarning)"
+)
 
 Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $Date 
 
