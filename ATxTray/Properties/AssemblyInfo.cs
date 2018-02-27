@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ATxTray")]
+[assembly: AssemblyTitle("AutoTx Tray")]
 [assembly: AssemblyDescription("AutoTx Tray Monitor")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Universitaet Basel")]
-[assembly: AssemblyProduct("ATxTray")]
-[assembly: AssemblyCopyright("Copyright © Universitaet Basel 2018")]
+[assembly: AssemblyCompany("IMCF, Biozentrum, University of Basel")]
+[assembly: AssemblyProduct("AutoTx")]
+[assembly: AssemblyCopyright("© University of Basel 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

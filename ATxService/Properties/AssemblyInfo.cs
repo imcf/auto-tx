@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("IMCF, Biozentrum, University of Basel")]
 [assembly: AssemblyProduct("AutoTx")]
-[assembly: AssemblyCopyright("© 2018")]
+[assembly: AssemblyCopyright("© University of Basel 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
