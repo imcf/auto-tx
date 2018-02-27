@@ -34,8 +34,7 @@ function Write-BuildDetails {
 
     $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
     $Commit = $Desc[3].Substring(1)
-    Write-Output "Generating [$($Target)]..."
-    Write-Output " > $($CommitName)"
+    Write-Output "$($Target.Substring($Target.LastIndexOf('\')+1)) -> $($Target)"
     $Code = $CsTemplate -f `
         $CommitName, `
         $Branch, `
@@ -44,7 +43,7 @@ function Write-BuildDetails {
         $Desc[2], `
         $Date, `
         $Commit
-    Write-Verbose $Code
+    Write-Verbose "/// generated code ///`n$($Code)`n/// generated code ///`n"
     Out-File -FilePath $Target -Encoding ASCII -InputObject $Code
 }
 
@@ -64,8 +63,8 @@ function Parse-GitDescribe([string]$CommitName) {
 
 $ErrorActionPreference = "Stop"
 
-$oldpwd = pwd
-cd $SolutionDir -ErrorAction Stop
+$OldLocation = Get-Location
+Set-Location $SolutionDir -ErrorAction Stop
 
 try {
     $CommitName = & git describe --tags --long --match "[0-9].[0-9]"
@@ -116,4 +115,4 @@ Write-Output $(
 
 Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $DateShort
 
-cd $oldpwd
+Set-Location $OldLocation
