@@ -68,8 +68,8 @@ Copy-Item "$($ResourceDir)\conf\host-specific.template.xml" $example
 Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\AutoTx.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 try {
-    $CommitRefFile = "$($PkgDir)\BuildCommitRef.txt"
-    git describe > $CommitRefFile
+    $CommitRefFile = "$($ResourceDir)\BuildCommit.txt"
+    Copy-Item $CommitRefFile $($PkgDir)
     $BuildCommit = Get-Content $CommitRefFile
 }
 catch {
