@@ -66,8 +66,8 @@ try {
     $DescItems = Parse-GitDescribe $CommitName
 
     if ($GitStatus.Length -gt 0) {
-        $StatusWarning = "  <--  WARNING: repository has uncommitted changes!"
-        $CommitName = "$($CommitName)-unclean"
+        $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
+        $CommitName += "-unclean"
     }
 }
 catch {
