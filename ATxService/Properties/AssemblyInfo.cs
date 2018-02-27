@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("IMCF, Biozentrum, University of Basel")]
 [assembly: AssemblyProduct("AutoTx")]
-[assembly: AssemblyCopyright("Copyright © 2018")]
+[assembly: AssemblyCopyright("© 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,9 +31,13 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion(BuildDetails.GitMajor + "." +
+                           BuildDetails.GitMinor + "." +
+                           BuildDetails.GitPatch + ".0")]
+[assembly: AssemblyFileVersion(BuildDetails.GitMajor + "." +
+                               BuildDetails.GitMinor + "." +
+                               BuildDetails.GitPatch + ".0")]
 
-[assembly: AssemblyInformationalVersion(BuildDetails.GitCommitName +
-                                        " @ " + BuildDetails.GitBranch +
-                                        " (" + BuildDetails.BuildDate + ")")]
+[assembly: AssemblyInformationalVersion(BuildDetails.BuildDate +
+                                        " " + BuildDetails.GitCommit +
+                                        " (" + BuildDetails.GitBranch + ")")]
