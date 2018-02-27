@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.IO;
+using System.Reflection;
 using System.Timers;
 using ATxCommon;
 using ATxCommon.NLog;
@@ -274,12 +275,22 @@ namespace ATxService
         /// Write a summary of loaded config + status to the log.
         /// </summary>
         private void StartupSummary() {
-            var msg = "Startup Summary:\n\n------ RoboSharp ------\n";
-            var roboDll = System.Reflection.Assembly.GetAssembly(typeof(RoboCommand)).Location;
-            var versionInfo = FileVersionInfo.GetVersionInfo(roboDll);
-            msg += " > DLL file: " + roboDll + "\n" +
-                   " > DLL description: " + versionInfo.Comments + "\n" +
-                   " > DLL version: " + versionInfo.FileVersion + "\n";
+            var msg = "Startup Summary:\n\n";
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            msg += "------ Assembly Information ------\n" +
+                   $" > version: {assembly.GetName().Version}\n" +
+                   $" > file version: {versionInfo.FileVersion}\n" +
+                   $" > description: {versionInfo.Comments}\n" +
+                   $" > version information: {versionInfo.ProductVersion}\n";
+            
+            var roboDll = Assembly.GetAssembly(typeof(RoboCommand)).Location;
+            var roboVersionInfo = FileVersionInfo.GetVersionInfo(roboDll);
+            msg += "\n------ RoboSharp ------\n" +
+                   $" > DLL location: {roboDll}\n" +
+                   $" > DLL description: {roboVersionInfo.Comments}\n" +
+                   $" > DLL file version: {roboVersionInfo.FileVersion}\n";
 
 
             msg += "\n------ Loaded status flags ------\n" + _status.Summary() +
@@ -333,10 +344,14 @@ namespace ATxService
             // read the build timestamp from the resources:
             var buildTimestamp = Properties.Resources.BuildDate.Trim();
             var buildCommitName = Properties.Resources.BuildCommit.Trim();
+            var assembly = Assembly.GetExecutingAssembly();
+            var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+
             Log.Info("-----------------------");
             Log.Info("{0} service started.", ServiceName);
             Log.Info("build:  [{0}]", buildTimestamp);
             Log.Info("commit: [{0}]", buildCommitName);
+            Log.Info("product version: [{0}]", versionInfo.ProductVersion);
             Log.Info("-----------------------");
         }
 

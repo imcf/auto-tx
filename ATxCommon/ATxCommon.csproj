@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveDirectory.cs" />
+    <Compile Include="BuildDetails.cs" />
     <Compile Include="Conv.cs" />
     <Compile Include="FsUtils.cs" />
     <Compile Include="NLog\RateLimitWrapper.cs" />
@@ -61,6 +62,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)Scripts\Prepare-Build.ps1 -SolutionDir $(SolutionDir) -ConfigurationName $(ConfigurationName)</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

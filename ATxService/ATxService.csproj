@@ -141,10 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\BuildDate.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BuildCommit.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ATxCommon\ATxCommon.csproj">
@@ -153,6 +149,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Resources\BuildCommit.txt">
+      <Link>Resources\BuildCommit.txt</Link>
+    </None>
+    <None Include="..\Resources\BuildDate.txt">
+      <Link>Resources\BuildDate.txt</Link>
+    </None>
     <Content Include="..\Resources\Mail-Templates\DiskSpace-Low.txt">
       <Link>Mail-Templates\DiskSpace-Low.txt</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -168,11 +170,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)\Scripts\Prepare-Build.ps1 $(ProjectDir)</PreBuildEvent>
+    <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)Scripts\Prepare-Build.ps1 -SolutionDir $(SolutionDir) -ConfigurationName $(ConfigurationName)</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>PowerShell -Command "Write-Host $(ConfigurationName)" &gt; $(ProjectDir)\Resources\BuildConfiguration.txt
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
