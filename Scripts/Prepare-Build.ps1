@@ -32,7 +32,7 @@ function Write-BuildDetails {
         public const string BuildDate = `"$($Date)`";
     }"
     Write-Verbose $CSharp
-    Write-Output $CSharp > $Target
+    Out-File -FilePath $Target -Encoding ASCII -InputObject $CSharp
 }
 
 function Parse-GitDescribe([string]$CommitName) {
@@ -85,9 +85,9 @@ $BuildConfig = "$($SolutionDir)\Resources\BuildConfiguration.txt"
 $BuildDetailsCS = "$($SolutionDir)\Resources\BuildDetails.cs"
 
 
-Write-Output $Date > $BuildDate
-Write-Output $CommitName > $BCommit
-Write-Output $ConfigurationName > $BuildConfig
+$Date | Out-File $BuildDate
+$CommitName | Out-File $BCommit
+$ConfigurationName | Out-File $BuildConfig
 
 Write-Output $(
     "build-config: [$($ConfigurationName)]"
