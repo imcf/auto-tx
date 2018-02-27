@@ -91,6 +91,11 @@ catch {
 
 $Date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
+# the dotted short format can be used in the AssemblyInformationalVersion
+# property, as this will magically be parsed and reported as "Version" when
+# examining the executable using "Get-Command AutoTx.exe | Format-List *"
+$DateShort = Get-Date -Format 'yyyy.MM.dd.HHmm'
+
 
 $BCommit = "$($SolutionDir)\Resources\BuildCommit.txt"
 $BuildDate = "$($SolutionDir)\Resources\BuildDate.txt"
@@ -109,6 +114,6 @@ Write-Output $(
     "git-describe: [$($CommitName)]$($StatusWarning)"
 )
 
-Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $Date 
+Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $DateShort
 
 cd $oldpwd
