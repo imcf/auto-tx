@@ -1,5 +1,4 @@
-$ResourceDir = "..\ATxService\Resources"
-$RsrcDirCommon = "..\Resources"
+$ResourceDir = "..\Resources"
 
 
 function Highlight([string]$Message, [string]$Color = "Cyan", $Indent = $False) {
@@ -63,8 +62,8 @@ Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirCfgTest)\*" $tgt -EA Ignore
 # provide an up-to-date version of the example config file:
 $example = New-Item -ItemType Container -Path $PkgDir -Name "conf-example"
-Copy-Item "$($RsrcDirCommon)\conf\config.common.xml" $example
-Copy-Item "$($RsrcDirCommon)\conf\host-specific.template.xml" $example
+Copy-Item "$($ResourceDir)\conf\config.common.xml" $example
+Copy-Item "$($ResourceDir)\conf\host-specific.template.xml" $example
 
 Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\AutoTx.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)

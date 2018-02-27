@@ -1,6 +1,6 @@
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory=$True)][string] $ProjectDir,
+    [Parameter(Mandatory=$True)][string] $SolutionDir,
     [Parameter(Mandatory=$True)][string] $ConfigurationName
 )
 
@@ -52,7 +52,7 @@ function Parse-GitDescribe([string]$CommitName) {
 $ErrorActionPreference = "Stop"
 
 $oldpwd = pwd
-cd $ProjectDir -ErrorAction Stop
+cd $SolutionDir -ErrorAction Stop
 
 try {
     $CommitName = & git describe --tags --long --match "[0-9].[0-9]"
@@ -79,10 +79,10 @@ catch {
 $Date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
 
-$BCommit = "$($ProjectDir)\Resources\BuildCommit.txt"
-$BuildDate = "$($ProjectDir)\Resources\BuildDate.txt"
-$BuildConfig = "$($ProjectDir)\Resources\BuildConfiguration.txt"
-$BuildDetailsCS = "$($ProjectDir)\..\Resources\BuildDetails.cs"
+$BCommit = "$($SolutionDir)\Resources\BuildCommit.txt"
+$BuildDate = "$($SolutionDir)\Resources\BuildDate.txt"
+$BuildConfig = "$($SolutionDir)\Resources\BuildConfiguration.txt"
+$BuildDetailsCS = "$($SolutionDir)\Resources\BuildDetails.cs"
 
 
 Write-Output $Date > $BuildDate

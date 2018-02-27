@@ -61,7 +61,7 @@ namespace ATxTray.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to autotransfer-v1-265-g1b03979-unclean
+        ///   Looks up a localized string similar to 2.0-9-g98d8fc9-unclean
         ///.
         /// </summary>
         internal static string BuildCommit {
@@ -71,7 +71,7 @@ namespace ATxTray.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 2018-02-06 11:38:53
+        ///   Looks up a localized string similar to 2018-02-27 15:22:30
         ///.
         /// </summary>
         internal static string BuildDate {
