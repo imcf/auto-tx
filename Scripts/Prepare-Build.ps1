@@ -4,6 +4,18 @@ Param(
     [Parameter(Mandatory=$True)][string] $ConfigurationName
 )
 
+$CsTemplate = @"
+public static class BuildDetails
+{{
+    public const string GitCommitName = "{0}";
+    public const string GitBranch = "{1}";
+    public const string GitMajor = "{2}";
+    public const string GitMinor = "{3}";
+    public const string GitPatch = "{4}";
+    public const string BuildDate = "{5}";
+}}
+"@
+
 function Write-BuildDetails {
     Param (
         [Parameter(Mandatory=$True)]
@@ -22,17 +34,15 @@ function Write-BuildDetails {
     $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
     Write-Output "Generating [$($Target)]..."
     Write-Output " > $($CommitName)"
-    $CSharp = "public static class BuildDetails
-    {
-        public const string GitCommitName = `"$($CommitName)`";
-        public const string GitBranch = `"$($Branch)`";
-        public const string GitMajor = `"$($Desc[0])`";
-        public const string GitMinor = `"$($Desc[1])`";
-        public const string GitPatch = `"$($Desc[2])`";
-        public const string BuildDate = `"$($Date)`";
-    }"
-    Write-Verbose $CSharp
-    Out-File -FilePath $Target -Encoding ASCII -InputObject $CSharp
+    $Code = $CsTemplate -f `
+        $CommitName, `
+        $Branch, `
+        $Desc[0], `
+        $Desc[1], `
+        $Desc[2], `
+        $Date
+    Write-Verbose $Code
+    Out-File -FilePath $Target -Encoding ASCII -InputObject $Code
 }
 
 function Parse-GitDescribe([string]$CommitName) {
