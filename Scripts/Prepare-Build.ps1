@@ -13,6 +13,7 @@ public static class BuildDetails
     public const string GitMinor = "{3}";
     public const string GitPatch = "{4}";
     public const string BuildDate = "{5}";
+    public const string GitCommit = "{6}";
 }}
 "@
 
@@ -32,6 +33,7 @@ function Write-BuildDetails {
     )
 
     $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
+    $Commit = $Desc[3].Substring(1)
     Write-Output "Generating [$($Target)]..."
     Write-Output " > $($CommitName)"
     $Code = $CsTemplate -f `
@@ -40,7 +42,8 @@ function Write-BuildDetails {
         $Desc[0], `
         $Desc[1], `
         $Desc[2], `
-        $Date
+        $Date, `
+        $Commit
     Write-Verbose $Code
     Out-File -FilePath $Target -Encoding ASCII -InputObject $Code
 }

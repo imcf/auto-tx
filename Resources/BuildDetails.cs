@@ -6,4 +6,5 @@ public static class BuildDetails
     public const string GitMinor = "0";
     public const string GitPatch = "0";
     public const string BuildDate = "?build time?";
+    public const string GitCommit = "?sha1?";
 }
