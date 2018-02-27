@@ -22,8 +22,7 @@ function Write-BuildDetails {
     $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
     Write-Output "Generating [$($Target)]..."
     Write-Output " > $($CommitName)"
-    $CSharp = $("
-    public static class BuildDetails
+    $CSharp = "public static class BuildDetails
     {
         public const string GitCommitName = `"$($CommitName)`";
         public const string GitBranch = `"$($Branch)`";
@@ -31,7 +30,7 @@ function Write-BuildDetails {
         public const string GitMinor = `"$($Desc[1])`";
         public const string GitPatch = `"$($Desc[2])`";
         public const string BuildDate = `"$($Date)`";
-    }")
+    }"
     Write-Verbose $CSharp
     Write-Output $CSharp > $Target
 }
