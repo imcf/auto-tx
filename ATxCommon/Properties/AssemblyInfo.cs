@@ -31,13 +31,13 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(BuildDetails.GitMajor + "." +
-                           BuildDetails.GitMinor + "." +
-                           BuildDetails.GitPatch + ".0")]
-[assembly: AssemblyFileVersion(BuildDetails.GitMajor + "." +
-                               BuildDetails.GitMinor + "." +
-                               BuildDetails.GitPatch + ".0")]
+[assembly: AssemblyVersion(ATxCommon.BuildDetails.GitMajor + "." +
+                           ATxCommon.BuildDetails.GitMinor + "." +
+                           ATxCommon.BuildDetails.GitPatch + ".0")]
+[assembly: AssemblyFileVersion(ATxCommon.BuildDetails.GitMajor + "." +
+                               ATxCommon.BuildDetails.GitMinor + "." +
+                               ATxCommon.BuildDetails.GitPatch + ".0")]
 
-[assembly: AssemblyInformationalVersion(BuildDetails.BuildDate +
-                                        " " + BuildDetails.GitCommit +
-                                        " (" + BuildDetails.GitBranch + ")")]
+[assembly: AssemblyInformationalVersion(ATxCommon.BuildDetails.BuildDate +
+                                        " " + ATxCommon.BuildDetails.GitCommit +
+                                        " (" + ATxCommon.BuildDetails.GitBranch + ")")]
