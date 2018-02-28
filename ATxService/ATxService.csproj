@@ -55,7 +55,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="RoboSharp">
-      <HintPath>..\..\robosharp\RoboSharp\bin\Debug\RoboSharp.dll</HintPath>
+      <HintPath>..\..\robosharp\RoboSharp\bin\Release\RoboSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
