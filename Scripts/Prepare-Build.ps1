@@ -1,7 +1,15 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName="build")]
 Param(
-    [Parameter(Mandatory=$True)][string] $SolutionDir,
-    [Parameter(Mandatory=$True)][string] $ConfigurationName
+    [Parameter(Mandatory=$True, ParameterSetName="build")]
+    [Parameter(Mandatory=$True, ParameterSetName="gentemplate")]
+    [string] $SolutionDir
+    ,
+    [Parameter(Mandatory=$True, ParameterSetName="build")]
+    [ValidateSet("Debug", "Release")]
+    [string] $ConfigurationName
+    ,
+    [Parameter(ParameterSetName="gentemplate")]
+    [switch] $GenericTemplate
 )
 
 $CsTemplate = @"
@@ -35,8 +43,13 @@ function Write-BuildDetails {
         [String]$Date
     )
 
-    $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
-    $Commit = $Desc[3].Substring(1)
+    if ($Desc[3].Equals("nogit")) {
+        $CommitName = "?commit?"
+        $Commit = "?sha1"
+    } else {
+        $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
+        $Commit = $Desc[3].Substring(1)
+    }
     Write-Output "$($Target.Substring($Target.LastIndexOf('\')+1)) -> $($Target)"
     $Code = $CsTemplate -f `
         $CommitName, `
@@ -73,6 +86,14 @@ $BCommit = "$($SolutionDir)\Resources\BuildCommit.txt"
 $BuildDate = "$($SolutionDir)\Resources\BuildDate.txt"
 $BuildConfig = "$($SolutionDir)\Resources\BuildConfiguration.txt"
 $BuildDetailsCS = "$($SolutionDir)\ATxCommon\BuildDetails.cs"
+
+if ($GenericTemplate) {
+    $VerbosePreference = "Continue"
+    $DescItems = "1", "0", "0", "nogit"
+    Write-BuildDetails $BuildDetailsCS $DescItems "?branch?" "?build time?"
+    Set-Location $OldLocation
+    Exit
+}
 
 try {
     $CommitName = & git describe --tags --long --match "[0-9].[0-9]"
