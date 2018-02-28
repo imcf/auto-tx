@@ -277,20 +277,22 @@ namespace ATxService
         private void StartupSummary() {
             var msg = "Startup Summary:\n\n";
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            var thisAssembly = Assembly.GetExecutingAssembly();
+            var thisVersionInfo = FileVersionInfo.GetVersionInfo(thisAssembly.Location);
             msg += "------ Assembly Information ------\n" +
-                   $" > version: {assembly.GetName().Version}\n" +
-                   $" > file version: {versionInfo.FileVersion}\n" +
-                   $" > description: {versionInfo.Comments}\n" +
-                   $" > version information: {versionInfo.ProductVersion}\n";
-            
-            var roboDll = Assembly.GetAssembly(typeof(RoboCommand)).Location;
-            var roboVersionInfo = FileVersionInfo.GetVersionInfo(roboDll);
+                   $" > version: {thisAssembly.GetName().Version}\n" +
+                   $" > file version: {thisVersionInfo.FileVersion}\n" +
+                   $" > description: {thisVersionInfo.Comments}\n" +
+                   $" > version information: {thisVersionInfo.ProductVersion}\n";
+
+            var roboAssembly = Assembly.GetAssembly(typeof(RoboCommand));
+            var roboVersionInfo = FileVersionInfo.GetVersionInfo(roboAssembly.Location);
             msg += "\n------ RoboSharp ------\n" +
-                   $" > DLL location: {roboDll}\n" +
-                   $" > DLL description: {roboVersionInfo.Comments}\n" +
-                   $" > DLL file version: {roboVersionInfo.FileVersion}\n";
+                   $" > location: [{roboAssembly.Location}]\n" +
+                   $" > version: {roboAssembly.GetName().Version}\n" +
+                   $" > file version: {roboVersionInfo.FileVersion}\n" +
+                   $" > description: {roboVersionInfo.Comments}\n" +
+                   $" > version information: {roboVersionInfo.ProductVersion}\n";
 
 
             msg += "\n------ Loaded status flags ------\n" + _status.Summary() +
@@ -346,13 +348,20 @@ namespace ATxService
             var buildCommitName = Properties.Resources.BuildCommit.Trim();
             var assembly = Assembly.GetExecutingAssembly();
             var versionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            var roboAssembly = Assembly.GetAssembly(typeof(RoboCommand));
+            var roboVersionInfo = FileVersionInfo.GetVersionInfo(roboAssembly.Location);
 
-            Log.Info("-----------------------");
+
+            Log.Info("=".PadLeft(80, '='));
             Log.Info("{0} service started.", ServiceName);
             Log.Info("build:  [{0}]", buildTimestamp);
             Log.Info("commit: [{0}]", buildCommitName);
+            Log.Info("version: [{0}]", assembly.GetName().Version);
             Log.Info("product version: [{0}]", versionInfo.ProductVersion);
-            Log.Info("-----------------------");
+            Log.Info("-".PadLeft(80, '-'));
+            Log.Info("RoboSharp version: [{0}]", roboAssembly.GetName().Version);
+            Log.Info("Robosharp product version: [{0}]", roboVersionInfo.ProductVersion);
+            Log.Info("=".PadLeft(80, '='));
         }
 
         /// <summary>
