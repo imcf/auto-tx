@@ -96,7 +96,7 @@ if ($GenericTemplate) {
 }
 
 try {
-    $CommitName = & git describe --tags --long --match "[0-9].[0-9]"
+    $CommitName = & git describe --tags --long --match "[0-9]*.[0-9]*"
     if (-Not $?) { throw }
     $GitStatus = & git status --porcelain
     if (-Not $?) { throw }
