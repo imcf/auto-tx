@@ -31,7 +31,6 @@ function ServiceIsRunning([string]$ServiceName) {
 
 
 function ServiceIsBusy {
-    $StatusXml = "$($InstallationPath)\status.xml"
     try {
         [xml]$XML = Get-Content $StatusXml -ErrorAction Stop
         # careful, we need a string comparison here:
@@ -551,6 +550,8 @@ $ServiceRunningBefore = ServiceIsRunning $ServiceName
 
 $ConfigPath = "$($InstallationPath)\conf"
 $LogPath = "$($InstallationPath)"
+$StatusXml = "$($InstallationPath)\status.xml"
+
 
 $UpdPathConfig = "$($UpdateSourcePath)\Configs"
 $UpdPathMarkerFiles = "$($UpdateSourcePath)\Service\UpdateMarkers"
