@@ -68,6 +68,9 @@ namespace ATxService
 
         #region initialize, load and check configuration + status
 
+        /// <summary>
+        /// AutoTx constructor
+        /// </summary>
         public AutoTx() {
             InitializeComponent();
             SetupFileLogging(LogLevel.Debug);
