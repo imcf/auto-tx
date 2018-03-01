@@ -7,7 +7,8 @@
 
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory=$True)][string] $UpdaterSettings
+    [Parameter(Mandatory=$True)][string] $UpdaterSettings,
+    [Parameter(Mandatory=$False)][switch] $ForceServiceCleanup
 )
 
 
@@ -94,11 +95,13 @@ function Stop-MyService([string]$Message) {
         Log-Info "$($Message) (Service already in state 'Stopped')"
         Return
     }
-    if (ServiceIsBusy) {
-        $msg = "*DENYING* to stop the service $($ServiceName) as it is "
-        $msg += "currently busy.`nShutdown reason was '$($Message)'."
-        Log-Info $msg
-        Exit
+    if (-Not $ForceServiceCleanup){
+        if (ServiceIsBusy) {
+            $msg = "*DENYING* to stop the service $($ServiceName) as it is "
+            $msg += "currently busy.`nShutdown reason was '$($Message)'."
+            Log-Info $msg
+            Exit
+        }
     }
     try {
         Log-Info "$($Message) Attempting service $($ServiceName) shutdown..."
@@ -392,6 +395,13 @@ function Update-ServiceBinaries {
         Log-Error "Creating [$($MarkerFile)] FAILED:`n> $($_.Exception.Message)"
         Return $False
     }
+
+    if (-Not $ForceServiceCleanup) {
+        Return $True
+    }
+
+    Log-Debug "<ForceServiceCleanup> removing status file [$($StatusXml)]"
+    Remove-Item -Force $StatusXml
     Return $True
 }
 
@@ -643,8 +653,8 @@ try {
 
 
 
-    if ($ServiceRunningBefore) {
-        Log-Debug "$($UpdSummary) Trying to start the service again..."
+    if ($ServiceRunningBefore -Or $ForceServiceCleanup) {
+        Log-Debug "$($UpdSummary) Trying to start the service..."
         Start-MyService
     } else {
         Log-Debug "$($UpdSummary) Leaving the service stopped, as before."
