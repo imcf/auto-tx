@@ -154,7 +154,12 @@ namespace ATxService
             if (_transferState == TxState.DoNothing)
                 return;
 
-            _roboCommand.Stop();
+
+            // Calling _roboCommand.Stop() is not required (any more, maybe it never was), since
+            // all of this is already taken care of by the RoboCommand class internally, hence we
+            // can safely disable the call here:
+            // _roboCommand.Stop();
+
             Log.Debug("Transfer stopped");
             _transferState = TxState.Stopped;
             _status.TransferredBytesCompleted = 0;
