@@ -14,6 +14,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using RoboSharp;
+using Debugger = RoboSharp.Debugger;
 
 // NOTE on naming conventions: variables containing "Path" are strings, variables containing
 // "Dir" are DirectoryInfo objects!
@@ -79,6 +80,11 @@ namespace ATxService
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
+            Debugger.Instance.DebugMessageEvent += HandleDebugMessage;
+        }
+
+        private void HandleDebugMessage(object sender, Debugger.DebugMessageArgs e) {
+            Log.Debug("(RoboSharp Debugger) {0}", e.Message);
         }
 
         /// <summary>
