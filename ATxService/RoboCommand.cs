@@ -151,6 +151,7 @@ namespace ATxService
         /// RoboSharp OnCommandCompleted callback handler.
         /// </summary>
         private void RsCommandCompleted(object sender, RoboCommandCompletedEventArgs e) {
+            Log.Trace("RsCommandCompleted()");
             if (_transferState == TxState.DoNothing)
                 return;
 
