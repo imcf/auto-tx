@@ -226,6 +226,13 @@ namespace ATxCommon.Serializables
         [XmlIgnore]
         public string UnmatchedPath => Path.Combine(ManagedPath, "UNMATCHED");
 
+        /// <summary>
+        /// The full path to the directory for directories that were moved out of the way due to
+        /// any kind of error in processing them.
+        /// </summary>
+        [XmlIgnore]
+        public string ErrorPath => Path.Combine(ManagedPath, "ERROR");
+
         #endregion
 
 

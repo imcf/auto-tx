@@ -224,6 +224,7 @@ namespace ATxCommon
             retval &= CheckForDirectory(Path.Combine(managed, "PROCESSING"));
             retval &= CheckForDirectory(Path.Combine(managed, "DONE"));
             retval &= CheckForDirectory(Path.Combine(managed, "UNMATCHED"));
+            retval &= CheckForDirectory(Path.Combine(managed, "ERROR"));
             return retval;
         }
 

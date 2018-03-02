@@ -752,6 +752,20 @@ namespace ATxService
                     return true;
 
                 errMsg = $"unable to move [{userDir.FullName}]";
+                // just to be safe, don't delete the failed directory from the processing location
+                // but move it to the error location (in case something has in fact been moved
+                // there already we have to make sure not to kill it):
+                var moveFromProcessing = new DirectoryInfo(Path.Combine(processingPath, timeStamp));
+                try {
+                    moveFromProcessing.MoveTo(Path.Combine(_config.ErrorPath, timeStamp));
+                    Log.Debug("Moved failed directory [{0}] out of processing to [{1}].",
+                        moveFromProcessing.FullName, _config.ErrorPath);
+                }
+                catch (Exception ex) {
+                    Log.Error("Moving [{0}] to [{1}] failed: {2}",
+                        moveFromProcessing.FullName, _config.ErrorPath, ex.Message);
+                    throw;
+                }
             }
             catch (Exception ex) {
                 errMsg = ex.Message;
