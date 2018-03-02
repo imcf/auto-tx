@@ -29,6 +29,8 @@ namespace ATxService
         private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}";
         // private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
 
+        private static string _versionSummary;
+
         private readonly List<string> _transferredFiles = new List<string>();
         
         /// <summary>
@@ -377,6 +379,10 @@ namespace ATxService
             Log.Info("RoboSharp version: [{0}]", roboAssembly.GetName().Version);
             Log.Info("Robosharp product version: [{0}]", roboVersionInfo.ProductVersion);
             Log.Info("=".PadLeft(80, '='));
+
+            _versionSummary = $"AutoTx {buildCommitName} {buildTimestamp} | " +
+                              $"RoboSharp {roboAssembly.GetName().Version} " +
+                              $"{roboVersionInfo.ProductVersion}";
         }
 
         /// <summary>

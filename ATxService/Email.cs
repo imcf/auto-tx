@@ -18,6 +18,7 @@ namespace ATxService
         /// <param name="body">The email body.</param>
         private void SendEmail(string recipient, string subject, string body) {
             subject = _config.EmailPrefix + subject;
+            body += $"\n\n--\n[{_versionSummary}]";
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
                 Log.Debug("SendEmail: {0}\n{1}", subject, body);
                 return;
