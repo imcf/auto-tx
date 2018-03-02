@@ -21,9 +21,16 @@ namespace ATxService
             if (_transferState != TxState.Stopped)
                 return;
 
-            _roboCommand = new RoboCommand();
+            var totalSize = FsUtils.GetDirectorySize(sourcePath);
+            if (totalSize == 0) {
+                Log.Warn("Total size of all files in [{0}] is zero, NOT STARTING a transfer!",
+                    sourcePath);
+                return;
+            }
+            Log.Debug("Size of all files under [{0}] is {1} bytes ({2})",
+                sourcePath, totalSize, Conv.BytesToString(totalSize));
+            _status.CurrentTransferSize = totalSize;
             _status.CurrentTransferSrc = sourcePath;
-            _status.CurrentTransferSize = FsUtils.GetDirectorySize(sourcePath);
 
             // the user name is expected to be the last part of the path:
             _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
@@ -31,6 +38,8 @@ namespace ATxService
 
             _transferState = TxState.Active;
             _status.TransferInProgress = true;
+            
+            _roboCommand = new RoboCommand();
             try {
                 // events
                 _roboCommand.OnCopyProgressChanged += RsProgressChanged;
