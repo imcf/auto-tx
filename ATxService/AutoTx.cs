@@ -30,6 +30,12 @@ namespace ATxService
         // private const string LogFormatDefault = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
 
         private readonly List<string> _transferredFiles = new List<string>();
+        
+        /// <summary>
+        /// A list of (full) paths to be ignored in the incoming location, that will be populated
+        /// during runtime only, i.e. will not persist over a service restart (intentionally!).
+        /// </summary>
+        private readonly List<string> _incomingIgnore = new List<string>();
 
         private RoboCommand _roboCommand;
         private long _txCurFileSize;
@@ -643,8 +649,18 @@ namespace ATxService
                 if (FsUtils.DirEmptyExcept(userDir, _config.MarkerFile))
                     continue;
 
+                if (_incomingIgnore.Contains(userDir.FullName)) {
+                    Log.Trace("Ignoring directory in incoming location: [{0}]", userDir.FullName);
+                    continue;
+                }
+
                 Log.Info("Found new files in [{0}]", userDir.FullName);
-                MoveToManagedLocation(userDir);
+                if (MoveToManagedLocation(userDir))
+                    continue;
+
+                // if moving to the processing location failed, add it to the ignore list:
+                Log.Error("=== Ignoring [{0}] for this service session ===", userDir.FullName);
+                _incomingIgnore.Add(userDir.FullName);
             }
         }
 
