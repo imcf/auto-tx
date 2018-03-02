@@ -242,7 +242,7 @@ namespace ATxCommon
             try {
                 // make sure the target directory that should hold all subdirectories to
                 // be moved is existing:
-                if (string.IsNullOrEmpty(FsUtils.CreateNewDirectory(destPath, false))) {
+                if (string.IsNullOrEmpty(CreateNewDirectory(destPath, false))) {
                     Log.Warn("WARNING: destination path doesn't exist: {0}", destPath);
                     return false;
                 }
