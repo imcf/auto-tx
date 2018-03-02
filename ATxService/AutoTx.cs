@@ -454,7 +454,7 @@ namespace ATxService
                 Log.Error("Unhandled exception in OnTimedEvent(): {0}\n\n" +
                     "Trying exponential backoff, setting timer interval to {1} ms ({3}).\n\n" +
                     "StackTrace: {2}", ex.Message, _mainTimer.Interval, ex.StackTrace,
-                    TimeUtils.SecondsToHuman((long)_mainTimer.Interval / 1000));
+                    TimeUtils.SecondsToHuman((long)_mainTimer.Interval / 1000, false));
             }
             finally {
                 // make sure to enable the timer again:
@@ -730,12 +730,13 @@ namespace ATxService
                 if (FsUtils.MoveAllSubDirs(userDir, targetDir))
                     return;
 
-                errMsg = "unable to move " + userDir.FullName;
+                errMsg = $"unable to move [{userDir.FullName}]";
             }
             catch (Exception ex) {
                 errMsg = ex.Message;
             }
-            Log.Error("MoveToManagedLocation({0}) failed: {1}", userDir.FullName, errMsg);
+            Log.Error("=== Moving directory [{0}] to the processing location failed: {1} ===",
+                userDir.FullName, errMsg);
         }
 
         /// <summary>

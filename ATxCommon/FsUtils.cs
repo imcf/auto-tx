@@ -271,7 +271,7 @@ namespace ATxCommon
                 }
             }
             catch (Exception ex) {
-                Log.Error("Error moving directories: [{0}] > [{1}]\n{2}",
+                Log.Error("Error moving directories: [{0}] -> [{1}]: {2}",
                     sourceDir.FullName, destPath, ex.Message);
                 return false;
             }
