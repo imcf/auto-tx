@@ -711,7 +711,9 @@ namespace ATxService
         /// </summary>
         /// CAUTION: this method is called as a consequence of the main timer being triggered, so
         /// be aware that any message dispatched here could potentially show up every second!
-        private void MoveToManagedLocation(DirectoryInfo userDir) {
+        /// <param name="userDir">The directory to be moved to the processing location.</param>
+        /// <returns>True in case of success, false otherwise.</returns>
+        private bool MoveToManagedLocation(DirectoryInfo userDir) {
             string errMsg;
             try {
                 // first check for individual files and collect them:
@@ -731,7 +733,7 @@ namespace ATxService
                 var timeStamp = TimeUtils.Timestamp();
                 var targetDir = Path.Combine(processingPath, timeStamp, userDir.Name);
                 if (FsUtils.MoveAllSubDirs(userDir, targetDir))
-                    return;
+                    return true;
 
                 errMsg = $"unable to move [{userDir.FullName}]";
             }
@@ -740,6 +742,7 @@ namespace ATxService
             }
             Log.Error("=== Moving directory [{0}] to the processing location failed: {1} ===",
                 userDir.FullName, errMsg);
+            return false;
         }
 
         /// <summary>
