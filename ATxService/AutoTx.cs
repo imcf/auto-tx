@@ -718,17 +718,18 @@ namespace ATxService
                 FsUtils.CollectOrphanedFiles(userDir, _config.MarkerFile);
 
                 // the default path where folders will be picked up by the actual transfer method:
-                var baseDir = _config.ProcessingPath;
+                var processingPath = _config.ProcessingPath;
 
                 // if the user has no directory on the destination move to UNMATCHED instead:
                 if (string.IsNullOrWhiteSpace(DestinationPath(userDir.Name))) {
                     Log.Error("Found unmatched incoming dir: {0}", userDir.Name);
-                    baseDir = _config.UnmatchedPath;
+                    processingPath = _config.UnmatchedPath;
                 }
                 
                 // now everything that is supposed to be transferred is in a folder,
                 // for example: D:\ATX\PROCESSING\2017-04-02__12-34-56\user00
-                var targetDir = Path.Combine(baseDir, TimeUtils.Timestamp(), userDir.Name);
+                var timeStamp = TimeUtils.Timestamp();
+                var targetDir = Path.Combine(processingPath, timeStamp, userDir.Name);
                 if (FsUtils.MoveAllSubDirs(userDir, targetDir))
                     return;
 
