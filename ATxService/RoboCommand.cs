@@ -68,14 +68,10 @@ namespace ATxService
                 // copyflags :
                 //     D=Data, A=Attributes, T=Timestamps
                 //     S=Security=NTFS ACLs, O=Owner info, U=aUditing info
+                _roboCommand.CopyOptions.CopyFlags = _config.CopyFlags;
 
-                // /SEC :: copy files with security (equivalent to /COPY:DATS)
-                // _roboCommand.CopyOptions.CopyFilesWithSecurity = true;
-                // /COPYALL :: copy all file info (equivalent to /COPY:DATSOU)
-                // _roboCommand.CopyOptions.CopyAll = true;
-                _roboCommand.CopyOptions.CopyFlags = "DT";
-
-                _roboCommand.CopyOptions.DirectoryCopyFlags = "T";
+                // /DCOPY :: directory copy settings (T=Timestamps)
+                _roboCommand.CopyOptions.DirectoryCopyFlags = _config.DirectoryCopyFlags;
 
                 // select options
                 _roboCommand.SelectionOptions.ExcludeOlder = true;

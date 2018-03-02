@@ -118,6 +118,18 @@ namespace ATxCommon.Serializables
         public int InterPacketGap { get; set; } = 0;
 
         /// <summary>
+        /// Setting for the RoboCopy /COPY parameter, valid flags are D=Data, A=Attributes,
+        /// T=Timestamps, S=Security(ACLs), O=Owner info, U=aUditing info. Default: "DT".
+        /// </summary>
+        public string CopyFlags { get; set; } = "DT";
+
+        /// <summary>
+        /// Setting for the RoboCopy /DCOPY parameter, valid flags depend on the version of
+        /// RoboCopy used and should only be changed with greatest care! Default: "T".
+        /// </summary>
+        public string DirectoryCopyFlags { get; set; } = "T";
+
+        /// <summary>
         /// A list of process names causing transfers to be suspended if running.
         /// </summary>
         [XmlArray]
