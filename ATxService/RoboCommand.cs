@@ -80,7 +80,21 @@ namespace ATxService
                 // retry options
                 _roboCommand.RetryOptions.RetryCount = 0;
                 _roboCommand.RetryOptions.RetryWaitTime = 0;
+
+                // robocopy logging (NOTE: the "OutputToRoboSharpAndLog" option is required as
+                // otherwise messages will go to the log only and can't be processed by RoboSharp
+                // any more, resulting in no callbacks and therefore no progress reports etc.)
+                if (!string.IsNullOrWhiteSpace(_config.RoboCopyLog)) {
+                    Log.Debug("Setting RoboCopy log file to [{0}]", _config.RoboCopyLog);
+                    _roboCommand.LoggingOptions = new LoggingOptions {
+                        LogPath = _config.RoboCopyLog,
+                        OutputToRoboSharpAndLog = true,
+                        VerboseOutput = true
+                    };
+                    
+                }
                 _roboCommand.Start();
+
                 Log.Info("Transfer started, total size: {0}",
                     Conv.BytesToString(_status.CurrentTransferSize));
                 Log.Trace("RoboCopy command options: {0}", _roboCommand.CommandOptions);

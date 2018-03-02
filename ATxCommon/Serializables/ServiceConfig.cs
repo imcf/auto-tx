@@ -79,6 +79,11 @@ namespace ATxCommon.Serializables
         public bool Debug { get; set; } = false;
 
         /// <summary>
+        /// The full path of a file to be used for RoboCopy log messages. Default: "" (off).
+        /// </summary>
+        public string RoboCopyLog { get; set; } = "";
+
+        /// <summary>
         /// The interval (in ms) for checking for new files and system parameters. Default: 1000.
         /// </summary>
         public int ServiceTimer { get; set; } = 1000;

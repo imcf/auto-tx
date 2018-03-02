@@ -33,6 +33,9 @@
     <!-- Debug: enable or disable debug log messages -->
     <Debug>true</Debug>
 
+    <!-- RoboCopyLog: a file to be used for RoboCopy log messages.-->
+    <RoboCopyLog>C:\Temp\autotx-robocopy.log</RoboCopyLog>
+
     <!-- ServiceTimer: interval (in ms) for checking files and parameters -->
     <ServiceTimer>1000</ServiceTimer>
 
