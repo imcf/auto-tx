@@ -584,6 +584,9 @@ namespace ATxService
 
             // check the queueing location and dispatch new transfers:
             ProcessQueuedDirectories();
+
+            // decrease the new-transfer-wait-counter:
+            _waitCyclesBeforeNextTx--;
         }
 
         /// <summary>
@@ -618,7 +621,6 @@ namespace ATxService
             if (_waitCyclesBeforeNextTx > 0) {
                 Log.Debug("Waiting {0} more cycles before starting the next transfer...",
                     _waitCyclesBeforeNextTx);
-                _waitCyclesBeforeNextTx--;
                 return;
             }
 
