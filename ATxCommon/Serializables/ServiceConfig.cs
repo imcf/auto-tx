@@ -79,6 +79,11 @@ namespace ATxCommon.Serializables
         public bool Debug { get; set; } = false;
 
         /// <summary>
+        /// Enable debug messages from the RoboSharp library. Default: false.
+        /// </summary>
+        public bool DebugRoboSharp { get; set; } = false;
+
+        /// <summary>
         /// The full path of a file to be used for RoboCopy log messages. Default: "" (off).
         /// </summary>
         public string RoboCopyLog { get; set; } = "";

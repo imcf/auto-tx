@@ -86,11 +86,11 @@ namespace ATxService
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
-            Debugger.Instance.DebugMessageEvent += HandleDebugMessage;
-        }
 
-        private void HandleDebugMessage(object sender, Debugger.DebugMessageArgs e) {
-            Log.Debug("(RoboSharp Debugger) {0}", e.Message);
+            if (_config.DebugRoboSharp) {
+                Debugger.Instance.DebugMessageEvent += HandleDebugMessage;
+                Log.Debug("Enabled RoboSharp debug logging.");
+            }
         }
 
         /// <summary>
@@ -548,6 +548,13 @@ namespace ATxService
                 // now trigger potential transfer tasks:
                 RunTransferTasks();
             }
+        }
+
+        /// <summary>
+        /// Handler for debug messages from the RoboSharp library.
+        /// </summary>
+        private static void HandleDebugMessage(object sender, Debugger.DebugMessageArgs e) {
+            Log.Debug("[RoboSharp-Debug] {0}", e.Message);
         }
 
         #endregion
