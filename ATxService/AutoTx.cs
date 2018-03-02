@@ -81,7 +81,7 @@ namespace ATxService
         public AutoTx() {
             InitializeComponent();
             SetupFileLogging(LogLevel.Debug);
-            Log.Info("==========================================================================");
+            Log.Info("=".PadLeft(80, '='));
             Log.Info("Attempting to start {0} service...", ServiceName);
             CreateEventLog();
             LoadSettings();
