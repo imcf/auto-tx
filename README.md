@@ -154,7 +154,7 @@ welcome!
   etc.
 
 
-[img_autotx_logo]: https://git.scicore.unibas.ch/vamp/auto-tx/raw/master/AutoTx/Resources/auto-tx-logo.png
+[img_autotx_logo]: https://git.scicore.unibas.ch/vamp/auto-tx/raw/master/Resources/auto-tx-logo.png
 
 [web_imcf]: https://www.biozentrum.unibas.ch/imcf
 [web_bioz]: https://www.biozentrum.unibas.ch/
