@@ -311,6 +311,11 @@ namespace ATxService
                    $" > description: {roboVersionInfo.Comments}\n" +
                    $" > version information: {roboVersionInfo.ProductVersion}\n";
 
+            _versionSummary = $"AutoTx {Properties.Resources.BuildCommit.Trim()} " +
+                              $"{Properties.Resources.BuildDate.Trim()} | " +
+                              $"RoboSharp {roboAssembly.GetName().Version} " +
+                              $"{roboVersionInfo.ProductVersion}";
+
 
             msg += "\n------ Loaded status flags ------\n" + _status.Summary() +
                    "\n------ Loaded configuration settings ------\n" + _config.Summary();
@@ -369,6 +374,7 @@ namespace ATxService
             var roboVersionInfo = FileVersionInfo.GetVersionInfo(roboAssembly.Location);
 
 
+            Log.Info("Email version string: [{0}]", _versionSummary);
             Log.Info("=".PadLeft(80, '='));
             Log.Info("{0} service started.", ServiceName);
             Log.Info("build:  [{0}]", buildTimestamp);
@@ -379,10 +385,6 @@ namespace ATxService
             Log.Info("RoboSharp version: [{0}]", roboAssembly.GetName().Version);
             Log.Info("Robosharp product version: [{0}]", roboVersionInfo.ProductVersion);
             Log.Info("=".PadLeft(80, '='));
-
-            _versionSummary = $"AutoTx {buildCommitName} {buildTimestamp} | " +
-                              $"RoboSharp {roboAssembly.GetName().Version} " +
-                              $"{roboVersionInfo.ProductVersion}";
         }
 
         /// <summary>
