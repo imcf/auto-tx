@@ -7,7 +7,7 @@
 
     <!-- ManagedDirectory: directory on SourceDrive where files and folders are
          moved while queueing for their transfer (sub-directory "PROCESSING")
-         and to store them for deferred delection after a grace period after
+         and to store them for deferred deletion after a grace period after
          the transfer (sub-directory "DONE"). -->
     <ManagedDirectory>ProgramData\AUTOTRANSFER</ManagedDirectory>
 
