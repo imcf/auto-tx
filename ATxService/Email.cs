@@ -210,9 +210,9 @@ namespace ATxService
             if (string.IsNullOrEmpty(report))
                 return "";
 
-            var delta = TimeUtils.MinutesSince(_status.LastGraceNotification);
-            report += $"\nTime since last grace notification: {TimeUtils.MinutesToHuman(delta)}\n";
-            if (delta < _config.GraceNotificationDelta)
+            report += "\nTime since last grace notification: " +
+                      $"{TimeUtils.HumanSince(_status.LastGraceNotification)}\n";
+            if (TimeUtils.MinutesSince(_status.LastGraceNotification) < _config.GraceNotificationDelta)
                 return report;
 
             _status.LastGraceNotification = DateTime.Now;
