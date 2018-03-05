@@ -62,9 +62,10 @@ if (Test-Path $PkgDir) {
     Remove-Item -Recurse -Force $PkgDir
 }
 
-$dir = New-Item -ItemType Container -Name $PkgDir
-$dir = New-Item -ItemType Container -Path $PkgDir -Name "AutoTx"
+
+$dir = New-Item -ItemType Container -Force -Path "$($PkgDir)\AutoTx"
 $tgt = $dir.FullName
+New-Item -ItemType Container -Force -Path "$($PkgDir)\AutoTx\conf" | Out-Null
 
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
