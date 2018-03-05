@@ -132,7 +132,25 @@ the [manual installation](INSTALLATION-MANUAL.md) instructions.
 
 ### Configuration
 
-**TODO**
+The AutoTx service configuration is done through two XML files. They are
+structured in a very simple way and well-commented to make them easily
+readable. The first file `config.common.xml` defines settings which are common
+to all AutoTx installations in the same network. The second file contains the
+host-specific settings for the service and is using the machine's hostname for
+its file name (followed by the `.xml` suffix). Both files are located in the
+`conf/` folder inside the service installation directory and share the exact
+same syntax with the host-specific file having priority (i.e. all settings
+defined in the common file can be overridden in the host-specific one).
+
+Having the configuration in this *layered* way allows an administrator to have
+the exact same `conf/` folder on all hosts where AutoTx is installed, thus
+greatly simplifying automated management.
+
+Example config files (fully commented) are provided with the source code:
+
+- [A minimal set](Resources/conf-minimal/) of configuration settings required
+  to run the service.
+- [The full set](Resources/conf/) of all possible configuration settings.
 
 ### Logging
 
