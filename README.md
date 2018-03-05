@@ -5,8 +5,9 @@ a network share, licensed under the [GPLv3](LICENSE), developed and provided by
 the [Imaging Core Facility (IMCF)][web_imcf] at the [Biozentrum][web_bioz],
 [University of Basel][web_unibas], Switzerland.
 
-It was primarily designed and developed for getting user-data off microscope
-acquisition computers **after acquisition** with these goals:
+It is primarily designed and developed for getting user-data off microscope
+acquisition computers **after acquisition** (i.e. not in parallel!) with these
+goals:
 
 - The user owning the data should be able to log off from the computer after
   initiating the data transfer, enabling other users to log on while data is
@@ -19,8 +20,8 @@ acquisition computers **after acquisition** with these goals:
 
 ## Features
 
-- **User-initiated:** data is actively "handed over" to the service by dropping
-  it into a specific folder, commonly referred to as the "incoming location".
+- **User-initiated:** data is actively "handed over" to the service by the user
+  to prevent interfering with running acquisitions.
 - **Monitoring of system-critical parameters:** the service has a number of
   configurable system parameters that are constantly being monitored. If one of
   them is outside their defined valid range, any running transfer will be
@@ -33,6 +34,12 @@ acquisition computers **after acquisition** with these goals:
   similar).
 - **Error reporting:** in addition to user notifications, the service will send
   error notifications via email to a separate admin address.
+- **Tray Application:** complementary to the service an application running in
+  the system tray is provided, showing details on what's going on to the user.
+- **Headless and GUI:** submitting a folder for transfer can either be done by
+  dropping it into a specific "*incoming*" folder (using the File Explorer or
+  some post-acquisition script or whatever fits your scenario) or by using the
+  guided folder selection dialog provided through the tray app context menu.
 
 ## Concept
 
@@ -46,29 +53,43 @@ For any user that should be allowed to use the transfer service, a dedicated
 folder has to exist on this network share, the name of the folder being the
 (short) AD account name (i.e. the login name or *sAMAccountName*) of the user.
 
-- AD-function-account
-- remote share with username folders
+- spooling
+- temp location
+- finalize
 
 ## Under the hood
 
 For the actual transfer task, the service is using a C# wrapper for the
 Microsoft RoboCopy tool called [RoboSharp][web_robosharp].
 
+Logging is done using the amazing [NLog][web_nlog] framework, allowing a great
+deal of flexibility in terms of log levels, targets (file, email, eventlog) and
+rules.
+
 ## Requirements
 
-- **ActiveDirectory integration:** service account, local r/w, remote w
-- **.NET Framework:** version 4.5 required
-- **Windows 7, 64 bit:** currently only this has been tested, 32 bit support is
-  planned as well as support for newer Windows versions (Server 2012 is confimed
-  as *not-working* at the moment).
+- **ActiveDirectory integration:** no authentication mechanisms for the target
+  storage are currently supported, meaning the function account running the
+  service on the client has to have local read-write permissions as well as full
+  write permissions on the target location. The reason behind this is to avoid
+  having to administer local accounts on all clients as well as having easy
+  access to user information (email addresses, ...).
+- **.NET Framework:** version 4.5 required.
+- **Windows 7 / Server 2012 R2:** the service has been tested on those versions
+  of Windows, other versions sharing the same kernels (*Server 2008 R2*,
+  *Windows 8.1*) should be compatible as well but have yet been tested.
+- **64 bit:** currently only 64-bit versions are available (mostly due to lack
+  of options for testing), 32-bit support is planned though.
 
 
 ## Installation
 
-Currently the service doesn't have a *conventional* installer but rather has to
+**TODO: rework section!**
+
+~~Currently the service doesn't have a *conventional* installer but rather has to
 be registered using the `InstallUtil.exe` tool coming with the .NET framework. A
 PowerShell script to help with the installation is provided with each AutoTx
-package. To use the script, follow these steps:
+package. To use the script, follow these steps:~~
 
 - Log on to the computer using an account with adminstrative privileges.
 - Edit the `ScriptsConfig.ps1` settings file, adjust the values according to
@@ -76,8 +97,8 @@ package. To use the script, follow these steps:
 - Open a PowerShell console using the `Run as Administrator` option. This is
   absolutely crucial, as otherwise `InstallUtil` will fail to do its job. Simply
   being logged on to the computer as an admin is **NOT SUFFICIENT!** The script
-  [Run-ElevatedPowerShell.ps1](AutoTx/Resources/Run-ElevatedPowerShell.ps1) can
-  be used to start a shell with elevated permissions.
+  [Run-ElevatedPowerShell.ps1](Scripts/Run-ElevatedPowerShell.ps1) can  be used
+  to start a shell with elevated permissions.
 - Navigate to the installation package directory, run the `Install-Service.ps1`
   script.
 
@@ -88,6 +109,10 @@ the [manual installation](INSTALLATION-MANUAL.md) instructions.
 
 ## Operation
 
+### Configuration
+
+**TODO**
+
 ### Logging
 
 The Windows Event Log seems to be a good place for logging if you have a proper
@@ -97,9 +122,11 @@ either, the service places its log messages in a plain text file in good old
 Unix habits.
 
 Everything that needs attention is written into the service's base directory in
-a file called `service.log`. There is another PS1 script in the Resources
-directory that is showing the content of the log file on the console in real-
-time (like `tail -f` on Unix).
+a file called `AutoTx.log`. The contents of the log file can be monitored in
+real-time using the PowerShell command `Get-Content -Wait -Tail 100 AutoTx.log`
+or by running the [Watch-Logfile.ps1](Scripts/Watch-Logfile.ps1) script.
+
+The log level can be set through the configuration file.
 
 ### Status
 
@@ -116,31 +143,50 @@ subfolders are named with a timestamp `YYYY-MM-DD__hh-mm-ss`. The grace location
 checks are done
  - at service startup
  - after a transfer has finished
- - once every *configurable* hours
+ - once every *N* hours, configurable for every host
+
+### Updates
+
+The service comes with a dedicated updater to facilitate managing updates and
+configurations on many machines. See the [Updater Readme](Updater/README.md) for
+all the details.
 
 
 ## Development
 
 ### Code Structure
 
-The code has evolved from a very basic project, and is currently mostly a
+The code has evolved from a very basic project, initially all being a
 monolithic structure where the major part of the functionality is contained in
-one central class. This is certainly not the most elegant design, but it is
-getting the job done. Refactoring suggestions and / or pull requests are
-welcome!
+one central class. This is certainly not the most elegant design, but it was
+getting the job done. A lot of refactoring has been done with the project
+currently being split into a few separate parts:
+
+- [ATxCommon](ATxCommon): all the common components like configuration and
+  status serialization wrappers, unit converters, file system tasks and so on
+  bundled as a runtime library.
+- [ATxService](ATxService): the core service functionality.
+- [ATxConfigTest](ATxConfigTest): a small command line tool allowing to validate
+  a given configuration file and show a summary. Used in the updater to ensure
+  new configurations are valid before overwriting existing ones.
+- [ATxTray](ATxTray): the tray application.
+- [Updater](Updater): the updater script for binaries and configuration files.
+
+Refactoring suggestions and / or pull requests are welcome!
 
 ### Prerequisites
 
-- **VisualStudio 2013** - the *Community Edition* is sufficient. Newer versions
-  of VisualStudio should work but have not been tested.
+- **VisualStudio 2017** - the *Community Edition* is sufficient.
 - **ReSharper** - JetBrains ReSharper Ultimate 2017.1 has been used for
   development. Respecting the *Coding Style* will be very difficult without it,
   not speaking of the other features you might miss. So basically this is a
   must...
-- To build the C# bindings for RoboCopy, please don't use the code from the
-  original repository on github at the moment (it contains all kinds of build-
-  artifacts and has a few other glitches) but rather the fork provided here:
-  [RoboSharp fork][web_robosharp_fork].
+- For having the assembly details automatically filled with version details at
+  build-time, a working installation of **Git** and **PowerShell** is required.
+- To build the C# bindings for RoboCopy, it is now fine to use the sources from
+  the [original repository on github][web_robosharp]. To benefit from
+  automatically filling assembly details during the build you can use our fork
+  provided here: [RoboSharp fork][web_robosharp_fork].
 
 
 ### Building + Installing
@@ -161,3 +207,4 @@ welcome!
 [web_unibas]: https://www.unibas.ch/
 [web_robosharp]: https://github.com/tjscience/RoboSharp
 [web_robosharp_fork]: https://git.scicore.unibas.ch/vamp/robosharp
+[web_nlog]: http://nlog-project.org/
