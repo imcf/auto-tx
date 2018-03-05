@@ -66,6 +66,26 @@ function Stop-TrayApp() {
 }
 
 
+function Create-TrayAppStartupShortcut() {
+    $StartupDir = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
+    $ShortcutFile = "$($StartupDir)\AutoTxTray.lnk"
+    if (Test-Path -Type Leaf $ShortcutFile) {
+        Write-Verbose "Startup menu shortcut already existing."
+        Return
+    }
+    try {
+        $WshShell = New-Object -ComObject WScript.Shell
+        $Shortcut = $WshShell.CreateShortcut($ShortcutFile)
+        $Shortcut.TargetPath = "$($InstallationPath)\ATxTray.exe"
+        $Shortcut.Save()
+        Log-Debug "Created startup menu shortcut for tray app."
+    }
+    catch {
+        Log-Debug "Creating tray app shortcut failed: $($_.Exception.Message)"
+    }
+}
+
+
 function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
     if (Test-Path -PathType Container $DirName) {
         Write-Verbose "Verified $($Desc) path: [$($DirName)]"
@@ -673,6 +693,8 @@ catch {
     $UpdSummary = "ERROR, unhandled problem occurered!"
     Log-Error $UpdDetails
 }
+
+Create-TrayAppStartupShortcut
 
 
 Send-MailReport -Subject "$UpdSummary" -Body "$UpdDetails"
