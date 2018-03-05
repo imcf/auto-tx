@@ -212,7 +212,10 @@ Refactoring suggestions and / or pull requests are welcome!
 
 ### Building + Installing
 
-- **TODO**: explain how to build
+- Open the solution file in *Visual Studio* and adjust the path to the
+  *RoboSharp* DLL under *Solution Explorer* > *ATxService* > *References*. Then
+  simply build all components by pressing *F6* or by selecting *Build Solution*
+  from the *Build* menu.
 - After building the service, use the
   [Make-Package.ps1](AutoTx/Resources/Make-Package.ps1) script to create an
   installation package. It will contain the previously mentioned
