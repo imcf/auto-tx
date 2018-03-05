@@ -41,18 +41,18 @@ function Start-MyService {
 }
 
 
-function Copy-FileIfNew([string]$SourcePath, [string]$Destination) {
-    # SourcePath is expected to be a FILE name
+function Copy-FileIfNew([string]$SourceFile, [string]$Destination) {
+    # SourceFile is expected to be a FILE name
     # Destination is expected to be a PATH
-    if (Test-Path "$Destination\$SourcePath") {
+    if (Test-Path "$Destination\$SourceFile") {
         return
     }
     try {
-        Copy-Item -Path $SourcePath -Destination $Destination -ErrorAction Stop
+        Copy-Item -Path $SourceFile -Destination $Destination -ErrorAction Stop
     }
     catch {
         $ex = $_.Exception
-        Write-Host "Copying $($SourcePath) FAILED!" -Fore Red
+        Write-Host "Copying $($SourceFile) FAILED!" -Fore Red
         Write-Host $ex.Message
         Exit
     }
