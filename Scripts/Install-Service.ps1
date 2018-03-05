@@ -36,7 +36,7 @@ function Start-MyService {
         Write-Host "Please check if your configuration is valid!"
         Write-Host "Showing last 20 lines of service log file:"
         Write-Host "=========================================="
-        Get-Content "$($ServiceDir)\service.log" -Tail 20
+        Get-Content $ServiceLog -Tail 20
     }
 }
 
@@ -66,8 +66,8 @@ function Copy-ServiceFiles {
         Copy-Item -Recurse -Force -Path "$ServiceName\*" -Destination $ServiceDir -ErrorAction Stop
         Copy-FileIfNew "configuration.xml" $ServiceDir
         Copy-FileIfNew "status.xml" $ServiceDir
-        Copy-FileIfNew "service.log" $ServiceDir
-        Clear-Content "$($ServiceDir)\service.log"
+        Copy-FileIfNew "service.log" $ServiceLog
+        Clear-Content $ServiceLog
         Write-Host "[OK]" -Fore Green
     }
     catch {
@@ -100,6 +100,7 @@ if (Test-Path $LocalConfiguration) {
     Exit
 }
 
+$ServiceLog = "$($ServiceDir)\$($ServiceName).log"
 
 try {
     $Service = Get-Service $ServiceName -ErrorAction Stop
