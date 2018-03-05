@@ -33,7 +33,10 @@ goals:
   transfers, as well as on transfer interruptions (system being shutdown or
   similar).
 - **Error reporting:** in addition to user notifications, the service will send
-  error notifications via email to a separate admin address.
+  error notifications via email to a separate admin address. Optionally, the
+  service offers the possibility to monitor free disk space on the local disks
+  and send notifications to the admins as well. Various measures are implemented
+  to prevent the service from flooding you with emails.
 - **Tray Application:** complementary to the service an application running in
   the system tray is provided, showing details on what's going on to the user.
 - **Headless and GUI:** submitting a folder for transfer can either be done by
@@ -53,7 +56,21 @@ For any user that should be allowed to use the transfer service, a dedicated
 folder has to exist on this network share, the name of the folder being the
 (short) AD account name (i.e. the login name or *sAMAccountName*) of the user.
 
-- spooling
+After the user initiates a transfer (i.e. hands over a folder to the AutoTx
+service), the folder gets **immediately** moved to the *spooling* location on
+the same disk. This is done to prevent users from accidentially messing with
+folders subject to being transferred as well as for internal bookkeeping of what
+has to be transferred.
+
+When no other transfer is running and all system parameters are within their
+valid ranges, the AutoTx service will start copying the files and folders to a
+temporary transfer directory inside the target location. Only when a transfer
+has completed, it will be moved from the temporary location over to the user's
+folder. This has the benefit that a user can't accidentially access data from
+incomplete transfers as well as it serves as a kind of implicit notification: if
+a folder shows up in their location, the user will know it has been fully
+transferred.
+
 - temp location
 - finalize
 
