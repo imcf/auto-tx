@@ -24,6 +24,9 @@ function RelToAbs([string]$RelPath) {
 }
 
 
+$ErrorActionPreference = "Stop"
+
+
 try {
     $BuildDate = Get-Content "$($ResourceDir)\BuildDate.txt" -EA Stop
 }
