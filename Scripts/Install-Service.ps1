@@ -8,7 +8,7 @@
 function Start-MyService {
     Write-Host -NoNewLine "Starting service $($ServiceName): "
     try {
-        Start-Service $ServiceName -ErrorAction Stop
+        Start-Service $ServiceName
         Write-Host "[OK]" -Fore Green
     }
     catch {
@@ -72,6 +72,9 @@ function Install-Service {
     Write-Host "InstallUtil exit code: $($InstallProcess.ExitCode)"
     Write-Host "========================================================================"
 }
+
+
+$ErrorActionPreference = "Stop"
 
 
 $LocalConfiguration = ".\ScriptsConfig.ps1"
