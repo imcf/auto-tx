@@ -27,32 +27,18 @@ function Start-MyService {
 }
 
 
-function Copy-FileIfNew([string]$SourceFile, [string]$Destination) {
-    # SourceFile is expected to be a FILE name
-    # Destination is expected to be a PATH
-    if (Test-Path "$Destination\$SourceFile") {
-        return
-    }
-    try {
-        Copy-Item -Path $SourceFile -Destination $Destination -ErrorAction Stop
-    }
-    catch {
-        $ex = $_.Exception
-        Write-Host "Copying $($SourceFile) FAILED!" -Fore Red
-        Write-Host $ex.Message
-        Exit
-    }
-}
-
-
 function Copy-ServiceFiles {
+    if (Test-Path -Type Container $ServiceDir) {
+        Write-Host "Target directory [$($ServiceDir)] exists, stopping!"
+        Exit 1
+    }
+
     Write-Host -NoNewLine "Updating / installing service files: "
     $TargetDir = New-Item -ItemType Container -Force -Path $ServiceDir
     try {
-        Copy-Item -Recurse -Force -Path "$ServiceName\*" -Destination $ServiceDir -ErrorAction Stop
-        Copy-FileIfNew "configuration.xml" $ServiceDir
-        Copy-FileIfNew "status.xml" $ServiceDir
-        Copy-FileIfNew "service.log" $ServiceLog
+        Copy-Item -Recurse -Force -Path "$ServiceName\*" -Destination $ServiceDir
+        Copy-Item -Recurse -Force -Path "conf-example" -Destination $ServiceDir
+        Copy-Item -Force -Path "$($ServiceName).log" -Destination $ServiceLog
         Clear-Content $ServiceLog
         Write-Host "[OK]" -Fore Green
     }
