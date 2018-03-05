@@ -4,6 +4,10 @@
 #Requires -version 5.1
 #Requires -RunAsAdministrator
 
+[CmdletBinding()]
+Param(
+    [Parameter(Mandatory=$False)][switch] $StartService
+)
 
 function Start-MyService {
     Write-Host -NoNewLine "Starting service $($ServiceName): "
@@ -97,4 +101,15 @@ if ($Service) {
 
 Copy-ServiceFiles
 Install-Service
-Start-MyService
+
+Write-Host "`nWatching the service log file can be done like this:`n" `
+    "`n> Get-Content -Wait -Tail 50 $($ServiceLog)`n"
+
+if ($StartService) {
+    Start-MyService    
+} else {
+    Write-Host "Service installation has completed.`n" `
+        "`nNOTE: the service has not been started. Create and/or check`n" `
+        "the configuration files and start the service manually using:`n" `
+        "`n> Start-Service $($ServiceName)`n"
+}
