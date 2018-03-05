@@ -1,4 +1,8 @@
+# helper script to install the AutoTx service on a computer
 
+# set our requirements:
+#Requires -version 5.1
+#Requires -RunAsAdministrator
 
 
 function Start-MyService {
