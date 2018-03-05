@@ -71,8 +71,12 @@ incomplete transfers as well as it serves as a kind of implicit notification: if
 a folder shows up in their location, the user will know it has been fully
 transferred.
 
-- temp location
-- finalize
+Once the transfer is completed the folder is moved from the local *spooling*
+directory to a "*grace*" location inside the spooling directory hierarchy. This
+is done to prevent accidentially deleting user data. Currently no automatic
+deletion of data is implemented. Instead, the service keeps track of the grace
+location and will send notification emails to the admin once a given time
+period has expired (defaulting to 30 days).
 
 ## Under the hood
 
