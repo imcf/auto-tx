@@ -1,26 +1,4 @@
-function Stop-MyService {
-    Write-Host -NoNewLine "Checking status of $($ServiceName) service: "
-    try {
-        $Service = Get-Service $ServiceName -ErrorAction Stop
-        Write-Host $Service.Status
-    }
-    catch {
-        Write-Host "[FAILED]" -Fore Red
-        Write-Host "Can't query the service state, stopping."
-        Exit
-    }
 
-    if ($Service.Status -ne "Stopped") {
-        Write-Host -NoNewLine "Stopping service $($ServiceName): "
-        try {
-            Stop-Service $ServiceName -ErrorAction Stop
-            Write-Host "[OK]" -Fore Green
-        }
-        catch {
-            Write-Host "[FAILED]" -Fore Red
-        }
-    }
-}
 
 
 function Start-MyService {
@@ -102,15 +80,14 @@ if (Test-Path $LocalConfiguration) {
 
 $ServiceLog = "$($ServiceDir)\$($ServiceName).log"
 
-try {
-    $Service = Get-Service $ServiceName -ErrorAction Stop
-    Write-Host "Service $($ServiceName) already installed, updating."
-    Stop-MyService
-    Copy-ServiceFiles
-}
-catch {
-    Copy-ServiceFiles
-    Install-Service
+
+$Service = Get-Service $ServiceName -ErrorAction SilentlyContinue
+if ($Service) {
+    Write-Host "Service $($ServiceName) already installed! Please use the" `
+        "Updater to do service updates. Stopping."
+    Exit 1
 }
 
+Copy-ServiceFiles
+Install-Service
 Start-MyService
