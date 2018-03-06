@@ -30,8 +30,8 @@
 
     <!--  OPTIONAL CONFIGURATION SETTINGS  -->
 
-    <!-- Debug: enable or disable debug log messages -->
-    <Debug>true</Debug>
+    <!-- LogLevel: one of "Warn", "Info", "Debug", "Trace" -->
+    <LogLevel>Debug</LogLevel>
 
     <!-- DebugRoboSharp: enable debug messages from the RoboSharp library. -->
     <DebugRoboSharp>true</DebugRoboSharp>

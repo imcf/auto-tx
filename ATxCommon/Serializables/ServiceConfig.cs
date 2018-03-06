@@ -74,9 +74,9 @@ namespace ATxCommon.Serializables
         #region optional configuration parameters
 
         /// <summary>
-        /// Switch on debug log messages. Default: false.
+        /// NLog log level, one of "Warn", "Info", "Debug", "Trace". Default: "Info"
         /// </summary>
-        public bool Debug { get; set; } = false;
+        public string LogLevel { get; set; } = "Info";
 
         /// <summary>
         /// Enable debug messages from the RoboSharp library. Default: false.
@@ -436,6 +436,14 @@ namespace ATxCommon.Serializables
             if (!c.DestinationDirectory.StartsWith(@"\\"))
                 SubOptimal(c.DestinationDirectory, "DestinationDirectory", "is not a UNC path!");
 
+            // LogLevel
+            var validLogLevels = new List<string> {"Warn", "Info", "Debug", "Trace"};
+            if (!validLogLevels.Contains(c.LogLevel)) {
+                SubOptimal(c.LogLevel, "LogLevel", "is invalid, using 'Debug'. Valid options: " +
+                                                   string.Join(", ", validLogLevels));
+                c.LogLevel = "Debug";
+            }
+
 
             if (string.IsNullOrWhiteSpace(errmsg))
                 return;
@@ -461,7 +469,7 @@ namespace ATxCommon.Serializables
                 $"MinAvailableMemory: {MinAvailableMemory} MB\n" +
                 "\n" +
                 "############### OPTIONAL PARAMETERS ###############\n" +
-                $"Debug: {Debug}\n" +
+                $"LogLevel: {LogLevel}\n" +
                 $"ServiceTimer: {ServiceTimer} ms\n" +
                 $"MarkerFile: {MarkerFile}\n" +
                 $"GracePeriod: {GracePeriod} days (" +

@@ -82,7 +82,7 @@ namespace ATxService
         /// </summary>
         public AutoTx() {
             InitializeComponent();
-            SetupFileLogging(LogLevel.Debug);
+            SetupFileLogging();
             Log.Info("=".PadLeft(80, '='));
             Log.Info("Attempting to start {0} service...", ServiceName);
             CreateEventLog();
@@ -98,7 +98,22 @@ namespace ATxService
         /// <summary>
         /// Set up NLog logging: targets, rules...
         /// </summary>
-        private void SetupFileLogging(LogLevel logLevel) {
+        private void SetupFileLogging(string logLevelName = "Debug") {
+            LogLevel logLevel;
+            switch (logLevelName) {
+                case "Warn":
+                    logLevel = LogLevel.Warn;
+                    break;
+                case "Info":
+                    logLevel = LogLevel.Info;
+                    break;
+                case "Trace":
+                    logLevel = LogLevel.Trace;
+                    break;
+                default:
+                    logLevel = LogLevel.Debug;
+                    break;
+            }
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
                 Name = "file",
@@ -234,6 +249,7 @@ namespace ATxService
                 // this should terminate the service process:
                 throw new Exception("Error loading configuration.");
             }
+            SetupFileLogging(_config.LogLevel);
         }
 
         /// <summary>
@@ -259,9 +275,6 @@ namespace ATxService
         /// Check if loaded configuration is valid, print a summary to the log.
         /// </summary>
         private void CheckConfiguration() {
-            if (!_config.Debug)
-                SetupFileLogging(LogLevel.Info);
-
             // non-critical / optional configuration parameters:
             if (!string.IsNullOrWhiteSpace(_config.SmtpHost))
                 SetupMailLogging();
