@@ -87,11 +87,20 @@ function Create-TrayAppStartupShortcut() {
 
 
 function Exit-IfDirMissing([string]$DirName, [string]$Desc) {
-    if (Test-Path -PathType Container $DirName) {
-        Write-Verbose "Verified $($Desc) path: [$($DirName)]"
-        Return
+    try {
+        if (Test-Path -PathType Container $DirName) {
+            Write-Verbose "Verified $($Desc) path: [$($DirName)]"
+            Return
+        }
     }
-    $msg = "ERROR: can't find / access $($Desc) path: [$($DirName)]"
+    catch {
+        $exmsg = $($_.Exception.Message)
+    }
+    $msg = "Failed checking $($Desc) path [$($DirName)]"
+    if ($exmsg.Length -gt 0){
+        $msg += ":`n$($exmsg)"
+    }
+    Log-Error $msg
     Send-MailReport -Subject "path or permission error" -Body $msg
     Exit
 }
