@@ -151,6 +151,16 @@ Example config files (fully commented) are provided with the source code:
   to run the service.
 - [The full set](Resources/conf/) of all possible configuration settings.
 
+### Email-Templates
+
+Notification emails to users are based on the templates that can be found in
+[Mail-Templates](Resources/Mail-Templates) subdirectory of the service
+installation. Those files contain certain keywords that will be replaced with
+current values by the service before sending the mail. This way the content of
+the notifications can easily be adjusted without having to re-compile the
+service.
+
+
 ### Logging
 
 The Windows Event Log seems to be a good place for logging if you have a proper
