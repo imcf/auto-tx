@@ -105,27 +105,7 @@ rules.
 
 ## Installation
 
-The AutoTx service doesn't have a *conventional* installer but rather has to be
-registered using the `InstallUtil.exe` tool coming with the .NET framework. A
-PowerShell script to help with the installation is provided with each AutoTx
-package. To use the script, follow these steps:
-
-- Log on to the computer using an account with adminstrative privileges.
-- Edit the `ScriptsConfig.ps1` settings file, adjust the values according to
-  your setup.
-- Open a PowerShell console using the `Run as Administrator` option. The script
-  [Run-ElevatedPowerShell.ps1](Scripts/Run-ElevatedPowerShell.ps1) can  be used
-  to start a shell with elevated permissions.
-- Navigate to the installation package directory, run the `Install-Service.ps1`
-  script.
-- Supply the two required configuration files in the `conf/` subdirectory of
-  the service installation location and start the service using `Start-Service
-  AutoTx`.
-
-### Manual Installation
-
-For detailed steps on how to do the installation steps yourself, have a look at
-the [manual installation](INSTALLATION-MANUAL.md) instructions.
+See the [instructions for installing the service](INSTALLATION.md) for details.
 
 ## Operation
 
