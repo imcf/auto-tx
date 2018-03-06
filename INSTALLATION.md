@@ -25,7 +25,7 @@ package. To use the script, follow these steps:
 
 **PLEASE NOTE:** these instructions are mostly for documentation purposes, by
 default it is **strongly recommended** to use the installation script described
-in [README](README.md).
+above.
 
 ### Register the service
 
