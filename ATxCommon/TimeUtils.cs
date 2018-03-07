@@ -55,7 +55,7 @@ namespace ATxCommon
             const int year = day * 365;
             
             if (delta < minute)
-                return $"{delta} seconds{desc}";
+                return $"less than a minute{desc}";
 
             if (delta < 2 * minute)
                 return $"a minute{desc}";
