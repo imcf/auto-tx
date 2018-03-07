@@ -80,12 +80,16 @@ namespace ATxCommon
             var msg = "";
             foreach (var driveToCheck in drives) {
                 var freeSpace = GetFreeDriveSpace(driveToCheck.DriveName);
-                if (freeSpace >= driveToCheck.SpaceThreshold)
+                if (freeSpace >= driveToCheck.SpaceThreshold * Conv.GigaBytes) {
+                    Log.Trace("Drive [{0}] free space: {1}, above threshold ({2})",
+                        driveToCheck.DriveName, Conv.BytesToString(freeSpace),
+                        Conv.GigabytesToString(driveToCheck.SpaceThreshold));
                     continue;
+                }
 
-                msg += "Drive '" + driveToCheck.DriveName +
-                       "' - free space: " + Conv.BytesToString(freeSpace) +
-                       "  (threshold: " + Conv.BytesToString(driveToCheck.SpaceThreshold) + ")\n";
+                msg += $"Drive [{driveToCheck.DriveName}] " +
+                       $"free space: {Conv.BytesToString(freeSpace)} " +
+                       $"(threshold: {Conv.GigabytesToString(driveToCheck.SpaceThreshold)})\n";
             }
 
             return msg;

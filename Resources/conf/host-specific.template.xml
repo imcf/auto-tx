@@ -20,12 +20,12 @@
         <DriveToCheck>
             <!-- DriveName: the drive letter followed by a colon -->
             <DriveName>C:</DriveName>
-            <!-- SpaceThreshold: minimum amount of free megabytes -->
-            <SpaceThreshold>14000</SpaceThreshold>
+            <!-- SpaceThreshold: minimum amount of free gigabytes -->
+            <SpaceThreshold>14</SpaceThreshold>
         </DriveToCheck>
         <!--><DriveToCheck>
             <DriveName>D:</DriveName>
-            <SpaceThreshold>120000</SpaceThreshold>
+            <SpaceThreshold>120</SpaceThreshold>
         </DriveToCheck><-->
     </SpaceMonitoring>
 

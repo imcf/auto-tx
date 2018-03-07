@@ -489,7 +489,7 @@ namespace ATxCommon.Serializables
             var space = "";
             foreach (var drive in SpaceMonitoring) {
                 space += $"    DriveName: {drive.DriveName} " +
-                       $"(threshold: {Conv.MegabytesToString(drive.SpaceThreshold)})\n";
+                       $"(threshold: {Conv.GigabytesToString(drive.SpaceThreshold)})\n";
             }
             if (!string.IsNullOrWhiteSpace(space))
                 msg += $"SpaceMonitoring:\n{space}";

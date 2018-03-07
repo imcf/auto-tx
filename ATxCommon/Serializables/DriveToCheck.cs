@@ -11,7 +11,7 @@
         public string DriveName { get; set; }
 
         /// <summary>
-        /// Limit (in MB) of free space, lower values will trigger a notification.
+        /// Limit (in GB) of free space, lower values will trigger a notification.
         /// </summary>
         public long SpaceThreshold { get; set; }
     }

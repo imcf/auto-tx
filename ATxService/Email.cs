@@ -104,12 +104,14 @@ namespace ATxService
         /// </summary>
         /// <param name="spaceDetails">String describing the drives being low on space.</param>
         private void SendLowSpaceMail(string spaceDetails) {
-            if (string.IsNullOrWhiteSpace(spaceDetails))
+            if (string.IsNullOrWhiteSpace(spaceDetails)) {
+                Log.Trace("SendLowSpaceMail(): spaceDetails emtpy!");
                 return;
+            }
 
             var delta = TimeUtils.MinutesSince(_status.LastStorageNotification);
             if (delta < _config.StorageNotificationDelta) {
-                Log.Trace("Only {0} since last low-space-notification, skipping.",
+                Log.Trace("Last low-space-notification was {0}, skipping.",
                     TimeUtils.MinutesToHuman(delta));
                 return;
             }
