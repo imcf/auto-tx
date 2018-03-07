@@ -37,6 +37,7 @@ namespace ATxCommon
         /// </summary>
         /// <returns>CPU usage in percent or -1 if an error occured.</returns>
         public static int GetCpuUsage() {
+            // TODO: fix bug #36
             try {
                 var searcher = new ManagementObjectSearcher("select * from Win32_PerfFormattedData_PerfOS_Processor");
                 foreach (var mo in searcher.Get()) {
