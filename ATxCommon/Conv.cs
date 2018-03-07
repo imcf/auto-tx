@@ -3,6 +3,7 @@
     public static class Conv
     {
         public const int MegaBytes = 1024 * 1024;
+        public const int GigaBytes = MegaBytes * 1024;
 
         /// <summary>
         /// Convert bytes into a human-readable string with the appropriate suffix (up to TB).
@@ -26,6 +27,14 @@
         /// </summary>
         public static string MegabytesToString(long megaBytes) {
             return BytesToString(megaBytes * MegaBytes);
+        }
+
+        /// <summary>
+        /// Wrapper to convert gigabytes into human-readable size string.
+        /// See <see cref="BytesToString"/> for more details.
+        /// </summary>
+        public static string GigabytesToString(long gigaBytes) {
+            return BytesToString(gigaBytes * GigaBytes);
         }
     }
 }
