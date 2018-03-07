@@ -28,6 +28,7 @@ namespace ATxCommon
             catch (Exception ex) {
                 Log.Warn("Error in GetFreeMemory: {0}", ex.Message);
             }
+
             return -1;
         }
 
@@ -49,6 +50,7 @@ namespace ATxCommon
             catch (Exception ex) {
                 Log.Warn("Error in GetCpuUsage: {0}", ex.Message);
             }
+
             return -1;
         }
 
@@ -65,6 +67,7 @@ namespace ATxCommon
             catch (Exception ex) {
                 Log.Warn("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
             }
+
             return 0;
         }
 
@@ -83,6 +86,7 @@ namespace ATxCommon
                        "' - free space: " + Conv.BytesToString(freeSpace) +
                        "  (threshold: " + Conv.BytesToString(driveToCheck.SpaceThreshold) + ")\n";
             }
+
             return msg;
         }
 
@@ -103,6 +107,7 @@ namespace ATxCommon
                     Log.Warn("Error in checkProcesses(): {0}", ex.Message);
                 }
             }
+
             return "";
         }
 
@@ -123,6 +128,7 @@ namespace ATxCommon
             catch (Exception ex) {
                 Log.Error("Error in getCurrentUsername(): {0}", ex.Message);
             }
+
             return username == "";
         }
     }
