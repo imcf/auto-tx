@@ -218,7 +218,7 @@ namespace ATxService
                 return report;
 
             _status.LastGraceNotification = DateTime.Now;
-            SendAdminEmail(report, "Grace location cleanup required.");
+            SendAdminEmail(report, $"{_config.HostAlias}: grace location cleanup required.");
             return report + "\nNotification sent to AdminEmailAdress.\n";
         }
     }
