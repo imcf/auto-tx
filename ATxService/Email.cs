@@ -127,7 +127,7 @@ namespace ATxService
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
-                var subject = $"Low Disk Space On {Environment.MachineName}";
+                var subject = $"Low Disk Space On {_config.HostAlias}";
                 SendEmail(_config.AdminEmailAdress, subject, body);
             }
             catch (Exception ex) {
