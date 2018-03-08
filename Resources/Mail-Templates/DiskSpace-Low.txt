@@ -1,6 +1,6 @@
 Dear Admin,
 
-the SERVICE_NAME has detected one or more disks on host
+the SERVICE_NAME service has detected one or more disks on host
 
 "HOST_ALIAS" (HOST_NAME) 
 
