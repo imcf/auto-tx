@@ -17,7 +17,7 @@ namespace ATxService
         /// <param name="subject">The subject, might be prefixed with a configurable string.</param>
         /// <param name="body">The email body.</param>
         private void SendEmail(string recipient, string subject, string body) {
-            subject = _config.EmailPrefix + subject;
+            subject = $"{_config.EmailPrefix}{ServiceName} - {subject} - {_config.HostAlias}";
             body += $"\n\n--\n[{_versionSummary}]\n";
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
                 Log.Debug("SendEmail: {0}\n{1}", subject, body);
@@ -89,9 +89,9 @@ namespace ATxService
                 return;
             }
 
-            if (subject == "") {
-                subject = $"{ServiceName} - {Environment.MachineName} - Admin Notification";
-            }
+            if (string.IsNullOrWhiteSpace(subject))
+                subject = "Admin Notification";
+
             body = $"Notification from: {_config.HostAlias} ({Environment.MachineName})\n\n{body}";
             Log.Debug("Sending an admin notification email.");
             SendEmail(_config.AdminEmailAdress, subject, body);
@@ -127,8 +127,7 @@ namespace ATxService
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
-                var subject = $"Low Disk Space On {_config.HostAlias}";
-                SendEmail(_config.AdminEmailAdress, subject, body);
+                SendEmail(_config.AdminEmailAdress, "low disk space", body);
             }
             catch (Exception ex) {
                 Log.Error("Error loading email template: {0}", ex.Message);
@@ -162,7 +161,7 @@ namespace ATxService
 
             try {
                 var body = LoadMailTemplate("Transfer-Success.txt", substitutions);
-                SendEmail(userDir, $"{ServiceName} - Transfer Notification", body);
+                SendEmail(userDir, "Transfer Notification", body);
                 Log.Debug("Sent transfer completed notification to {0}", userDir);
             }
             catch (Exception ex) {
@@ -189,9 +188,7 @@ namespace ATxService
 
             try {
                 var body = LoadMailTemplate("Transfer-Interrupted.txt", substitutions);
-                SendEmail(userDir,
-                    $"{ServiceName} - Transfer Interrupted - {_config.HostAlias}",
-                    body);
+                SendEmail(userDir, "INTERRUPTED Transfer", body);
             }
             catch (Exception ex) {
                 Log.Error("Error loading email template: {0}", ex.Message);
@@ -218,7 +215,7 @@ namespace ATxService
                 return report;
 
             _status.LastGraceNotification = DateTime.Now;
-            SendAdminEmail(report, $"{_config.HostAlias}: grace location cleanup required.");
+            SendAdminEmail(report, "grace location summary");
             return report + "\nNotification sent to AdminEmailAdress.\n";
         }
     }
