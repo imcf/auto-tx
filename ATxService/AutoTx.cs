@@ -723,7 +723,7 @@ namespace ATxService
                               "files is empty!\nThis indicates something went wrong during the " +
                               "transfer, maybe a local permission problem?";
                     Log.Warn(msg);
-                    SendAdminEmail(msg, "Error in FinalizeTransfers()");
+                    SendAdminEmail(msg, "Error Finalizing Transfer!");
                     try {
                         var preserve = _status.CurrentTransferSrc
                             .Replace(_config.ManagedPath, "")
