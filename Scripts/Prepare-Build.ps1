@@ -125,9 +125,12 @@ $Date = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 $DateShort = Get-Date -Format 'yyyy.MM.dd.HHmm'
 
 
-$Date | Out-File $BuildDate
-$CommitName | Out-File $BCommit
-$ConfigurationName | Out-File $BuildConfig
+# use "-EA Ignore" to prevent build issues when VS is building multiple projects
+# at the same time that all use this script (leading to "file already in use"
+# errors), where they would all produce the same output anyway:
+$Date | Out-File $BuildDate -ErrorAction Ignore
+$CommitName | Out-File $BCommit -ErrorAction Ignore
+$ConfigurationName | Out-File $BuildConfig -ErrorAction Ignore
 
 Write-Output $(
     "build-config: [$($ConfigurationName)]"
