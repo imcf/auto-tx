@@ -147,8 +147,10 @@ namespace ATxService
 
                 var subject = $"{ServiceName} - {Environment.MachineName} - Admin Notification";
                 var body = $"Notification from '{_config.HostAlias}' [{Environment.MachineName}] (via NLog)\n\n" +
-                    $"{LogFormatDefault}\n\nNOTE: messages of the same log level won't be sent via email for the\n" +
-                    $"next {_config.AdminNotificationDelta} minutes, please check the corresponding log file!";
+                           $"{LogFormatDefault}\n\n" +
+                           "NOTE: messages of the same log level won't be sent via email for the\n" +
+                           $"next {_config.AdminNotificationDelta} minutes (or a service restart)," +
+                           "please check the corresponding log file!";
 
                 var logConfig = LogManager.Configuration;
 
