@@ -24,7 +24,7 @@ namespace ATxService
                 return;
             }
             if (!recipient.Contains(@"@")) {
-                Log.Debug("Invalid recipient, trying to resolve via AD: {0}", recipient);
+                Log.Trace("Invalid recipient, trying to resolve via AD: {0}", recipient);
                 recipient = ActiveDirectory.GetEmailAddress(recipient);
             }
             if (string.IsNullOrWhiteSpace(recipient)) {
