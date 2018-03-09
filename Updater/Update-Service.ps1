@@ -159,7 +159,7 @@ function Start-MyService {
         $ex = $_.Exception.Message
         $msg = "Trying to start the service results in this error:`n$($ex)`n`n"
         $msg += " -------------------- last 50 log lines --------------------`n"
-        $msg += Get-LastLogLines "$($LogPath)\service.log" 50
+        $msg += Get-LastLogLines "$($LogFile)" 50
         $msg += " -------------------- ----------------- --------------------`n"
         Send-MailReport -Subject "Startup of service $($ServiceName) failed!" `
             -Body $msg
@@ -454,7 +454,7 @@ function Upload-LogFiles {
     New-Item -Force -Type Directory $Dest | Out-Null
     try {
         Copy-Item -Force -ErrorAction Stop `
-            -Path "$($LogPath)\AutoTx.log" `
+            -Path "$($LogFile)" `
             -Destination $Dest
         Log-Debug "Uploaded logfile to [$($Dest)]."
     }
@@ -590,6 +590,7 @@ $ServiceRunningBefore = ServiceIsRunning $ServiceName
 
 $ConfigPath = "$($InstallationPath)\conf"
 $LogPath = "$($InstallationPath)"
+$LogFile = "$($LogPath)\AutoTx.log"
 $StatusXml = "$($InstallationPath)\status.xml"
 
 
