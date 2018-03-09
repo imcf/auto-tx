@@ -66,7 +66,9 @@ namespace ATxCommon
                 return dInfo.TotalFreeSpace;
             }
             catch (Exception ex) {
-                Log.Warn("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
+                // log this as an error which then also gets sent via email (if configured) and
+                // let the rate-limiter take care of not flooding the admin with mails:
+                Log.Error("Error in GetFreeDriveSpace({0}): {1}", drive, ex.Message);
             }
 
             return 0;
@@ -109,7 +111,7 @@ namespace ATxCommon
                     }
                 }
                 catch (Exception ex) {
-                    Log.Warn("Error in checkProcesses(): {0}", ex.Message);
+                    Log.Error("Error in checkProcesses(): {0}", ex.Message);
                 }
             }
 
