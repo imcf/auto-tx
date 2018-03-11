@@ -431,7 +431,7 @@ function Update-ServiceBinaries {
     }
 
     Log-Debug "<ForceServiceCleanup> removing status file [$($StatusXml)]"
-    Remove-Item -Force $StatusXml
+    Remove-Item -Force $StatusXml -ErrorAction Ignore
     Return $True
 }
 
