@@ -411,11 +411,12 @@ namespace ATxService
             Log.Warn("{0} service stop requested...", ServiceName);
             if (_transferState != TxState.Stopped) {
                 _transferState = TxState.DoNothing;
-                // Stop() is calling Process.Kill() (immediately forcing a termination of the
-                // process, returning asynchronously), followed by Process.Dispose()
+                // RoboCommand.Stop() is calling Process.Kill() (immediately forcing a termination
+                // of the process, returning asynchronously), followed by Process.Dispose()
                 // (releasing all resources used by the component). Would be nice if RoboSharp
                 // implemented a method to check if the process has actually terminated, but
                 // this is probably something we have to do ourselves.
+                // TODO: this has probably improved with recent versions of RoboSharp, check it!
                 try {
                     _roboCommand.Stop();
                 }
