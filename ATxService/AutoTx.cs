@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Timers;
 using ATxCommon;
+using ATxCommon.Monitoring;
 using ATxCommon.NLog;
 using ATxCommon.Serializables;
 using NLog;
@@ -43,6 +44,7 @@ namespace ATxService
         private long _txCurFileSize;
         private int _txCurFileProgress;
         private int _waitCyclesBeforeNextTx;
+        private Cpu _cpu;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
@@ -88,6 +90,26 @@ namespace ATxService
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
+
+            try {
+                _cpu = new Cpu {
+                    Interval = 250,
+                    Limit = _config.MaxCpuUsage,
+                    Probation = 16,
+                    Enabled = true
+                };
+            }
+            catch (UnauthorizedAccessException ex) {
+                Log.Error("Not enough permissions to monitor the CPU load.\nMake sure the " +
+                          "service account is a member of the [Performance Monitor Users] " +
+                          "system group.\nError message was: {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex) {
+                Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
+                throw;
+            }
+
 
             if (_config.DebugRoboSharp) {
                 Debugger.Instance.DebugMessageEvent += HandleDebugMessage;
@@ -504,7 +526,7 @@ namespace ATxService
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
-            if (SystemChecks.GetCpuUsage() >= _config.MaxCpuUsage)
+            if (_cpu.Load() >= _config.MaxCpuUsage)
                 limitReason = "CPU usage";
             else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
                 limitReason = "RAM usage";
