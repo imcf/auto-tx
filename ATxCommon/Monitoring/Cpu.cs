@@ -21,8 +21,6 @@ namespace ATxCommon.Monitoring
         private int _limit;
         private int _behaving;
         private int _probation;
-        private bool _enabled;
-
 
         /// <summary>
         /// Current CPU load (usage percentage over all cores).
@@ -69,8 +67,11 @@ namespace ATxCommon.Monitoring
         /// Indicating whether the CPU load monitoring is active.
         /// </summary>
         public bool Enabled {
-            get => _enabled;
-            set => EnableTimer(value);
+            get => _monitoringTimer.Enabled;
+            set {
+                Log.Debug("{0} CPU monitoring.", value ? "Enabling" : "Disabling");
+                _monitoringTimer.Enabled = value;
+            }
         }
 
 
@@ -101,11 +102,6 @@ namespace ATxCommon.Monitoring
             Log.Debug("Initializing CPU monitoring completed.");
         }
 
-        private void EnableTimer(bool enabled) {
-            Log.Debug("{0} CPU monitoring.", enabled ? "Enabling" : "Disabling");
-            _monitoringTimer.Enabled = enabled;
-            _enabled = enabled;
-        }
 
         private void UpdateCpuLoad(object sender, ElapsedEventArgs e) {
             _monitoringTimer.Enabled = false;
