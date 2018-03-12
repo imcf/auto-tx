@@ -15,7 +15,7 @@ namespace ATxCommon
         /// <summary>
         /// Get the available physical memory in MB.
         /// </summary>
-        /// <returns>The available physical memory in MB or -1 in case of an error.</returns>
+        /// <returns>Available physical memory in MB or -1 in case of an error.</returns>
         public static long GetFreeMemory() {
             try {
                 var searcher =
@@ -26,7 +26,7 @@ namespace ATxCommon
                 }
             }
             catch (Exception ex) {
-                Log.Warn("Error in GetFreeMemory: {0}", ex.Message);
+                Log.Trace("Error in GetFreeMemory: {0}", ex.Message);
             }
 
             return -1;
