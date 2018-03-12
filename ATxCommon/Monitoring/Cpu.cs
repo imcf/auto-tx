@@ -110,9 +110,15 @@ namespace ATxCommon.Monitoring
                 _loadReadings[3] = _cpuCounter.NextValue();
                 _load = _loadReadings.Average();
                 if (_loadReadings[3] > _limit) {
-                    Log.Debug("CPU load ({0}) violating limit ({1})!", _loadReadings[3], _limit);
-                    _behaving = 0;
-                    // TODO: fire callback for violating load limit
+                    if (_behaving > _probation) {
+                        // this means the load was considered as "low" before
+                        // TODO: fire callback for violating load limit
+                        Log.Debug("CPU load ({0}) violating limit ({1})!", _loadReadings[3], _limit);
+                    } else if (_behaving > 0) {
+                        // this means we were still in probation, so no need to trigger again...
+                        Log.Debug("Resetting behaving counter to 0 (was {0}).", _behaving);
+                    }
+                  _behaving = 0;
                 } else {
                     _behaving++;
                     if (_behaving == _probation) {
