@@ -33,29 +33,6 @@ namespace ATxCommon
         }
 
         /// <summary>
-        /// Get the CPU usage in percent over all cores.
-        /// </summary>
-        /// <returns>CPU usage in percent or -1 if an error occured.</returns>
-        public static int GetCpuUsage() {
-            // TODO: fix bug #36
-            try {
-                var searcher = new ManagementObjectSearcher("select * from Win32_PerfFormattedData_PerfOS_Processor");
-                foreach (var mo in searcher.Get()) {
-                    var obj = (ManagementObject)mo;
-                    var usage = obj["PercentProcessorTime"];
-                    var name = obj["Name"];
-                    if (name.ToString().Equals("_Total"))
-                        return Convert.ToInt32(usage);
-                }
-            }
-            catch (Exception ex) {
-                Log.Warn("Error in GetCpuUsage: {0}", ex.Message);
-            }
-
-            return -1;
-        }
-
-        /// <summary>
         /// Get the free space of a drive in bytes.
         /// </summary>
         /// /// <param name="drive">The drive name, e.g. "c:".</param>
