@@ -12,6 +12,10 @@ namespace ATxCommon.Monitoring
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        public delegate void EventHandler(object sender, EventArgs e);
+        public event EventHandler LoadAboveLimit;
+        public event EventHandler LoadBelowLimit;
+
         private readonly Timer _monitoringTimer;
         private readonly PerformanceCounter _cpuCounter;
         private readonly float[] _loadReadings = {0F, 0F, 0F, 0F};
@@ -111,8 +115,8 @@ namespace ATxCommon.Monitoring
                 _load = _loadReadings.Average();
                 if (_loadReadings[3] > _limit) {
                     if (_behaving > _probation) {
-                        // this means the load was considered as "low" before
-                        // TODO: fire callback for violating load limit
+                        // this means the load was considered as "low" before, so raise an event:
+                        OnLoadAboveLimit();
                         Log.Debug("CPU load ({0}) violating limit ({1})!", _loadReadings[3], _limit);
                     } else if (_behaving > 0) {
                         // this means we were still in probation, so no need to trigger again...
@@ -123,7 +127,7 @@ namespace ATxCommon.Monitoring
                     _behaving++;
                     if (_behaving == _probation) {
                         Log.Debug("CPU load below limit for {0} cycles, passing probation!", _probation);
-                        // TODO: fire callback for load behaving well
+                        OnLoadBelowLimit();
                     } else if (_behaving > _probation) {
                         Log.Trace("CPU load behaving well since {0} cycles.", _behaving);
                     } else if (_behaving < 0) {
@@ -142,5 +146,18 @@ namespace ATxCommon.Monitoring
                 _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
         }
 
+        /// <summary>
+        /// Raise the "LoadAboveLimit" event.
+        /// </summary>
+        protected virtual void OnLoadAboveLimit() {
+            LoadAboveLimit?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Raise the "LoadBelowLimit" event.
+        /// </summary>
+        protected virtual void OnLoadBelowLimit() {
+            LoadBelowLimit?.Invoke(this, EventArgs.Empty);
+        }
     }
 }
