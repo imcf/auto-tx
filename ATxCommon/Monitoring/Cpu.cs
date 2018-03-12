@@ -24,8 +24,15 @@ namespace ATxCommon.Monitoring
         private bool _enabled;
 
 
+        /// <summary>
+        /// Current CPU load (usage percentage over all cores).
+        /// </summary>
+        /// <returns>The average CPU load from the last four readings.</returns>
         public float Load() => _load;
 
+        /// <summary>
+        /// How often (in ms) to check the CPU load.
+        /// </summary>
         public int Interval {
             get => _interval;
             set {
@@ -35,6 +42,9 @@ namespace ATxCommon.Monitoring
             }
         }
 
+        /// <summary>
+        /// Upper limit of CPU load (usage in % over all cores) before it is classified as "high".
+        /// </summary>
         public int Limit {
             get => _limit;
             set {
@@ -43,6 +53,10 @@ namespace ATxCommon.Monitoring
             }
         }
 
+        /// <summary>
+        /// Number of cycles where the CPU load value has to be below the limit before it is
+        /// classified as "low" again.
+        /// </summary>
         public int Probation {
             get => _probation;
             set {
@@ -51,12 +65,18 @@ namespace ATxCommon.Monitoring
             }
         }
         
+        /// <summary>
+        /// Indicating whether the CPU load monitoring is active.
+        /// </summary>
         public bool Enabled {
             get => _enabled;
             set => EnableTimer(value);
         }
 
 
+        /// <summary>
+        /// Create performance counter and initialize it.
+        /// </summary>
         public Cpu() {
             _interval = 250;
             _limit = 25;
