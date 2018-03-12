@@ -138,8 +138,8 @@ namespace ATxCommon.Monitoring
             finally {
                 _monitoringTimer.Enabled = true;
             }
-            Log.Info("CPU load: {0:0.0} {1}", _loadReadings[3], _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
-            Log.Trace("load values: {0}, average: {1}", string.Join(", ", _loadReadings), _load);
+            Log.Trace("CPU load: {0:0.0} {1}", _loadReadings[3],
+                _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
         }
 
     }
