@@ -117,7 +117,7 @@ namespace ATxCommon.Monitoring
                     if (_behaving > _probation) {
                         // this means the load was considered as "low" before, so raise an event:
                         OnLoadAboveLimit();
-                        Log.Debug("CPU load ({0}) violating limit ({1})!", _loadReadings[3], _limit);
+                        Log.Debug("CPU load ({0:0.0}) violating limit ({1})!", _loadReadings[3], _limit);
                     } else if (_behaving > 0) {
                         // this means we were still in probation, so no need to trigger again...
                         Log.Debug("Resetting behaving counter to 0 (was {0}).", _behaving);
