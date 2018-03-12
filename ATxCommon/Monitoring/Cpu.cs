@@ -83,13 +83,12 @@ namespace ATxCommon.Monitoring
             _limit = 25;
             _probation = 40;
             Log.Debug("Initializing CPU monitoring...");
-            
             try {
                 _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
                 Log.Debug("CPU monitoring initializing PerformanceCounter (takes 1s)...");
                 _cpuCounter.NextValue();
                 Thread.Sleep(1000);
-                Log.Debug("CPU monitoring current load: {0}", _cpuCounter.NextValue());
+                Log.Debug("CPU monitoring current load: {0:0.0}", _cpuCounter.NextValue());
                 // _monitoringTimer = new Timer(_interval);
                 _monitoringTimer = new Timer(_interval);
                 _monitoringTimer.Elapsed += UpdateCpuLoad;
@@ -106,12 +105,10 @@ namespace ATxCommon.Monitoring
         private void UpdateCpuLoad(object sender, ElapsedEventArgs e) {
             _monitoringTimer.Enabled = false;
             try {
-                Log.Trace("load values: {0}, average: {1}", string.Join(", ", _loadReadings), _load);
                 // ConstrainedCopy seems to be the most efficient approach to shift the array:
                 Array.ConstrainedCopy(_loadReadings, 1, _loadReadings, 0, 3);
                 _loadReadings[3] = _cpuCounter.NextValue();
                 _load = _loadReadings.Average();
-                Log.Trace("load values: {0}, average: {1}", string.Join(", ", _loadReadings), _load);
                 if (_loadReadings[3] > _limit) {
                     Log.Debug("CPU load ({0}) violating limit ({1})!", _loadReadings[3], _limit);
                     _behaving = 0;
@@ -119,10 +116,10 @@ namespace ATxCommon.Monitoring
                 } else {
                     _behaving++;
                     if (_behaving == _probation) {
-                        Log.Debug("CPU load below limit for {0} cycles, yay!", _probation);
+                        Log.Debug("CPU load below limit for {0} cycles, passing probation!", _probation);
                         // TODO: fire callback for load behaving well
                     } else if (_behaving > _probation) {
-                        Log.Debug("CPU load behaving well since {0} cycles.", _behaving);
+                        Log.Trace("CPU load behaving well since {0} cycles.", _behaving);
                     } else if (_behaving < 0) {
                         Log.Warn("Integer wrap around happened, resetting probation counter!");
                         _behaving = 0;
@@ -135,6 +132,8 @@ namespace ATxCommon.Monitoring
             finally {
                 _monitoringTimer.Enabled = true;
             }
+            Log.Info("CPU load: {0:0.0} {1}", _loadReadings[3], _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
+            Log.Trace("load values: {0}, average: {1}", string.Join(", ", _loadReadings), _load);
         }
 
     }
