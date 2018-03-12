@@ -45,6 +45,7 @@ namespace ATxService
         private int _txCurFileProgress;
         private int _waitCyclesBeforeNextTx;
         private Cpu _cpu;
+        private bool _cpuLoadHigh;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
@@ -98,6 +99,8 @@ namespace ATxService
                     Probation = 16,
                     Enabled = true
                 };
+                _cpu.LoadAboveLimit += OnLoadAboveLimit;
+                _cpu.LoadBelowLimit += OnLoadBelowLimit;
             }
             catch (UnauthorizedAccessException ex) {
                 Log.Error("Not enough permissions to monitor the CPU load.\nMake sure the " +
@@ -519,6 +522,22 @@ namespace ATxService
         #region general methods
 
         /// <summary>
+        /// Event handler for CPU load dropping below the configured limit.
+        /// </summary>
+        private void OnLoadBelowLimit(object sender, EventArgs e) {
+            Log.Warn("CPU load is below given limit.");
+            _cpuLoadHigh = false;
+        }
+
+        /// <summary>
+        /// Event handler for CPU load exceeding the configured limit.
+        /// </summary>
+        private void OnLoadAboveLimit(object sender, EventArgs e) {
+            Log.Warn("High CPU load detected!");
+            _cpuLoadHigh = true;
+        }
+
+        /// <summary>
         /// Check system parameters for valid ranges and update the global service state accordingly.
         /// </summary>
         private void UpdateServiceState() {
@@ -526,7 +545,7 @@ namespace ATxService
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
-            if (_cpu.Load() >= _config.MaxCpuUsage)
+            if (_cpuLoadHigh)
                 limitReason = "CPU usage";
             else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
                 limitReason = "RAM usage";
