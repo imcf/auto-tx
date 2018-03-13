@@ -6,7 +6,7 @@ if (Test-Path $LocalConfiguration) {
 	Exit
 }
 
-$LogFile = "$($ServiceDir)\var\$($ServiceName).$($env:COMPUTERNAME).log"
+$LogFile = "$($ServiceDir)\var\$($env:COMPUTERNAME).$($ServiceName).log"
 
 if (Test-Path $LogFile) {
 	Write-Host "Watching logfile '$LogFile':"

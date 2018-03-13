@@ -24,7 +24,7 @@ namespace ATxService
                 var startupLog = Path.Combine(
                     AppDomain.CurrentDomain.BaseDirectory,
                     "var",
-                    "startup.log");
+                    $"{Environment.MachineName}.startup.log");
                 using (var sw = File.AppendText(startupLog))
                 {
                     sw.WriteLine(ex.Message);

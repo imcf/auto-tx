@@ -157,9 +157,9 @@ namespace ATxService
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
                 Name = "file",
-                FileName = $"var/{ServiceName}.{Environment.MachineName}.log",
+                FileName = $"var/{Environment.MachineName}.{ServiceName}.log",
                 ArchiveAboveSize = 1 * Conv.MegaBytes,
-                ArchiveFileName = $"var/{ServiceName}.{Environment.MachineName}" + ".{#}.log",
+                ArchiveFileName = $"var/{Environment.MachineName}.{ServiceName}" + ".{#}.log",
                 MaxArchiveFiles = 9,
                 KeepFileOpen = true,
                 Layout = LogFormatDefault,

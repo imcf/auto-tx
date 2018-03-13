@@ -93,7 +93,7 @@ if (Test-Path $LocalConfiguration) {
     Exit
 }
 
-$ServiceLog = "$($ServiceDir)\$($ServiceName).log"
+$ServiceLog = "$($ServiceDir)\var\$($env:COMPUTERNAME).$($ServiceName).log"
 
 
 $Service = Get-Service $ServiceName -ErrorAction SilentlyContinue

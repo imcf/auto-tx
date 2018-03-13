@@ -617,7 +617,7 @@ $ServiceRunningBefore = ServiceIsRunning $ServiceName
 
 $ConfigPath = "$($InstallationPath)\conf"
 $LogPath = "$($InstallationPath)\var"
-$LogFilePfx = "$($LogPath)\$($ServiceName).$($env:COMPUTERNAME)"
+$LogFilePfx = "$($LogPath)\$($env:COMPUTERNAME).$($ServiceName)"
 $StatusXml = "$($InstallationPath)\var\status.xml"
 
 
