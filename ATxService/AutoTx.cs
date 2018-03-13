@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Timers;
 using ATxCommon;
+using ATxCommon.Monitoring;
 using ATxCommon.NLog;
 using ATxCommon.Serializables;
 using NLog;
@@ -39,9 +40,26 @@ namespace ATxService
         /// </summary>
         private readonly List<string> _incomingIgnore = new List<string>();
 
+        /// <summary>
+        /// The CPU load monitoring object.
+        /// </summary>
+        private readonly Cpu _cpu;
+
         private RoboCommand _roboCommand;
+        
+        /// <summary>
+        /// Size of the file currently being transferred (in bytes). Zero if no transfer running.
+        /// </summary>
         private long _txCurFileSize;
+
+        /// <summary>
+        /// Progress (in percent) of the file currently being transferred. Zero if no transfer.
+        /// </summary>
         private int _txCurFileProgress;
+
+        /// <summary>
+        /// Internal counter to introduce a delay between two subsequent transfers.
+        /// </summary>
         private int _waitCyclesBeforeNextTx;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
@@ -88,6 +106,28 @@ namespace ATxService
             CreateEventLog();
             LoadSettings();
             CreateIncomingDirectories();
+
+            try {
+                _cpu = new Cpu {
+                    Interval = 250,
+                    Limit = _config.MaxCpuUsage,
+                    Probation = 16,
+                    Enabled = true
+                };
+                _cpu.LoadAboveLimit += OnLoadAboveLimit;
+                _cpu.LoadBelowLimit += OnLoadBelowLimit;
+            }
+            catch (UnauthorizedAccessException ex) {
+                Log.Error("Not enough permissions to monitor the CPU load.\nMake sure the " +
+                          "service account is a member of the [Performance Monitor Users] " +
+                          "system group.\nError message was: {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex) {
+                Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
+                throw;
+            }
+
 
             if (_config.DebugRoboSharp) {
                 Debugger.Instance.DebugMessageEvent += HandleDebugMessage;
@@ -497,51 +537,55 @@ namespace ATxService
         #region general methods
 
         /// <summary>
+        /// Event handler for CPU load dropping below the configured limit.
+        /// </summary>
+        private void OnLoadBelowLimit(object sender, EventArgs e) {
+            Log.Trace("Received a low-CPU-load event!");
+            ResumePausedTransfer();
+        }
+
+        /// <summary>
+        /// Event handler for CPU load exceeding the configured limit.
+        /// </summary>
+        private void OnLoadAboveLimit(object sender, EventArgs e) {
+            Log.Trace("Received a high-CPU-load event!");
+            PauseTransfer();
+        }
+
+        /// <summary>
         /// Check system parameters for valid ranges and update the global service state accordingly.
         /// </summary>
         private void UpdateServiceState() {
-            var limitReason = "";
+            var suspendReasons = new List<string>();
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
-            if (SystemChecks.GetCpuUsage() >= _config.MaxCpuUsage)
-                limitReason = "CPU usage";
-            else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
-                limitReason = "RAM usage";
-            else {
-                var blacklistedProcess = SystemChecks.CheckForBlacklistedProcesses(
-                    _config.BlacklistedProcesses);
-                if (blacklistedProcess != "") {
-                    limitReason = "blacklisted process '" + blacklistedProcess + "'";
-                }
+            if (_cpu.HighLoad)
+                suspendReasons.Add("CPU");
+
+            if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
+                suspendReasons.Add("RAM");
+
+            var blacklistedProcess = SystemChecks.CheckForBlacklistedProcesses(
+                _config.BlacklistedProcesses);
+            if (!string.IsNullOrWhiteSpace(blacklistedProcess)) {
+                suspendReasons.Add("process '" + blacklistedProcess + "'");
             }
             
             // all parameters within valid ranges, so set the state to "Running":
-            if (string.IsNullOrEmpty(limitReason)) {
-                _status.ServiceSuspended = false;
-                if (!string.IsNullOrEmpty(_status.LimitReason)) {
-                    _status.LimitReason = ""; // reset to force a message on next service suspend
-                    Log.Info("Service resuming operation (all parameters in valid ranges).");
-                }
+            if (suspendReasons.Count == 0) {
+                _status.SetSuspended(false, "all parameters in valid ranges");
                 return;
             }
             
             // set state to "Running" if no-one is logged on:
             if (SystemChecks.NoUserIsLoggedOn()) {
-                _status.ServiceSuspended = false;
-                if (!string.IsNullOrEmpty(_status.LimitReason)) {
-                    _status.LimitReason = ""; // reset to force a message on next service suspend
-                    Log.Info("Service resuming operation (no user logged on).");
-                }
+                _status.SetSuspended(false, "no user is currently logged on");
                 return;
             }
 
             // by reaching this point we know the service should be suspended:
-            _status.ServiceSuspended = true;
-            if (limitReason == _status.LimitReason)
-                return;
-            Log.Info("Service suspended due to limitiations [{0}].", limitReason);
-            _status.LimitReason = limitReason;
+            _status.SetSuspended(true, string.Join(", ", suspendReasons));
         }
 
         /// <summary>
