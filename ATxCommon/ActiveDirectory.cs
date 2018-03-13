@@ -46,7 +46,7 @@ namespace ATxCommon
             catch (Exception ex) {
                 Log.Warn("Can't find full name for {0}: {1}", username, ex.Message);
             }
-            return "";
+            return username;
         }
     }
 }
