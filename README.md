@@ -149,10 +149,11 @@ don't have one, and none of the other ActiveDirectory setups known to us have on
 either, the service places its log messages in a plain text file in good old
 Unix habits.
 
-Everything that needs attention is written into the service's base directory in
-a file called `AutoTx.log`. The contents of the log file can be monitored in
-real-time using the PowerShell command `Get-Content -Wait -Tail 100 AutoTx.log`
-or by running the [Watch-Logfile.ps1](Scripts/Watch-Logfile.ps1) script.
+Everything that needs attention is written into a file called
+`<HOSTNAME>.AutoTx.log` in the `var/` subdirectory of the service's installation
+directory. The contents of the log file can be monitored in real-time using the
+PowerShell command `Get-Content -Wait "$($env:COMPUTERNAME).AutoTx.log"` or by
+running the [Watch-Logfile.ps1](Scripts/Watch-Logfile.ps1) script.
 
 The log level can be set through the configuration file.
 
@@ -161,7 +162,7 @@ The log level can be set through the configuration file.
 Same as for the log messages, the service stores its status in a file, just this
 is in XML format so it is easily usable from C# code using the core
 Serialization / Deserialization functions. Likewise, this file is to be found in
-the service base directory and called `status.xml`.
+the `var/` directory and called `status.xml`.
 
 ### Grace Location Cleanup
 
