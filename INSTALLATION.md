@@ -36,6 +36,15 @@ Launch `InstallUtil` as follows:
 & "C:\Windows\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe" /username=<SERVICEACCOUNT> /password=<SERVICEPASS> /unattended C:\Tools\AutoTx\AutoTx.exe
 ```
 
+### Add the service account to group "Performance Monitor Users"
+
+Monitoring the CPU load requires the service account to be a member of this
+group. If this is not done via ActiveDirectory GPO's, you can do it for the
+local system by running this command:
+
+```
+Add-LocalGroupMember -Group "Performance Monitor Users" -Member <SERVICEACCOUNT>
+```
 
 ### Service Startup
 
