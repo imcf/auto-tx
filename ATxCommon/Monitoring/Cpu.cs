@@ -8,12 +8,35 @@ using Timer = System.Timers.Timer;
 
 namespace ATxCommon.Monitoring
 {
+    /// <summary>
+    /// CPU load monitoring class, constantly checking the current load at the given <see
+    /// cref="Interval"/> using a separate timer (thus running in its own thread).
+    /// 
+    /// The load is determined using a <see cref="PerformanceCounter"/>, and is compared against
+    /// a configurable <see cref="Limit"/>. If the load changes from below the limit to above, a
+    /// <see cref="LoadAboveLimit"/> event will be raised. If the load has been above the limit
+    /// and is then dropping below, an <see cref="OnLoadBelowLimit"/> event will be raised as soon
+    /// as a given number of consecutive measurements (defined via <see cref="Probation"/>) were
+    /// found to be below the limit.
+    /// </summary>
     public class Cpu
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// The generic event handler delegate for CPU events.
+        /// </summary>
         public delegate void EventHandler(object sender, EventArgs e);
+        
+        /// <summary>
+        /// Event raised when the CPU load exceeds the configured limit for any measurement.
+        /// </summary>
         public event EventHandler LoadAboveLimit;
+
+        /// <summary>
+        /// Event raised when the CPU load is below the configured limit for at least four
+        /// consecutive measurements after having exceeded this limit before.
+        /// </summary>
         public event EventHandler LoadBelowLimit;
 
         private readonly Timer _monitoringTimer;
@@ -26,8 +49,9 @@ namespace ATxCommon.Monitoring
         private int _behaving;
         private int _probation;
 
+
         /// <summary>
-        /// Current CPU load (usage percentage over all cores).
+        /// Current CPU load (usage percentage over all cores), averaged of the last four readings.
         /// </summary>
         /// <returns>The average CPU load from the last four readings.</returns>
         public float Load() => _load;
@@ -79,6 +103,7 @@ namespace ATxCommon.Monitoring
         }
 
 
+
         /// <summary>
         /// Create performance counter and initialize it.
         /// </summary>
@@ -105,7 +130,10 @@ namespace ATxCommon.Monitoring
             Log.Debug("Initializing CPU monitoring completed.");
         }
 
-
+        /// <summary>
+        /// Check current CPU load, update the history of readings and trigger the corresponding
+        /// events if the required criteria are met.
+        /// </summary>
         private void UpdateCpuLoad(object sender, ElapsedEventArgs e) {
             _monitoringTimer.Enabled = false;
             try {
