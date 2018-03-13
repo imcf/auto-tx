@@ -45,7 +45,6 @@ namespace ATxService
         private int _txCurFileProgress;
         private int _waitCyclesBeforeNextTx;
         private Cpu _cpu;
-        private bool _cpuLoadHigh;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
@@ -526,7 +525,6 @@ namespace ATxService
         /// </summary>
         private void OnLoadBelowLimit(object sender, EventArgs e) {
             Log.Warn("CPU load is below given limit.");
-            _cpuLoadHigh = false;
         }
 
         /// <summary>
@@ -534,7 +532,6 @@ namespace ATxService
         /// </summary>
         private void OnLoadAboveLimit(object sender, EventArgs e) {
             Log.Warn("High CPU load detected!");
-            _cpuLoadHigh = true;
         }
 
         /// <summary>
@@ -545,7 +542,7 @@ namespace ATxService
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
-            if (_cpuLoadHigh)
+            if (_cpu.HighLoad)
                 limitReason = "CPU usage";
             else if (SystemChecks.GetFreeMemory() < _config.MinAvailableMemory)
                 limitReason = "RAM usage";
