@@ -40,11 +40,27 @@ namespace ATxService
         /// </summary>
         private readonly List<string> _incomingIgnore = new List<string>();
 
+        /// <summary>
+        /// The CPU load monitoring object.
+        /// </summary>
+        private readonly Cpu _cpu;
+
         private RoboCommand _roboCommand;
+        
+        /// <summary>
+        /// Size of the file currently being transferred (in bytes). Zero if no transfer running.
+        /// </summary>
         private long _txCurFileSize;
+
+        /// <summary>
+        /// Progress (in percent) of the file currently being transferred. Zero if no transfer.
+        /// </summary>
         private int _txCurFileProgress;
+
+        /// <summary>
+        /// Internal counter to introduce a delay between two subsequent transfers.
+        /// </summary>
         private int _waitCyclesBeforeNextTx;
-        private Cpu _cpu;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
