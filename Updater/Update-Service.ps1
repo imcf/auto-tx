@@ -54,6 +54,37 @@ function ServiceIsBusy {
 }
 
 
+function Get-ServiceAccount([string]$ServiceName) {
+    try {
+        $Account = $(Get-WmiObject Win32_Service | 
+            Where-Object { $_.Name -match $ServiceName }).StartName
+    }
+    catch {
+        Log-Error "Error detecting service account: $($_.Exception.Message)"
+    }
+    Write-Verbose "Service account: [$($Account)]"
+    Return $Account
+}
+
+
+function Check-PerformanceMonitormembership() {
+    $GroupName = "Performance Monitor Users"
+    Write-Verbose "Checking if service account is in group [$($GroupName)]..."
+
+    $PMGroup = Get-LocalGroup -Name $GroupName
+    $ServiceAccount = Get-ServiceAccount $ServiceName
+    try {
+        Get-LocalGroupMember -Group $PMGroup -Member $ServiceAccount | Out-Null
+        Write-Verbose "Validated membership in group [$($GroupName)]."
+    }
+    catch {
+        Log-Warning $("Service account [$($ServiceAccount)] is NOT a member of" 
+                      "the local group [$($GroupName)], monitoring CPU load"
+                      " >>>> WILL NOT WORK! <<<<")
+    }
+}
+
+
 function Stop-TrayApp() {
     try {
         Stop-Process -Name "ATxTray" -Force -ErrorAction Stop
@@ -674,6 +705,7 @@ try {
             Send-MailReport -Subject "updated failed!" -Body $msg
             Exit        
         }
+        Check-PerformanceMonitormembership
     }
 
     $UpdSummary = "Updated $($UpdItems -join " and ")."
