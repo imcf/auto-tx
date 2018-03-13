@@ -43,7 +43,6 @@ namespace ATxCommon.Monitoring
         private readonly PerformanceCounter _cpuCounter;
         private readonly float[] _loadReadings = {0F, 0F, 0F, 0F};
 
-        private float _load;
         private int _interval;
         private int _limit;
         private int _behaving;
@@ -54,7 +53,7 @@ namespace ATxCommon.Monitoring
         /// Current CPU load (usage percentage over all cores), averaged of the last four readings.
         /// </summary>
         /// <returns>The average CPU load from the last four readings.</returns>
-        public float Load() => _load;
+        public float Load { get; private set; }
 
         /// <summary>
         /// How often (in ms) to check the CPU load.
@@ -140,7 +139,7 @@ namespace ATxCommon.Monitoring
                 // ConstrainedCopy seems to be the most efficient approach to shift the array:
                 Array.ConstrainedCopy(_loadReadings, 1, _loadReadings, 0, 3);
                 _loadReadings[3] = _cpuCounter.NextValue();
-                _load = _loadReadings.Average();
+                Load = _loadReadings.Average();
                 if (_loadReadings[3] > _limit) {
                     if (_behaving > _probation) {
                         // this means the load was considered as "low" before, so raise an event:
