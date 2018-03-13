@@ -113,7 +113,7 @@ namespace ATxCommon.Monitoring
             Log.Debug("Initializing CPU monitoring...");
             try {
                 _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-                Log.Debug("CPU monitoring initializing PerformanceCounter (takes 1s)...");
+                Log.Debug("CPU monitoring initializing PerformanceCounter (takes one second)...");
                 _cpuCounter.NextValue();
                 Thread.Sleep(1000);
                 Log.Debug("CPU monitoring current load: {0:0.0}", _cpuCounter.NextValue());
@@ -144,16 +144,16 @@ namespace ATxCommon.Monitoring
                     if (_behaving > _probation) {
                         // this means the load was considered as "low" before, so raise an event:
                         OnLoadAboveLimit();
-                        Log.Debug("CPU load ({0:0.0}) violating limit ({1})!", _loadReadings[3], _limit);
+                        Log.Trace("CPU load ({0:0.0}) violating limit ({1})!", _loadReadings[3], _limit);
                     } else if (_behaving > 0) {
                         // this means we were still in probation, so no need to trigger again...
-                        Log.Debug("Resetting behaving counter to 0 (was {0}).", _behaving);
+                        Log.Trace("Resetting behaving counter to 0 (was {0}).", _behaving);
                     }
                   _behaving = 0;
                 } else {
                     _behaving++;
                     if (_behaving == _probation) {
-                        Log.Debug("CPU load below limit for {0} cycles, passing probation!", _probation);
+                        Log.Trace("CPU load below limit for {0} cycles, passing probation!", _probation);
                         OnLoadBelowLimit();
                     } else if (_behaving > _probation) {
                         Log.Trace("CPU load behaving well since {0} cycles.", _behaving);
