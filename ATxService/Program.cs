@@ -21,7 +21,10 @@ namespace ATxService
             }
             catch (Exception ex)
             {
-                var startupLog = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "startup.log");
+                var startupLog = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "var",
+                    "startup.log");
                 using (var sw = File.AppendText(startupLog))
                 {
                     sw.WriteLine(ex.Message);

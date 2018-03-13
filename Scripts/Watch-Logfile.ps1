@@ -6,7 +6,7 @@ if (Test-Path $LocalConfiguration) {
 	Exit
 }
 
-$LogFile = $ServiceDir + "\AutoTx.log"
+$LogFile = "$($ServiceDir)\var\$($ServiceName).$($env:COMPUTERNAME).log"
 
 if (Test-Path $LogFile) {
 	Write-Host "Watching logfile '$LogFile':"

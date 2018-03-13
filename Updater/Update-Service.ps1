@@ -159,7 +159,7 @@ function Start-MyService {
         $ex = $_.Exception.Message
         $msg = "Trying to start the service results in this error:`n$($ex)`n`n"
         $msg += " -------------------- last 50 log lines --------------------`n"
-        $msg += Get-LastLogLines "$($LogFile)" 50
+        $msg += Get-LastLogLines "$($LogFilePfx).log" 50
         $msg += " -------------------- ----------------- --------------------`n"
         Send-MailReport -Subject "Startup of service $($ServiceName) failed!" `
             -Body $msg
@@ -450,16 +450,12 @@ function ServiceUpdate-Requested {
 
 
 function Upload-LogFiles {
-    $Dest = "$($UploadPathLogs)\$($env:COMPUTERNAME)"
-    New-Item -Force -Type Directory $Dest | Out-Null
     try {
-        Copy-Item -Force -ErrorAction Stop `
-            -Path "$($LogFile)" `
-            -Destination $Dest
-        Log-Debug "Uploaded logfile to [$($Dest)]."
+        Copy-Item -Force -Path "$($LogFilePfx)*.log" -Destination $UploadPathLogs
+        Log-Debug "Uploaded logfile(s) to [$($UploadPathLogs)]."
     }
     catch {
-        Log-Warning "Uploading logfile FAILED!`n$($_.Exception.Message)"
+        Log-Warning "Uploading logfile(s) FAILED!`n$($_.Exception.Message)"
     }
 }
 
@@ -589,8 +585,8 @@ Log-Debug "$($Me) started..."
 $ServiceRunningBefore = ServiceIsRunning $ServiceName
 
 $ConfigPath = "$($InstallationPath)\conf"
-$LogPath = "$($InstallationPath)"
-$LogFile = "$($LogPath)\AutoTx.log"
+$LogPath = "$($InstallationPath)\var"
+$LogFilePfx = "$($LogPath)\$($ServiceName).$($env:COMPUTERNAME)"
 $StatusXml = "$($InstallationPath)\var\status.xml"
 
 
