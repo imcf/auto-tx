@@ -574,32 +574,18 @@ namespace ATxService
             
             // all parameters within valid ranges, so set the state to "Running":
             if (suspendReasons.Count == 0) {
-                if (_status.ServiceSuspended) {
-                    _status.ServiceSuspended = false;
-                    _status.LimitReason = ""; // reset to force a message on next service suspend
-                    Log.Info("Service resuming operation (all parameters in valid ranges).");
-                }
+                _status.SetSuspended(false, "all parameters in valid ranges");
                 return;
             }
             
             // set state to "Running" if no-one is logged on:
             if (SystemChecks.NoUserIsLoggedOn()) {
-                if (_status.ServiceSuspended) {
-                    _status.ServiceSuspended = false;
-                    _status.LimitReason = ""; // reset to force a message on next service suspend
-                    Log.Info("Service resuming operation (no user logged on).");
-                }
+                _status.SetSuspended(false, "no user is currently logged on");
                 return;
             }
 
             // by reaching this point we know the service should be suspended:
-            _status.ServiceSuspended = true;
-            var limitReason = string.Join(", ", suspendReasons);
-            if (limitReason == _status.LimitReason)
-                return;
-
-            Log.Info("Service suspended. Reason(s): [{0}]", limitReason);
-            _status.LimitReason = limitReason;
+            _status.SetSuspended(true, string.Join(", ", suspendReasons));
         }
 
         /// <summary>

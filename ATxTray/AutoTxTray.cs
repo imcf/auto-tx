@@ -459,18 +459,18 @@ namespace ATxTray
         private void UpdateServiceSuspendedState() {
             // first update the suspend reason as this can possibly change even if the service
             // never leaves the suspended state and we should still display the correct reason:
-            if (_serviceSuspendReason == _status.LimitReason &&
+            if (_serviceSuspendReason == _status.StatusDescription &&
                 _serviceSuspended == _status.ServiceSuspended)
                 return;
 
             _serviceSuspended = _status.ServiceSuspended;
-            _serviceSuspendReason = _status.LimitReason;
+            _serviceSuspendReason = _status.StatusDescription;
             if (_serviceSuspended) {
                 _miSvcSuspended.Text = @"Service suspended, reason: " + _serviceSuspendReason;
                 _miSvcSuspended.BackColor = Color.LightSalmon;
                 /*
                 _notifyIcon.ShowBalloonTip(500, "AutoTx Monitor",
-                    "Service suspended: " + _status.LimitReason, ToolTipIcon.Warning);
+                    "Service suspended: " + _status.StatusDescription, ToolTipIcon.Warning);
                  */
             } else {
                 _miSvcSuspended.Text = @"No limits apply, service active.";

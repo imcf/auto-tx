@@ -20,7 +20,7 @@ namespace ATxCommon.Serializables
         private DateTime _lastAdminNotification;
         private DateTime _lastGraceNotification;
 
-        private string _limitReason;
+        private string _statusDescription;
         private string _currentTransferSrc;
         private string _currentTargetTmp;
 
@@ -151,13 +151,13 @@ namespace ATxCommon.Serializables
         /// <summary>
         /// String indicating why the service is currently suspended (empty if not suspended).
         /// </summary>
-        public string LimitReason {
-            get => _limitReason;
+        public string StatusDescription {
+            get => _statusDescription;
             set {
-                if (_limitReason == value) return;
+                if (_statusDescription == value) return;
 
-                _limitReason = value;
-                Log.Trace("LimitReason was updated ({0}).", value);
+                _statusDescription = value;
+                Log.Trace("StatusDescription was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -285,6 +285,27 @@ namespace ATxCommon.Serializables
                 _config.TmpTransferDir,
                 Environment.MachineName,
                 _currentTargetTmp);
+        }
+
+        /// <summary>
+        /// Helper to set the service state, logging a message if the state has changed.
+        /// </summary>
+        /// <param name="suspended">The target state for <see cref="ServiceSuspended"/>.</param>
+        /// <param name="description">The description to use for the log message as well as for
+        /// setting <see cref="StatusDescription"/>.</param>
+        public void SetSuspended(bool suspended, string description) {
+            if (description == _statusDescription && suspended == _serviceSuspended)
+                return;
+
+            _serviceSuspended = suspended;
+            _statusDescription = description;
+            Serialize();
+
+            if (suspended) {
+                Log.Info("Service suspended. Reason(s): [{0}]", description);
+            } else {
+                Log.Info("Service resuming operation ({0}).", description);
+            }
         }
         
 
