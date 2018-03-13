@@ -64,6 +64,24 @@ function Install-Service {
 }
 
 
+function Add-PerfMonGroupMember {
+    $GroupName = "Performance Monitor Users"
+    try {
+        Add-LocalGroupMember -Group $GroupName -Member $ServiceUser
+        Write-Host $("Successfully added user [$($ServiceUser)] to the local"
+                     "group [$($GroupName)].")
+    }
+    catch [Microsoft.PowerShell.Commands.MemberExistsException] {
+        Write-Host $("User [$($ServiceUser)] is already a member of the local"
+                     "group [$($GroupName)], no action required.")
+    }
+    catch {
+        Write-Host $("Adding user [$($ServiceUser)] to the local group"
+                     "[$($GroupName)] failed: $($_.Exception.Message)")
+    }
+}
+
+
 $ErrorActionPreference = "Stop"
 
 
@@ -87,6 +105,7 @@ if ($Service) {
 
 Copy-ServiceFiles
 Install-Service
+Add-PerfMonGroupMember
 
 Write-Host "`nWatching the service log file can be done like this:`n" `
     "`n> Get-Content -Wait -Tail 50 $($ServiceLog)`n"
