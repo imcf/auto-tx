@@ -56,6 +56,11 @@ namespace ATxCommon.Monitoring
         public float Load { get; private set; }
 
         /// <summary>
+        /// Flag representing whether the load is considered to be high or low.
+        /// </summary>
+        public bool HighLoad { get; private set; }
+
+        /// <summary>
         /// How often (in ms) to check the CPU load.
         /// </summary>
         public int Interval {
@@ -116,8 +121,10 @@ namespace ATxCommon.Monitoring
                 Log.Debug("CPU monitoring initializing PerformanceCounter (takes one second)...");
                 _cpuCounter.NextValue();
                 Thread.Sleep(1000);
-                Log.Debug("CPU monitoring current load: {0:0.0}", _cpuCounter.NextValue());
-                // _monitoringTimer = new Timer(_interval);
+                var curLoad = _cpuCounter.NextValue();
+                Log.Debug("CPU monitoring current load: {0:0.0}", curLoad);
+                // now initialize the load state:
+                HighLoad = curLoad > _limit;
                 _monitoringTimer = new Timer(_interval);
                 _monitoringTimer.Elapsed += UpdateCpuLoad;
             }
@@ -177,6 +184,7 @@ namespace ATxCommon.Monitoring
         /// Raise the "LoadAboveLimit" event.
         /// </summary>
         protected virtual void OnLoadAboveLimit() {
+            HighLoad = true;
             LoadAboveLimit?.Invoke(this, EventArgs.Empty);
         }
 
@@ -184,6 +192,7 @@ namespace ATxCommon.Monitoring
         /// Raise the "LoadBelowLimit" event.
         /// </summary>
         protected virtual void OnLoadBelowLimit() {
+            HighLoad = false;
             LoadBelowLimit?.Invoke(this, EventArgs.Empty);
         }
     }
