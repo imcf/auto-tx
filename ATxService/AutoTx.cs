@@ -541,7 +541,7 @@ namespace ATxService
         /// </summary>
         private void OnLoadBelowLimit(object sender, EventArgs e) {
             Log.Trace("Received a low-CPU-load event!");
-            // TODO: resume running transfers
+            ResumePausedTransfer();
         }
 
         /// <summary>
@@ -549,7 +549,7 @@ namespace ATxService
         /// </summary>
         private void OnLoadAboveLimit(object sender, EventArgs e) {
             Log.Trace("Received a high-CPU-load event!");
-            // TODO: pause / suspend running transfers
+            PauseTransfer();
         }
 
         /// <summary>
