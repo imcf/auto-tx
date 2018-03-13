@@ -524,14 +524,14 @@ namespace ATxService
         /// Event handler for CPU load dropping below the configured limit.
         /// </summary>
         private void OnLoadBelowLimit(object sender, EventArgs e) {
-            Log.Warn("CPU load is below given limit.");
+            Log.Trace("Received a low-CPU-load event!");
         }
 
         /// <summary>
         /// Event handler for CPU load exceeding the configured limit.
         /// </summary>
         private void OnLoadAboveLimit(object sender, EventArgs e) {
-            Log.Warn("High CPU load detected!");
+            Log.Trace("Received a high-CPU-load event!");
         }
 
         /// <summary>
