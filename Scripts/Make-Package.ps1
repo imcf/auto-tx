@@ -66,6 +66,7 @@ if (Test-Path $PkgDir) {
 $dir = New-Item -ItemType Container -Force -Path "$($PkgDir)\AutoTx"
 $tgt = $dir.FullName
 New-Item -ItemType Container -Force -Path "$($PkgDir)\AutoTx\conf" | Out-Null
+New-Item -ItemType Container -Force -Path "$($PkgDir)\AutoTx\var" | Out-Null
 
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore

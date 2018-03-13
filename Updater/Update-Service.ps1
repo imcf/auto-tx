@@ -591,7 +591,7 @@ $ServiceRunningBefore = ServiceIsRunning $ServiceName
 $ConfigPath = "$($InstallationPath)\conf"
 $LogPath = "$($InstallationPath)"
 $LogFile = "$($LogPath)\AutoTx.log"
-$StatusXml = "$($InstallationPath)\status.xml"
+$StatusXml = "$($InstallationPath)\var\status.xml"
 
 
 $UpdPathConfig = "$($UpdateSourcePath)\Configs"

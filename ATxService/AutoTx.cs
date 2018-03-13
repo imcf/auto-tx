@@ -299,7 +299,7 @@ namespace ATxService
         /// </summary>
         private void LoadStatus() {
 	        var statusPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-		        "status.xml");
+		        "var", "status.xml");
 			try {
                 Log.Debug("Trying to load status from [{0}]", statusPath);
                 _status = ServiceStatus.Deserialize(statusPath, _config);

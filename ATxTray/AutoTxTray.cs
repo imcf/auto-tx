@@ -73,7 +73,7 @@ namespace ATxTray
 
             SetupLogging();
 
-            _statusFile = Path.Combine(baseDir, "status.xml");
+            _statusFile = Path.Combine(baseDir, "var", "status.xml");
 
             Log.Info("-----------------------");
             Log.Info("{0} initializing...", AppTitle);
@@ -114,7 +114,7 @@ namespace ATxTray
             Log.Trace("Enabled timer.");
 
             var fsw = new FileSystemWatcher {
-                Path = baseDir,
+                Path = Path.Combine(baseDir, "var"),
                 NotifyFilter = NotifyFilters.LastWrite,
                 Filter = "status.xml",
             };
