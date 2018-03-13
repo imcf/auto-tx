@@ -10,7 +10,7 @@ namespace ATxCommon.Monitoring
 {
     /// <summary>
     /// CPU load monitoring class, constantly checking the current load at the given <see
-    /// cref="Interval"/> using a separate timer (thus running in its own thread).
+    /// cref="Interval"/> in a separate (timer-based) thread.
     /// 
     /// The load is determined using a <see cref="PerformanceCounter"/>, and is compared against
     /// a configurable <see cref="Limit"/>. If the load changes from below the limit to above, a
@@ -117,8 +117,8 @@ namespace ATxCommon.Monitoring
             _probation = 40;
             Log.Debug("Initializing CPU monitoring...");
             try {
-                _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
                 Log.Debug("CPU monitoring initializing PerformanceCounter (takes one second)...");
+                _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
                 _cpuCounter.NextValue();
                 Thread.Sleep(1000);
                 var curLoad = _cpuCounter.NextValue();
