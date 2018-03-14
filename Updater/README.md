@@ -42,10 +42,8 @@ The `$UpdateSourcePath` folder structure is expected to be like this:
 │   ├─── <HOSTNAME1>.xml
 │   └─── <HOSTNAME2>.xml
 ├─── Logs
-│   ├─── <HOSTNAME1>
-│   │   └─── AutoTx.log
-│   └─── <HOSTNAME2>
-│       └─── AutoTx.log
+│   ├─── <HOSTNAME1>.AutoTx.log
+│   └─── <HOSTNAME2>.AutoTx.log
 └─── Service
     ├─── Binaries
     │   ├─── build_2018-01-21_17-18-19
