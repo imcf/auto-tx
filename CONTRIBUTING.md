@@ -59,7 +59,10 @@ Refactoring suggestions and / or pull requests are welcome!
 - Make sure your commit messages are in a proper format.
   - Use the present tense ("Add feature" not "Added feature").
   - Use the imperative mood ("Change foo to..." not "Changes foo to...").
-  - Limit the first line to 72 characters or less.
+  - Limit the line length to 80 characters or less (72 for the first line).
+  - Have the second line be empty.
+  - If in doubt about the format, read [Tim Pope's note about git commit
+    messages][web_tbaggery].
   - If the commit addresses an issue filed **on GitHub** please **DO NOT**
     reference that issue in the commit message (issue tracking is done in the
     [primary repository in the Uni Basel GitLab][web_autotx_gitlab]).
@@ -92,4 +95,5 @@ actually does.
 [web_robosharp]: https://github.com/tjscience/RoboSharp
 [web_robosharp_fork]: https://git.scicore.unibas.ch/vamp/robosharp
 [web_commit]: https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention
+[web_tbaggery]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [web_autotx_gitlab]: https://git.scicore.unibas.ch/vamp/auto-tx
