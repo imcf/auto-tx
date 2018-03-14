@@ -107,13 +107,13 @@ rules.
   of options for testing), 32-bit support is planned though.
 
 
-## Installation
+# Installation
 
 See the [instructions for installing the service](INSTALLATION.md) for details.
 
-## Operation
+# Operation
 
-### Configuration
+## Configuration
 
 The AutoTx service configuration is done through two XML files. They are
 structured in a very simple way and well-commented to make them easily
@@ -135,7 +135,7 @@ Example config files (fully commented) are provided with the source code:
   to run the service.
 - [The full set](Resources/conf/) of all possible configuration settings.
 
-### Email-Templates
+## Email-Templates
 
 Notification emails to users are based on the templates that can be found in
 [Mail-Templates](Resources/Mail-Templates) subdirectory of the service
@@ -144,8 +144,7 @@ current values by the service before sending the mail. This way the content of
 the notifications can easily be adjusted without having to re-compile the
 service.
 
-
-### Logging
+## Logging
 
 The Windows Event Log seems to be a good place for logging if you have a proper
 monitoring solution in place, which centrally collects and checks it. Since we
@@ -161,14 +160,14 @@ running the [Watch-Logfile.ps1](Scripts/Watch-Logfile.ps1) script.
 
 The log level can be set through the configuration file.
 
-### Status
+## Status
 
 Same as for the log messages, the service stores its status in a file, just this
 is in XML format so it is easily usable from C# code using the core
 Serialization / Deserialization functions. Likewise, this file is to be found in
 the `var/` directory and called `status.xml`.
 
-### Grace Location Cleanup
+## Grace Location Cleanup
 
 After a transfer has completed, the service moves all folders of that transfer
 into one subfolder inside the `$ManagedDirectory/DONE/<username>/` location. The
@@ -178,16 +177,16 @@ checks are done
  - after a transfer has finished
  - once every *N* hours, configurable for every host
 
-### Updates
+## Updates
 
 The service comes with a dedicated updater to facilitate managing updates and
 configurations on many machines. See the [Updater Readme](Updater/README.md) for
 all the details.
 
 
-## Development
+# Development
 
-### Code Structure
+## Code Structure
 
 The code has evolved from a very basic project, initially all being a
 monolithic structure where the major part of the functionality is contained in
@@ -207,7 +206,7 @@ currently being split into a few separate parts:
 
 Refactoring suggestions and / or pull requests are welcome!
 
-### Prerequisites
+## Prerequisites
 
 - **VisualStudio 2017** - the *Community Edition* is sufficient.
 - **ReSharper** - JetBrains ReSharper Ultimate 2017.1 has been used for
@@ -222,7 +221,7 @@ Refactoring suggestions and / or pull requests are welcome!
   provided here: [RoboSharp fork][web_robosharp_fork].
 
 
-### Building + Installing
+## Building + Installing
 
 - Open the solution file in *Visual Studio* and adjust the path to the
   *RoboSharp* DLL under *Solution Explorer* > *ATxService* > *References*. Then
