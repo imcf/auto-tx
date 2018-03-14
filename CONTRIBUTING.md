@@ -50,5 +50,46 @@ Refactoring suggestions and / or pull requests are welcome!
   configuration file version and of course the required service binaries, DLLs,
   etc.
 
+## Making Changes
+
+- Do [atomic commits][web_commit].
+- For any change that consists of more than a single commit, create a topic
+  branch.
+- Check for unnecessary whitespace with `git diff --check` before committing.
+- Make sure your commit messages are in a proper format.
+  - Use the present tense ("Add feature" not "Added feature").
+  - Use the imperative mood ("Change foo to..." not "Changes foo to...").
+  - Limit the first line to 72 characters or less.
+  - If the commit addresses an issue filed **on GitHub** please **DO NOT**
+    reference that issue in the commit message (issue tracking is done in the
+    [primary repository in the Uni Basel GitLab][web_autotx_gitlab]).
+
+## Coding Conventions
+
+As mentioned above, the **C#** style used throughout the project differs from
+the default one suggested by Microsoft, mostly in being much more compact when
+using curly brackets - a little bit inspired by the common Python coding
+conventions. The formatting rules are stored in the project's *ReSharper*
+settings, so simply use that to do the formatting job.
+
+For the **PowerShell** parts there is one major difference about the naming of
+(internal) functions, disregarding the common `Verb-Noun` convention. In places
+where it improves readability of the code, functions may be named different.
+Compare e.g.
+
+```powershell
+if (ServiceIsRunning $ServiceName) { Write-Host "Success" }
+```
+vs.
+
+```powershell
+if (Check-Service $ServiceName) { Write-Host "Success" }
+```
+where the former one is literally readable and concise, whereas the latter one
+requires those not familiar with the code to go and check what the method
+actually does.
+
 [web_robosharp]: https://github.com/tjscience/RoboSharp
 [web_robosharp_fork]: https://git.scicore.unibas.ch/vamp/robosharp
+[web_commit]: https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention
+[web_autotx_gitlab]: https://git.scicore.unibas.ch/vamp/auto-tx
