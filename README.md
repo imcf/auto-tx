@@ -95,6 +95,10 @@ rules.
   write permissions on the target location. The reason behind this is to avoid
   having to administer local accounts on all clients as well as having easy
   access to user information (email addresses, ...).
+- **Permissions:** for the CPU load monitoring to work, the function account has
+  to be a member of the "*Performance Monitor Users*" group, either via GPO /
+  ActiveDirectory or by adding it to the corresponding local group on each
+  client.
 - **.NET Framework:** version 4.5 required.
 - **Windows 7 / Server 2012 R2:** the service has been tested on those versions
   of Windows, other versions sharing the same kernels (*Server 2008 R2*,
