@@ -16,6 +16,8 @@ currently being split into a few separate parts:
   a given configuration file and show a summary. Used in the updater to ensure
   new configurations are valid before overwriting existing ones.
 - [ATxTray](ATxTray): the tray application.
+- [ATxDiagnostics](ATxDiagnostics): a command line tool to run a few tests and
+  report the results.
 - [Updater](Updater): the updater script for binaries and configuration files.
 
 Refactoring suggestions and / or pull requests are welcome!
