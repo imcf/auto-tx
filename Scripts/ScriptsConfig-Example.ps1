@@ -1,8 +1,8 @@
-$ServiceDir = "C:\Tools\AutoTx"
 $ServiceName = "AutoTx"
+$ServiceDir = "C:\Tools\$($ServiceName)"
 
-$IncomingDir = "D:\AUTOTRANSFER"
 $ManagedDir = "D:\ProgramData\AUTOTRANSFER"
+$IncomingDir = "$($ManagedDir)\INCOMING"
 
 $ServiceUser = "DOMAIN\serviceuser"
 $ServicePasswd = "mycomplexpassword"
