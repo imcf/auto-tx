@@ -38,8 +38,8 @@ function Copy-ServiceFiles {
     try {
         Copy-Item -Recurse -Force -Path "$ServiceName\*" -Destination $ServiceDir
         Copy-Item -Recurse -Force -Path "conf-example" -Destination $ServiceDir
-        Copy-Item -Force -Path "$($ServiceName).log" -Destination $ServiceLog
-        Clear-Content $ServiceLog
+        # create a dummy log file, so admins can already start watching it:
+        Out-File -FilePath $ServiceLog -InputObject "$($ServiceName) installed"
         Write-Host "[OK]" -Fore Green
     }
     catch {

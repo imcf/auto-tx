@@ -76,7 +76,6 @@ $example = New-Item -ItemType Container -Path $PkgDir -Name "conf-example"
 Copy-Item "$($ResourceDir)\conf\config.common.xml" $example
 Copy-Item "$($ResourceDir)\conf\host-specific.template.xml" $example
 
-Copy-Item "$($ResourceDir)\BuildDate.txt" "$($PkgDir)\AutoTx.log"
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 try {
     $CommitRefFile = "$($ResourceDir)\BuildCommit.txt"
