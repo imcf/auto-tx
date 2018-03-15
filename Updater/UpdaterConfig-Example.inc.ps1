@@ -6,7 +6,7 @@ $InstallationPath = "C:\Tools\$($ServiceName)"
 $UpdateSourcePath = "\\fileserver.mydomain.xy\share\_AUTOTX_"
 $Pattern = 'build_[0-9]{4}-[0-9]{2}-[0-9]{2}_'
 
-$UpdaterDebugLogging = $False
+$UpdaterDebugLogging = $True
 $EmailFrom = "admin@mydomain.xy"
 $EmailTo   = "admin@mydomain.xy"
 $EmailSMTP = "smtp.mydomain.xy"
