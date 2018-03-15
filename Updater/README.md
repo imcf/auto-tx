@@ -64,6 +64,24 @@ service installation directory and the `$UpdateSourcePath` location (the latter
 one only requires write-permissions for the `Logs` folder for uploading the log
 files).
 
+Manual Invokation
+-----------------
+
+To launch the updater manually, e.g. to run it in verbose mode for seeing what
+is going on, use the following command:
+
+```powershell
+.\Update-Service.ps1 -UpdaterSettings .\UpdaterConfig.inc.ps1 -Verbose
+```
+
+For enforcing a cleanup-update, use the `-ForceServiceCleanup` flag. The updater
+will then try to stop the service no matter whether it is busy and will remove
+an existing status file (so the service starts with a *clean* status):
+
+```powershell
+.\Update-Service.ps1 -UpdaterSettings .\UpdaterConfig.inc.ps1 -ForceServiceCleanup -Verbose
+```
+
 Automatic Updates
 -----------------
 
