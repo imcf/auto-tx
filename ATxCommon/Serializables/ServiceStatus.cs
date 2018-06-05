@@ -75,6 +75,14 @@ namespace ATxCommon.Serializables
             Log.Trace("Finished serializing [{0}].", _storageFile);
         }
 
+        /// <summary>
+        /// Wrapper to serialize XML if time since last is above threshold (default = 1 min).
+        /// </summary>
+        public void SerializeHeartbeat(int timeout=60) {
+            if (TimeUtils.SecondsSince(_lastStatusUpdate) >= timeout)
+                Serialize();
+        }
+
         public static ServiceStatus Deserialize(string file, ServiceConfig config) {
             Log.Trace("Trying to deserialize status XML file [{0}].", file);
             ServiceStatus status;

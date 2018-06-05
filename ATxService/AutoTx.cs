@@ -598,10 +598,7 @@ namespace ATxService
             // mandatory tasks, run on every call:
             SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
             UpdateServiceState();
-
-            // update the status heartbeat at least once a minute:
-            if (TimeUtils.SecondsSince(_status.LastStatusUpdate) >= 60)
-                _status.Serialize();
+            _status.SerializeHeartbeat();
 
             if (TimeUtils.SecondsSince(_lastUserDirCheck) >= 120)
                 CreateIncomingDirectories();
