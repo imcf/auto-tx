@@ -749,13 +749,13 @@ namespace ATxService
             if (_transferState != TxState.Stopped || _status.TransferInProgress)
                 return;
             
-            if (_status.CurrentTargetTmp.Length > 0) {
+            if (_status.TxTargetUser.Length > 0) {
                 Log.Debug("Finalizing transfer, cleaning up target storage location...");
-                var finalDst = DestinationPath(_status.CurrentTargetTmp);
+                var finalDst = DestinationPath(_status.TxTargetUser);
                 if (!string.IsNullOrWhiteSpace(finalDst)) {
                     if (FsUtils.MoveAllSubDirs(new DirectoryInfo(_status.CurrentTargetTmpFull()),
                         finalDst, _config.EnforceInheritedACLs)) {
-                        _status.CurrentTargetTmp = "";
+                        _status.TxTargetUser = "";
                     }
                 }
             }
@@ -803,10 +803,10 @@ namespace ATxService
         /// </summary>
         private void ResumeInterruptedTransfer() {
             // CONDITIONS (a transfer has to be resumed):
-            // - CurrentTargetTmp has to be non-empty
+            // - TxTargetUser has to be non-empty
             // - TransferState has to be "Stopped"
             // - TransferInProgress must be true
-            if (_status.CurrentTargetTmp.Length <= 0 ||
+            if (_status.TxTargetUser.Length <= 0 ||
                 _transferState != TxState.Stopped ||
                 _status.TransferInProgress == false)
                 return;

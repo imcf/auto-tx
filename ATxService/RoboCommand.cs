@@ -10,12 +10,13 @@ namespace ATxService
     {
         /// <summary>
         /// Start transferring data from a given source directory to the destination
-        /// location that is stored in CurrentTargetTmp. Requires CopyState to be in
+        /// location that is derived from TxTargetUser. Requires CopyState to be in
         /// status "Stopped", sets CopyState to "Active" and FilecopyFinished to
         /// false. The currently processed path is stored in the global status
         /// variable CurrentTransferSrc.
         /// </summary>
-        /// <param name="sourcePath">The full path to a folder.</param>
+        /// <param name="sourcePath">The full path to a folder. By convention, the
+        /// LAST element of the path has to match the target user name!</param>
         private void StartTransfer(string sourcePath) {
             // only proceed when in a valid state:
             if (_transferState != TxState.Stopped)
@@ -32,8 +33,8 @@ namespace ATxService
             _status.CurrentTransferSize = totalSize;
             _status.CurrentTransferSrc = sourcePath;
 
-            // the user name is expected to be the last part of the path:
-            _status.CurrentTargetTmp = new DirectoryInfo(sourcePath).Name;
+            // the user name is expected to be the last part of sourcePath:
+            _status.TxTargetUser = new DirectoryInfo(sourcePath).Name;
             FsUtils.CreateNewDirectory(_status.CurrentTargetTmpFull(), false);
 
             _transferState = TxState.Active;

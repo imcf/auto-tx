@@ -22,7 +22,7 @@ namespace ATxCommon.Serializables
 
         private string _statusDescription;
         private string _currentTransferSrc;
-        private string _currentTargetTmp;
+        private string _txTargetUser;
 
         private bool _transferInProgress;
         private bool _serviceSuspended;
@@ -42,7 +42,7 @@ namespace ATxCommon.Serializables
         /// </summary>
         private ServiceStatus() {
             _currentTransferSrc = "";
-            _currentTargetTmp = "";
+            _txTargetUser = "";
             _transferInProgress = false;
             _transferredBytesCompleted = 0;
             _transferredBytesCurrentFile = 0;
@@ -183,15 +183,15 @@ namespace ATxCommon.Serializables
         }
 
         /// <summary>
-        /// The name of the temporary folder being used for the currently running transfer,
-        /// relative to "DestinationDirectory\TmpTransferDir" (i.e. the target username). See also
-        /// <seealso cref="CurrentTargetTmpFull"/> on details for assembling the full path.
+        /// The user account name that should receive the data from the currently running transfer.
+        /// See also <seealso cref="CurrentTargetTmpFull"/> on details for assembling the path that
+        /// is being used as a temporary location while a transfer is in progress.
         /// </summary>
-        public string CurrentTargetTmp {
-            get => _currentTargetTmp;
+        public string TxTargetUser {
+            get => _txTargetUser;
             set {
-                _currentTargetTmp = value;
-                Log.Trace("CurrentTargetTmp was updated ({0}).", value);
+                _txTargetUser = value;
+                Log.Trace("TxTargetUser was updated ({0}).", value);
                 Serialize();
             }
         }
@@ -290,7 +290,7 @@ namespace ATxCommon.Serializables
         /// <returns>A string with the path to the last tmp dir.</returns>
         public string CurrentTargetTmpFull() {
             return Path.Combine(_config.DestinationDirectory,
-                _currentTargetTmp,
+                _txTargetUser,
                 _config.TmpTransferDir,
                 Environment.MachineName);
         }
@@ -331,13 +331,13 @@ namespace ATxCommon.Serializables
                 s.CurrentTransferSrc = "";
             }
 
-            // CurrentTargetTmp
+            // TxTargetUser
             var currentTargetTmpPath = s.CurrentTargetTmpFull();
-            if (s.CurrentTargetTmp.Length > 0
+            if (s.TxTargetUser.Length > 0
                 && !Directory.Exists(currentTargetTmpPath)) {
                 ReportInvalidStatus("CurrentTargetTmpPath", currentTargetTmpPath,
                     "invalid temporary path of an unfinished transfer");
-                s.CurrentTargetTmp = "";
+                s.TxTargetUser = "";
             }
         }
 
@@ -356,7 +356,7 @@ namespace ATxCommon.Serializables
         public string Summary() {
             return
                 $"CurrentTransferSrc: {CurrentTransferSrc}\n" +
-                $"CurrentTargetTmp: {CurrentTargetTmp}\n" +
+                $"TxTargetUser: {TxTargetUser}\n" +
                 $"TransferInProgress: {TransferInProgress}\n" +
                 $"CurrentTransferSize: {CurrentTransferSize}\n" +
                 $"LastStatusUpdate: {LastStatusUpdate:yyyy-MM-dd HH:mm:ss}" +
