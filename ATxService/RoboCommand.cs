@@ -35,7 +35,7 @@ namespace ATxService
 
             // the user name is expected to be the last part of sourcePath:
             _status.TxTargetUser = new DirectoryInfo(sourcePath).Name;
-            FsUtils.CreateNewDirectory(_status.CurrentTargetTmpFull(), false);
+            FsUtils.CreateNewDirectory(_status.TxTargetTmp, false);
 
             _transferState = TxState.Active;
             _status.TransferInProgress = true;
@@ -49,7 +49,7 @@ namespace ATxService
 
                 // copy options
                 _roboCommand.CopyOptions.Source = sourcePath;
-                _roboCommand.CopyOptions.Destination = _status.CurrentTargetTmpFull();
+                _roboCommand.CopyOptions.Destination = _status.TxTargetTmp;
 
                 // limit the transfer bandwidth by waiting between packets:
                 _roboCommand.CopyOptions.InterPacketGap = _config.InterPacketGap;

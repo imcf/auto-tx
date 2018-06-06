@@ -184,7 +184,7 @@ namespace ATxCommon.Serializables
 
         /// <summary>
         /// The user account name that should receive the data from the currently running transfer.
-        /// See also <seealso cref="CurrentTargetTmpFull"/> on details for assembling the path that
+        /// See also <seealso cref="TxTargetTmp"/> on details for assembling the path that
         /// is being used as a temporary location while a transfer is in progress.
         /// </summary>
         public string TxTargetUser {
@@ -282,18 +282,22 @@ namespace ATxCommon.Serializables
         }
 
         #endregion getter / setter methods
-        
+
+
+        #region getter only methods
 
         /// <summary>
-        /// Helper method to generate the full path of the current temp directory.
+        /// The full path of the current transfer's temp directory on the target storage.
         /// </summary>
-        /// <returns>A string with the path to the last tmp dir.</returns>
-        public string CurrentTargetTmpFull() {
-            return Path.Combine(_config.DestinationDirectory,
+        /// <returns>A string with the path to the current tmp dir.</returns>
+        public string TxTargetTmp =>
+            Path.Combine(_config.DestinationDirectory,
                 _txTargetUser,
                 _config.TmpTransferDir,
                 Environment.MachineName);
-        }
+
+        #endregion getter only methods
+
 
         /// <summary>
         /// Helper to set the service state, logging a message if the state has changed.
@@ -332,10 +336,9 @@ namespace ATxCommon.Serializables
             }
 
             // TxTargetUser
-            var currentTargetTmpPath = s.CurrentTargetTmpFull();
             if (s.TxTargetUser.Length > 0
-                && !Directory.Exists(currentTargetTmpPath)) {
-                ReportInvalidStatus("CurrentTargetTmpPath", currentTargetTmpPath,
+                && !Directory.Exists(s.TxTargetTmp)) {
+                ReportInvalidStatus("CurrentTargetTmpPath", s.TxTargetTmp,
                     "invalid temporary path of an unfinished transfer");
                 s.TxTargetUser = "";
             }

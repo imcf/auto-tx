@@ -753,7 +753,7 @@ namespace ATxService
                 Log.Debug("Finalizing transfer, cleaning up target storage location...");
                 var finalDst = DestinationPath(_status.TxTargetUser);
                 if (!string.IsNullOrWhiteSpace(finalDst)) {
-                    if (FsUtils.MoveAllSubDirs(new DirectoryInfo(_status.CurrentTargetTmpFull()),
+                    if (FsUtils.MoveAllSubDirs(new DirectoryInfo(_status.TxTargetTmp),
                         finalDst, _config.EnforceInheritedACLs)) {
                         _status.TxTargetUser = "";
                     }
@@ -812,7 +812,7 @@ namespace ATxService
                 return;
 
             Log.Debug("Resuming interrupted transfer from [{0}] to [{1}]",
-                _status.CurrentTransferSrc, _status.CurrentTargetTmpFull());
+                _status.CurrentTransferSrc, _status.TxTargetTmp);
             StartTransfer(_status.CurrentTransferSrc);
         }
 
