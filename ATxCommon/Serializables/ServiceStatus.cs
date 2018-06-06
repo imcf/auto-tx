@@ -290,9 +290,9 @@ namespace ATxCommon.Serializables
         /// <returns>A string with the path to the last tmp dir.</returns>
         public string CurrentTargetTmpFull() {
             return Path.Combine(_config.DestinationDirectory,
+                _currentTargetTmp,
                 _config.TmpTransferDir,
-                Environment.MachineName,
-                _currentTargetTmp);
+                Environment.MachineName);
         }
 
         /// <summary>
