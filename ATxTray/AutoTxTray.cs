@@ -92,8 +92,19 @@ namespace ATxTray
             Log.Trace("Trying to read service config and status files...");
             try {
                 _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "conf"));
+                _submitPath = Path.Combine(_config.IncomingPath, Environment.UserName);
                 UpdateStatusInformation();
                 SetupContextMenu();
+
+                var fsw = new FileSystemWatcher {
+                    Path = Path.Combine(baseDir, "var"),
+                    NotifyFilter = NotifyFilters.LastWrite,
+                    Filter = "status.xml",
+                };
+                fsw.Changed += StatusFileUpdated;
+                fsw.EnableRaisingEvents = true;
+
+                Log.Info("{0} initialization completed.", AppTitle);
             }
             catch (Exception ex) {
                 var msg = "Error during initialization: " + ex.Message;
@@ -107,21 +118,12 @@ namespace ATxTray
                 System.Threading.Thread.Sleep(5000);
             }
 
-            _submitPath = Path.Combine(_config.IncomingPath, Environment.UserName);
-
+            // we need to enable the timer no matter whether the initialization steps above have
+            // succeeded since this is the only way to cleanly exit the application (by checking
+            // the _status in the AppTimerElapsed method):
             AppTimer.Elapsed += AppTimerElapsed;
             AppTimer.Enabled = true;
             Log.Trace("Enabled timer.");
-
-            var fsw = new FileSystemWatcher {
-                Path = Path.Combine(baseDir, "var"),
-                NotifyFilter = NotifyFilters.LastWrite,
-                Filter = "status.xml",
-            };
-            fsw.Changed += StatusFileUpdated;
-            fsw.EnableRaisingEvents = true;
-
-            Log.Info("{0} initialization completed.", AppTitle);
         }
 
         /// <summary>
