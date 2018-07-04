@@ -1,5 +1,5 @@
-Service Updates, Configuration Management and Logfiles Collection
-=================================================================
+Service Updates, Config and Log Files Management
+================================================
 
 The service can automatically be updated by running the `Update-Service.ps1`
 script. It will check a remote location (configurable via a config file) and do
