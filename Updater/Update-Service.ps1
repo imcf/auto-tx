@@ -450,6 +450,7 @@ function Update-ServiceBinaries {
     $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
     try {
         New-Item -Type File "$MarkerFile" | Out-Null
+        Write-Output "Installed package: $($UpdPackage)" | Out-File $MarkerFile
         Log-Debug "Created marker file [$($MarkerFile)]."
     }
     catch {
