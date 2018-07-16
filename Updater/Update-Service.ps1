@@ -56,7 +56,7 @@ function ServiceIsBusy {
 
 function Get-ServiceAccount([string]$ServiceName) {
     try {
-        $Account = $(Get-WmiObject Win32_Service | 
+        $Account = $(Get-WmiObject Win32_Service |
             Where-Object { $_.Name -match $ServiceName }).StartName
     }
     catch {
@@ -78,7 +78,7 @@ function Check-PerformanceMonitormembership() {
         Write-Verbose "Validated membership in group [$($GroupName)]."
     }
     catch {
-        Log-Warning $("Service account [$($ServiceAccount)] is NOT a member of" 
+        Log-Warning $("Service account [$($ServiceAccount)] is NOT a member of"
                       "the local group [$($GroupName)], monitoring CPU load"
                       " >>>> WILL NOT WORK! <<<<")
     }
@@ -309,7 +309,7 @@ function Update-Configuration {
     Write-Verbose "Updating configuration files:`n> $($NewComm)`n> $($NewHost)"
 
     Stop-MyService "Updating configuration using files at [$($UpdPathConfig)]."
-    
+
     $Ret = Update-File $NewComm $ConfigPath
     # only continue if the first update worked:
     if ($Ret) {
@@ -403,7 +403,7 @@ function Find-InstallationPackage {
         Where-Object {$_ -match $Pattern} |
         Sort-Object |
         Select-Object -Last 1
-    
+
     if ([string]::IsNullOrEmpty($PkgDir)) {
         Log-Error "couldn't find installation package matching '$($Pattern)'!"
         Exit
@@ -704,7 +704,7 @@ try {
             $msg = "Updating the service binaries failed, $($Me) terminating!"
             Log-Error $msg
             Send-MailReport -Subject "updated failed!" -Body $msg
-            Exit        
+            Exit
         }
         Check-PerformanceMonitormembership
     }
