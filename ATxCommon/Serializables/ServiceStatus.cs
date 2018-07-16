@@ -292,9 +292,9 @@ namespace ATxCommon.Serializables
         /// <returns>A string with the path to the current tmp dir.</returns>
         public string TxTargetTmp =>
             Path.Combine(_config.DestinationDirectory,
-                _txTargetUser,
                 _config.TmpTransferDir,
-                Environment.MachineName);
+                Environment.MachineName,
+                _txTargetUser);
 
         #endregion getter only methods
 
