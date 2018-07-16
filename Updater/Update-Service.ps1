@@ -449,8 +449,26 @@ function Update-ServiceBinaries {
 
     $MarkerFile = "$($UpdPathMarkerFiles)\$($env:COMPUTERNAME)"
     try {
+        try {
+            $BuildCommit = Get-Content $UpdPackage\BuildCommit.txt
+        }
+        catch {
+            $BuildCommit = "UNKNOWN"
+        }
+        try {
+            $BuildConfig = Get-Content $UpdPackage\BuildConfiguration.txt
+        }
+        catch {
+            $BuildConfig = "UNKNOWN"
+        }
         New-Item -Type File "$MarkerFile" | Out-Null
-        Write-Output "Installed package: $($UpdPackage)" | Out-File $MarkerFile
+        Write-Output "$($Me): running AutoTx service update" `
+            "  - Host: $($env:COMPUTERNAME)" `
+            "  - Updater Run Timestamp: $(Get-Date -Format o)" `
+            "  - Build Commit: $($BuildCommit)" `
+            "  - Build Configuration: $($BuildConfig)" `
+            "  - Package Name: $($UpdPackage)" `
+            | Out-File -Encoding ASCII $MarkerFile
         Log-Debug "Created marker file [$($MarkerFile)]."
     }
     catch {
