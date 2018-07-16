@@ -293,8 +293,8 @@ namespace ATxCommon.Serializables
         public string TxTargetTmp =>
             Path.Combine(_config.DestinationDirectory,
                 _config.TmpTransferDir,
-                Environment.MachineName,
-                _txTargetUser);
+                _txTargetUser,
+                Environment.MachineName);
 
         #endregion getter only methods
 
