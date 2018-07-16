@@ -403,6 +403,11 @@ namespace ATxCommon.Serializables
             if (!Directory.Exists(c.DestinationDirectory))
                 errmsg += $"can't find (or reach) destination: {c.DestinationDirectory}\n";
 
+            // TmpTransferDir
+            var tmpTransferPath = Path.Combine(c.DestinationDirectory, c.TmpTransferDir);
+            if (!Directory.Exists(tmpTransferPath))
+                errmsg += $"can't find (or reach) temporary transfer dir: {tmpTransferPath}\n";
+
 
             ////////// OPTIONAL PARAMETERS SETTINGS VALIDATION //////////
 
