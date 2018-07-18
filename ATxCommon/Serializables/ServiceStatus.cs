@@ -65,7 +65,10 @@ namespace ATxCommon.Serializables
             try {
                 var xs = new XmlSerializer(GetType());
                 var writer = File.CreateText(_storageFile);
-                xs.Serialize(writer, this);
+                // set the namespace to empty as it only makes the XML less human-readable:
+                var xns = new XmlSerializerNamespaces();
+                xns.Add(string.Empty, string.Empty);
+                xs.Serialize(writer, this, xns);
                 writer.Flush();
                 writer.Close();
             }
