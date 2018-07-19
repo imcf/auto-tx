@@ -26,6 +26,11 @@ namespace ATxService
             if (totalSize == 0) {
                 Log.Warn("Total size of all files in [{0}] is zero, NOT STARTING a transfer!",
                     sourcePath);
+                // we also have to move it out of the way, otherwise it will block all transfers:
+                var sourceDir = new DirectoryInfo(sourcePath);
+                var errorTargetPath = Path.Combine(_config.ErrorPath, TimeUtils.Timestamp());
+                sourceDir.MoveTo(errorTargetPath);
+                Log.Warn("Moved empty directory tree [{0}] to [{1}].", sourcePath, errorTargetPath);
                 return;
             }
             Log.Debug("Size of all files under [{0}] is {1} bytes ({2})",
