@@ -1,0 +1,1 @@
+msbuild AutoTx.sln /t:Rebuild /p:Configuration=Debug

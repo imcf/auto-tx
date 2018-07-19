@@ -1,0 +1,1 @@
+msbuild AutoTx.sln /t:Build /p:Configuration=Release
