@@ -317,9 +317,9 @@ namespace ATxCommon.Serializables
             Serialize();
 
             if (suspended) {
-                Log.Info("Service suspended. Reason(s): [{0}]", description);
+                Log.Trace("Service suspended. Reason(s): [{0}]", description);
             } else {
-                Log.Info("Service resuming operation ({0}).", description);
+                Log.Trace("Service resuming operation ({0}).", description);
             }
         }
         
