@@ -99,6 +99,9 @@ namespace ATxService
         /// AutoTx constructor
         /// </summary>
         public AutoTx() {
+            // make sure to receive system shutdown events to react properly:
+            CanShutdown = true;
+
             InitializeComponent();
             SetupFileLogging();
             Log.Info("=".PadLeft(80, '='));
@@ -440,6 +443,8 @@ namespace ATxService
             Log.Info("RoboSharp version: [{0}]", roboAssembly.GetName().Version);
             Log.Info("Robosharp product version: [{0}]", roboVersionInfo.ProductVersion);
             Log.Info("=".PadLeft(80, '='));
+            Log.Trace($"ServiceBase.CanShutdown property: {CanShutdown}");
+            Log.Trace("=".PadLeft(80, '='));
         }
 
         /// <summary>
