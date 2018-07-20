@@ -116,6 +116,12 @@ namespace ATxService
                 return;
             }
 
+            // reaching this point means a notification will be sent to the admin, and in that
+            // case it makes sense to also include details about the grace location:
+            var graceReport = FsUtils.GraceLocationSummary(
+                new DirectoryInfo(_config.DonePath), _config.GracePeriod);
+
+
             Log.Warn("WARNING: {0}", spaceDetails);
             _status.LastStorageNotification = DateTime.Now;
 
@@ -127,6 +133,8 @@ namespace ATxService
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
+                if (graceReport.Length > 0)
+                    body += $"\n\n--\n{graceReport}";
                 SendEmail(_config.AdminEmailAdress, "low disk space", body);
             }
             catch (Exception ex) {
