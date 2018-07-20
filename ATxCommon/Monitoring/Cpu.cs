@@ -115,7 +115,7 @@ namespace ATxCommon.Monitoring
             _interval = 250;
             _limit = 25;
             _probation = 40;
-            Log.Debug("Initializing CPU monitoring...");
+            Log.Info("Initializing CPU load monitoring...");
             try {
                 Log.Debug("CPU monitoring initializing PerformanceCounter (takes one second)...");
                 _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
@@ -165,7 +165,8 @@ namespace ATxCommon.Monitoring
                     } else if (_behaving > _probation) {
                         Log.Trace("CPU load behaving well since {0} cycles.", _behaving);
                     } else if (_behaving < 0) {
-                        Log.Warn("Integer wrap around happened, resetting probation counter!");
+                        Log.Info("CPU load monitoring: integer wrap around happened, " +
+                                 "resetting probation counter! (No reason to worry!)");
                         _behaving = _probation + 1;
                     }
                 }
