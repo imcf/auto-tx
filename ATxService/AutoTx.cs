@@ -403,19 +403,6 @@ namespace ATxService
             }
 
             Log.Debug(msg);
-
-            Log.Info("User Profile Directories:");
-            var profilesDir = new DirectoryInfo(@"C:\Users");
-            foreach (var userProfile in profilesDir.GetDirectories()) {
-                Log.Info(userProfile.Name);
-                try {
-                    var userProfileSize = FsUtils.GetDirectorySize(userProfile.FullName);
-                    Log.Info(userProfileSize);
-                }
-                catch (Exception e) {
-                    Log.Error($"getting size of [{userProfile.FullName}] failed: {e.Message}");
-                }
-            }
         }
 
         #endregion
