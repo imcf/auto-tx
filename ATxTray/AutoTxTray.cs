@@ -295,11 +295,18 @@ namespace ATxTray
                 return;
 
             _selectedDir = new DirectoryInfo(dirDialog.FileName);
+            Log.Debug($"Selected path from folder picker: [{_selectedDir.Name}]");
             var drive = dirDialog.FileName.Substring(0, 3);
             if (drive != _config.SourceDrive) {
                 MessageBox.Show($@"The selected directory '{_selectedDir}' is required to be on " +
                     $@"drive {_config.SourceDrive}, please choose another directory!",
                     @"Selected directory on wrong drive", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (_selectedDir.Name.Length <= 3) {
+                MessageBox.Show($"Submitting entire drives ({_selectedDir.Name}) is not allowed!",
+                    "Invalid selection", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
