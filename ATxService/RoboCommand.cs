@@ -116,9 +116,9 @@ namespace ATxService
             if (_transferState != TxState.Active)
                 return;
 
+            _transferState = TxState.Paused;
             Log.Info("Pausing the active transfer...");
             _roboCommand.Pause();
-            _transferState = TxState.Paused;
             Log.Debug("Transfer paused");
         }
 
