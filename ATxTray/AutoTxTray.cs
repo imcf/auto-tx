@@ -303,7 +303,17 @@ namespace ATxTray
                 return;
             }
 
-            NewTxConfirmationDialog();
+            try {
+                NewTxConfirmationDialog();
+            }
+            catch (UnauthorizedAccessException ex) {
+                MessageBox.Show("ERROR: the selected directory\n\n" +
+                                $"[{_selectedDir.Name}]\n\n" +
+                                "contains files or folders that are not readable\n" +
+                                "due to insufficient permissions!\n\n" +
+                                ex.Message,
+                    "Error reading directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
