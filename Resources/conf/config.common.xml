@@ -33,6 +33,9 @@
     <!-- LogLevel: one of "Warn", "Info", "Debug", "Trace" -->
     <LogLevel>Debug</LogLevel>
 
+    <!-- LogLevelMonitoring: load monitoring log level, default "Trace". -->
+    <LogLevelMonitoring>Trace</LogLevelMonitoring>
+
     <!-- DebugRoboSharp: enable debug messages from the RoboSharp library. -->
     <DebugRoboSharp>true</DebugRoboSharp>
 

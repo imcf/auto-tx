@@ -79,6 +79,11 @@ namespace ATxCommon.Serializables
         public string LogLevel { get; set; } = "Info";
 
         /// <summary>
+        /// Log level to use for performance monitoring messages. Default: "Trace"
+        /// </summary>
+        public string LogLevelMonitoring { get; set; } = "Trace";
+
+        /// <summary>
         /// Enable debug messages from the RoboSharp library. Default: false.
         /// </summary>
         public bool DebugRoboSharp { get; set; } = false;
@@ -254,6 +259,28 @@ namespace ATxCommon.Serializables
         /// </summary>
         [XmlIgnore]
         public string ErrorPath => Path.Combine(ManagedPath, "ERROR");
+
+        /// <summary>
+        /// The LogLevel to be used for performance monitoring messages.
+        /// </summary>
+        [XmlIgnore]
+        public LogLevel MonitoringLogLevel {
+            get {
+                switch (LogLevelMonitoring) {
+                    case "Warn":
+                        return global::NLog.LogLevel.Warn;
+                    case "Info":
+                        return global::NLog.LogLevel.Info;
+                    case "Debug":
+                        return global::NLog.LogLevel.Debug;
+                    case "Trace":
+                        return global::NLog.LogLevel.Trace;
+                    default:
+                        return global::NLog.LogLevel.Info;
+                }
+            }
+        }
+
 
         #endregion
 
@@ -470,6 +497,7 @@ namespace ATxCommon.Serializables
                 "\n" +
                 "############### OPTIONAL PARAMETERS ###############\n" +
                 $"LogLevel: {LogLevel}\n" +
+                $"LogLevelMonitoring: {LogLevelMonitoring}\n" +
                 $"ServiceTimer: {ServiceTimer} ms\n" +
                 $"MarkerFile: {MarkerFile}\n" +
                 $"GracePeriod: {GracePeriod} days (" +
