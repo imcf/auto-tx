@@ -24,6 +24,11 @@
     <!-- MaxCpuUsage: pause transfer if CPU usage is above this value (in %)-->
     <MaxCpuUsage>25</MaxCpuUsage>
 
+    <!-- MaxDiskQueue: maximum allowed length of disk I/O queue, multiplied
+         by 1000 (so a value of "500" here means the maximum queue length
+         allowed is "0.500"), otherwise running transfers will be paused. -->
+    <MaxDiskQueue>500</MaxDiskQueue>
+
     <!-- MinAvailableMemory: pause transfer if free RAM is below (in MB) -->
     <MinAvailableMemory>512</MinAvailableMemory>
 

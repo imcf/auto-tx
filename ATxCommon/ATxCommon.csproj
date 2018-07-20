@@ -48,6 +48,7 @@
     <Compile Include="Conv.cs" />
     <Compile Include="FsUtils.cs" />
     <Compile Include="Monitoring\Cpu.cs" />
+    <Compile Include="Monitoring\PhysicalDisk.cs" />
     <Compile Include="NLog\RateLimitWrapper.cs" />
     <Compile Include="Serializables\DriveToCheck.cs" />
     <Compile Include="Serializables\ServiceConfig.cs" />

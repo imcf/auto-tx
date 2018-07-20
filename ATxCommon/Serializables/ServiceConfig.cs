@@ -64,6 +64,13 @@ namespace ATxCommon.Serializables
         public int MaxCpuUsage { get; set; }
 
         /// <summary>
+        /// Maximum length of the disk queue multiplied by 1000 (so a value of "25" here means the
+        /// queue length is required to be "0.025" or less). Running transfers will be paused if
+        /// this limit is exceeded.
+        /// </summary>
+        public int MaxDiskQueue { get; set; }
+
+        /// <summary>
         /// Minimum amount of free RAM (in MB) required for the service to operate.
         /// </summary>
         public int MinAvailableMemory { get; set; }
@@ -405,6 +412,7 @@ namespace ATxCommon.Serializables
 
             errmsg += CheckMinValue(c.ServiceTimer, nameof(c.ServiceTimer), 1000);
             errmsg += CheckMinValue(c.MaxCpuUsage, nameof(c.MaxCpuUsage), 5);
+            errmsg += CheckMinValue(c.MaxDiskQueue, nameof(c.MaxDiskQueue), 1);
             errmsg += CheckMinValue(c.MinAvailableMemory, nameof(c.MinAvailableMemory), 256);
 
             // if any of the required parameter checks failed we terminate now as many of the
@@ -454,6 +462,7 @@ namespace ATxCommon.Serializables
 
             WarnOnHighValue(c.ServiceTimer, nameof(c.ServiceTimer), 10000);
             WarnOnHighValue(c.MaxCpuUsage, nameof(c.MaxCpuUsage), 75);
+            WarnOnHighValue(c.MaxDiskQueue, nameof(c.MaxDiskQueue), 2000);
             WarnOnHighValue(c.MinAvailableMemory, nameof(c.MinAvailableMemory), 8192);
             WarnOnHighValue(c.AdminNotificationDelta, nameof(c.AdminNotificationDelta), 1440);
             WarnOnHighValue(c.GraceNotificationDelta, nameof(c.GraceNotificationDelta), 10080);
@@ -493,6 +502,7 @@ namespace ATxCommon.Serializables
                 $"DestinationDirectory: {DestinationDirectory}\n" +
                 $"TmpTransferDir: {TmpTransferDir}\n" +
                 $"MaxCpuUsage: {MaxCpuUsage}%\n" +
+                $"MaxDiskQueue: {MaxDiskQueue} / 1000 (effectively {MaxDiskQueue/1000})\n" +
                 $"MinAvailableMemory: {MinAvailableMemory} MB\n" +
                 "\n" +
                 "############### OPTIONAL PARAMETERS ###############\n" +

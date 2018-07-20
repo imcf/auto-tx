@@ -45,6 +45,8 @@ namespace ATxService
         /// </summary>
         private readonly Cpu _cpu;
 
+        private readonly PhysicalDisk _phyDisk;
+
         private RoboCommand _roboCommand;
         
         /// <summary>
@@ -61,6 +63,8 @@ namespace ATxService
         /// Internal counter to introduce a delay between two subsequent transfers.
         /// </summary>
         private int _waitCyclesBeforeNextTx;
+
+        private int _exceedingLoadLimit = 0;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
@@ -128,6 +132,21 @@ namespace ATxService
             }
             catch (Exception ex) {
                 Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
+                throw;
+            }
+
+            try {
+                _phyDisk = new PhysicalDisk {
+                    Interval = 250,
+                    Limit = (float) _config.MaxDiskQueue / 1000,
+                    Probation = 16,
+                    Enabled = true
+                };
+                _phyDisk.LoadAboveLimit += OnLoadAboveLimit;
+                _phyDisk.LoadBelowLimit += OnLoadBelowLimit;
+            }
+            catch (Exception ex) {
+                Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}", ex.Message);
                 throw;
             }
 
@@ -542,18 +561,25 @@ namespace ATxService
         #region general methods
 
         /// <summary>
-        /// Event handler for CPU load dropping below the configured limit.
+        /// Event handler for load dropping below the configured limit(s).
         /// </summary>
         private void OnLoadBelowLimit(object sender, EventArgs e) {
-            Log.Trace("Received a low-CPU-load event!");
-            ResumePausedTransfer();
+            _exceedingLoadLimit--;
+            if (_exceedingLoadLimit < 0)
+                _exceedingLoadLimit = 0;
+            Log.Log(_config.MonitoringLogLevel,
+                "Received 'low-load' from {0} (exceeding: {1})", sender, _exceedingLoadLimit);
+            if (_exceedingLoadLimit == 0)
+                ResumePausedTransfer();
         }
 
         /// <summary>
-        /// Event handler for CPU load exceeding the configured limit.
+        /// Event handler for load exceeding the configured limits.
         /// </summary>
         private void OnLoadAboveLimit(object sender, EventArgs e) {
-            Log.Trace("Received a high-CPU-load event!");
+            _exceedingLoadLimit++;
+            Log.Log(_config.MonitoringLogLevel,
+                "Received 'high-load' from {0} (exceeding: {1})", sender, _exceedingLoadLimit);
             PauseTransfer();
         }
 
@@ -565,6 +591,9 @@ namespace ATxService
 
             // check all system parameters for valid ranges and remember the reason in a string
             // if one of them is failing (to report in the log why we're suspended)
+            if (_phyDisk.HighLoad)
+                suspendReasons.Add("Disk I/O");
+
             if (_cpu.HighLoad)
                 suspendReasons.Add("CPU");
 
