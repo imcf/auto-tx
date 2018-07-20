@@ -52,8 +52,8 @@ namespace ATxCommon
         }
 
         /// <summary>
-        /// Check all configured disks for their free space and send a notification
-        /// if necessary (depending on the configured delta time).
+        /// Check all configured disks for their free space and generate a
+        /// summary with details to be used in a notification message.
         /// </summary>
         public static string CheckFreeDiskSpace(List<Serializables.DriveToCheck> drives) {
             var msg = "";
