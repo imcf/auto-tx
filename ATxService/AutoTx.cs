@@ -128,7 +128,7 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Set up NLog logging: targets, rules...
+        /// Configure NLog logging for the file target.
         /// </summary>
         private void SetupFileLogging(string logLevelName = "Debug") {
             LogLevel logLevel;
@@ -269,7 +269,7 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Load the configuration.
+        /// Load the configuration and update the logger setups.
         /// </summary>
         private void LoadConfig() {
             try {
