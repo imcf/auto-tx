@@ -50,6 +50,15 @@ namespace ATxCommon.Monitoring
 
         private float _limit;
 
+        /// <summary>
+        /// Name of the performance counter category, <see cref="PerformanceCounter"/>.
+        /// </summary>
+        private const string Category = "PhysicalDisk";
+
+        /// <summary>
+        /// Description string to be used in log messages.
+        /// </summary>
+        private readonly string _description;
 
 
         #region properties
@@ -73,7 +82,7 @@ namespace ATxCommon.Monitoring
             set {
                 _interval = value;
                 _monitoringTimer.Interval = value;
-                Log.Debug("PhysicalDisk Queue Length monitoring interval: {0}", _interval);
+                Log.Debug("{0} monitoring interval: {1}ms", _description, _interval);
             }
         }
 
@@ -84,7 +93,7 @@ namespace ATxCommon.Monitoring
             get => _limit;
             set {
                 _limit = value;
-                Log.Debug("PhysicalDisk monitoring limit: {0:0.000}", _limit);
+                Log.Debug("{0} monitoring limit: {1:0.000}", _description, _limit);
             }
         }
 
@@ -96,7 +105,8 @@ namespace ATxCommon.Monitoring
             get => _probation;
             set {
                 _probation = value;
-                Log.Debug("PhysicalDisk monitoring probation cycles when violating limit: {0}", _probation);
+                Log.Debug("{0} monitoring probation cycles when violating limit: {1}",
+                    _description, _probation);
             }
         }
         
@@ -106,13 +116,13 @@ namespace ATxCommon.Monitoring
         public bool Enabled {
             get => _monitoringTimer.Enabled;
             set {
-                Log.Debug("{0} PhysicalDisk monitoring.", value ? "Enabling" : "Disabling");
+                Log.Debug("{0} - {1} monitoring.", _description, value ? "enabling" : "disabling");
                 _monitoringTimer.Enabled = value;
             }
         }
 
         /// <summary>
-        /// Log level to use for reporting current performance readings.
+        /// Log level to use for reporting current performance readings, default = Trace.
         /// </summary>
         public LogLevel LogPerformanceReadings { get; set; } = LogLevel.Trace;
 
@@ -131,17 +141,18 @@ namespace ATxCommon.Monitoring
             _interval = 250;
             _limit = 0.5F;
             _probation = 40;
-            Log.Info($"Initializing PhysicalDisk performance monitoring for [{counterName}]...");
+            Log.Info("Initializing {0} PerformanceCounter for [{1}].", Category, counterName);
+            // assemble the description string to be used in messages:
+            _description = $"{Category} {counterName}";
             try {
-                Log.Debug("PhysicalDisk monitoring initializing PerformanceCounter...");
-                _diskQueueLength = new PerformanceCounter("PhysicalDisk", counterName, "_Total");
+                _diskQueueLength = new PerformanceCounter(Category, counterName, "_Total");
                 var curLoad = _diskQueueLength.NextValue();
-                Log.Debug("PhysicalDisk Queue Length initial value: {0:0.000}", curLoad);
+                Log.Debug("{0} initial value: {1:0.000}", _description, curLoad);
                 /* this initialization doesn't seem to be necessary for PhysicalDisk, so we just
                  * disable those calls for now:
                 Thread.Sleep(1000);
                 curLoad = _diskQueueLength.NextValue();
-                Log.Debug("PhysicalDisk monitoring current queue length: {0:0.000}", curLoad);
+                Log.Debug("{0} current value: {1:0.000}", _description, curLoad);
                  */
                 // now initialize the load state:
                 HighLoad = curLoad > _limit;
@@ -149,11 +160,11 @@ namespace ATxCommon.Monitoring
                 _monitoringTimer.Elapsed += UpdatePhysicalDiskLoad;
             }
             catch (Exception) {
-                Log.Error("Initializing PhysicalDisk monitoring failed!");
+                Log.Error("{0} monitoring initialization failed!", Category);
                 throw;
             }
 
-            Log.Debug("Initializing PhysicalDisk monitoring completed.");
+            Log.Debug("{0} monitoring initialization completed.", _description);
         }
 
         /// <summary>
@@ -171,36 +182,37 @@ namespace ATxCommon.Monitoring
                     if (_behaving > _probation) {
                         // this means the load was considered as "low" before, so raise an event:
                         OnLoadAboveLimit();
-                        Log.Trace("PhysicalDisk Queue Length ({0:0.00}) violating limit ({1})!",
-                            _loadReadings[3], _limit);
+                        Log.Trace("{0} ({1:0.00}) violating limit ({2})!",
+                            _description, _loadReadings[3], _limit);
                     } else if (_behaving > 0) {
                         // this means we were still in probation, so no need to trigger again...
-                        Log.Trace("PhysicalDisk: resetting behaving counter (was {0}).", _behaving);
+                        Log.Trace("{0}: resetting behaving counter (was {1}).",
+                            _description, _behaving);
                     }
                     _behaving = 0;
                 } else {
                     _behaving++;
                     if (_behaving == _probation) {
-                        Log.Trace("PhysicalDisk Queue Length below limit for {0} cycles, " +
-                                  "passing probation!", _probation);
+                        Log.Trace("{0} below limit for {1} cycles, passing probation!",
+                            _description, _probation);
                         OnLoadBelowLimit();
                     } else if (_behaving > _probation) {
-                        Log.Trace("PhysicalDisk Queue Length behaving well since {0} cycles.",
-                            _behaving);
+                        Log.Trace("{0} behaving well since {1} cycles.",
+                            _description, _behaving);
                     } else if (_behaving < 0) {
-                        Log.Info("PhysicalDisk Queue Length: integer wrap around happened, " +
-                                 "resetting probation counter (no reason to worry).");
+                        Log.Info("{0}: integer wrap around happened, resetting probation " +
+                                 "counter (no reason to worry).", _description);
                         _behaving = _probation + 1;
                     }
                 }
             }
             catch (Exception ex) {
-                Log.Error("UpdatePhysicalDiskLoad failed: {0}", ex.Message);
+                Log.Error("Updating {0} counters failed: {1}", _description, ex.Message);
             }
             finally {
                 _monitoringTimer.Enabled = true;
             }
-            Log.Log(LogPerformanceReadings, "PhysicalDisk Queue Length: {0:0.000} {1}",
+            Log.Log(LogPerformanceReadings, "{0}: {1:0.000} {2}", _description,
                 _loadReadings[3], _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
         }
 
