@@ -324,6 +324,7 @@ namespace ATxService
                     Interval = 250,
                     Limit = _config.MaxCpuUsage,
                     Probation = 16,
+                    LogPerformanceReadings = _config.MonitoringLogLevel,
                     Enabled = true
                 };
                 _cpu.LoadAboveLimit += OnLoadAboveLimit;
@@ -345,6 +346,7 @@ namespace ATxService
                     Interval = 250,
                     Limit = (float) _config.MaxDiskQueue / 1000,
                     Probation = 16,
+                    LogPerformanceReadings = _config.MonitoringLogLevel,
                     Enabled = true
                 };
                 _phyDisk.LoadAboveLimit += OnLoadAboveLimit;
