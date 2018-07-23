@@ -285,7 +285,10 @@ namespace ATxService
                 // this should terminate the service process:
                 throw new Exception("Error loading configuration.");
             }
+            // update the file logger with the configured log level:
             SetupFileLogging(_config.LogLevel);
+            // the mail logger requires the configuration to be present, so we can call it now:
+            SetupMailLogging();
         }
 
         /// <summary>
@@ -311,10 +314,6 @@ namespace ATxService
         /// Check if loaded configuration is valid, print a summary to the log.
         /// </summary>
         private void CheckConfiguration() {
-            // non-critical / optional configuration parameters:
-            if (!string.IsNullOrWhiteSpace(_config.SmtpHost))
-                SetupMailLogging();
-
             var configInvalid = false;
             if (FsUtils.CheckSpoolingDirectories(_config.IncomingPath, _config.ManagedPath) == false) {
                 Log.Error("ERROR checking spooling directories (incoming / managed)!");
