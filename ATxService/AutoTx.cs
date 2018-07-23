@@ -43,9 +43,12 @@ namespace ATxService
         /// <summary>
         /// The CPU load monitoring object.
         /// </summary>
-        private readonly Cpu _cpu;
+        private Cpu _cpu;
 
-        private readonly PhysicalDisk _phyDisk;
+        /// <summary>
+        /// The Disk I/O monitoring object.
+        /// </summary>
+        private PhysicalDisk _phyDisk;
 
         private RoboCommand _roboCommand;
         
@@ -114,42 +117,9 @@ namespace ATxService
             LoadSettings();
             CreateIncomingDirectories();
 
-            try {
-                _cpu = new Cpu {
-                    Interval = 250,
-                    Limit = _config.MaxCpuUsage,
-                    Probation = 16,
-                    Enabled = true
-                };
-                _cpu.LoadAboveLimit += OnLoadAboveLimit;
-                _cpu.LoadBelowLimit += OnLoadBelowLimit;
-            }
-            catch (UnauthorizedAccessException ex) {
-                Log.Error("Not enough permissions to monitor the CPU load.\nMake sure the " +
-                          "service account is a member of the [Performance Monitor Users] " +
-                          "system group.\nError message was: {0}", ex.Message);
-                throw;
-            }
-            catch (Exception ex) {
-                Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
-                throw;
-            }
 
-            try {
-                _phyDisk = new PhysicalDisk {
-                    Interval = 250,
-                    Limit = (float) _config.MaxDiskQueue / 1000,
-                    Probation = 16,
-                    Enabled = true
-                };
-                _phyDisk.LoadAboveLimit += OnLoadAboveLimit;
-                _phyDisk.LoadBelowLimit += OnLoadBelowLimit;
-            }
-            catch (Exception ex) {
-                Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}", ex.Message);
-                throw;
-            }
-
+            InitializePerformanceMonitors();
+            StartupSummary();
 
             if (_config.DebugRoboSharp) {
                 Debugger.Instance.DebugMessageEvent += HandleDebugMessage;
@@ -361,8 +331,47 @@ namespace ATxService
                     "indicate the computer has crashed or was forcefully shut off.", ServiceName);
             }
             _status.CleanShutdown = false;
+        }
 
-            StartupSummary();
+        /// <summary>
+        /// Set up the performance monitor objects (CPU, Disk I/O, ...).
+        /// </summary>
+        private void InitializePerformanceMonitors() {
+            try {
+                _cpu = new Cpu {
+                    Interval = 250,
+                    Limit = _config.MaxCpuUsage,
+                    Probation = 16,
+                    Enabled = true
+                };
+                _cpu.LoadAboveLimit += OnLoadAboveLimit;
+                _cpu.LoadBelowLimit += OnLoadBelowLimit;
+            }
+            catch (UnauthorizedAccessException ex) {
+                Log.Error("Not enough permissions to monitor the CPU load.\nMake sure the " +
+                          "service account is a member of the [Performance Monitor Users] " +
+                          "system group.\nError message was: {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex) {
+                Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
+                throw;
+            }
+
+            try {
+                _phyDisk = new PhysicalDisk {
+                    Interval = 250,
+                    Limit = (float) _config.MaxDiskQueue / 1000,
+                    Probation = 16,
+                    Enabled = true
+                };
+                _phyDisk.LoadAboveLimit += OnLoadAboveLimit;
+                _phyDisk.LoadBelowLimit += OnLoadBelowLimit;
+            }
+            catch (Exception ex) {
+                Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
