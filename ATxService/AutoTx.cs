@@ -174,8 +174,10 @@ namespace ATxService
         private void SetupMailLogging() {
             try {
                 if (string.IsNullOrWhiteSpace(_config.SmtpHost) ||
-                    string.IsNullOrWhiteSpace(_config.AdminEmailAdress))
+                    string.IsNullOrWhiteSpace(_config.AdminEmailAdress)) {
+                    Log.Info("SMTP host or admin recipient unconfigured, disabling mail logging.");
                     return;
+                }
 
                 var subject = $"{ServiceName} - {Environment.MachineName} - Admin Notification";
                 var body = $"Notification from '{_config.HostAlias}' [{Environment.MachineName}] (via NLog)\n\n" +
