@@ -166,7 +166,7 @@ namespace ATxCommon.Monitoring
                         Log.Trace("CPU load behaving well since {0} cycles.", _behaving);
                     } else if (_behaving < 0) {
                         Log.Info("CPU load monitoring: integer wrap around happened, " +
-                                 "resetting probation counter! (No reason to worry!)");
+                                 "resetting probation counter (no reason to worry).");
                         _behaving = _probation + 1;
                     }
                 }
