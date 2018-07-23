@@ -48,6 +48,15 @@ namespace ATxCommon.Monitoring
         private int _behaving;
         private int _probation;
 
+        /// <summary>
+        /// Performance counter category name, <see cref="PerformanceCounter"/> for details.
+        /// </summary>
+        private const string Category = "Processor";
+        
+        /// <summary>
+        /// Description string to be used in log messages.
+        /// </summary>
+        private readonly string _description;
 
         #region properties
 
@@ -70,7 +79,7 @@ namespace ATxCommon.Monitoring
             set {
                 _interval = value;
                 _monitoringTimer.Interval = value;
-                Log.Debug("CPU monitoring interval: {0}", _interval);
+                Log.Debug("{0} monitoring interval: {1}ms", _description, _interval);
             }
         }
 
@@ -81,7 +90,7 @@ namespace ATxCommon.Monitoring
             get => _limit;
             set {
                 _limit = value;
-                Log.Debug("CPU monitoring limit: {0}", _limit);
+                Log.Debug("{0} monitoring limit: {1}", _description, _limit);
             }
         }
 
@@ -93,7 +102,8 @@ namespace ATxCommon.Monitoring
             get => _probation;
             set {
                 _probation = value;
-                Log.Debug("CPU monitoring probation cycles when violating limit: {0}", _probation);
+                Log.Debug("{0} monitoring probation cycles when violating limit: {1}",
+                    _description, _probation);
             }
         }
         
@@ -103,7 +113,7 @@ namespace ATxCommon.Monitoring
         public bool Enabled {
             get => _monitoringTimer.Enabled;
             set {
-                Log.Debug("{0} CPU monitoring.", value ? "Enabling" : "Disabling");
+                Log.Debug("{0} - {1} monitoring.", _description, value ? "enabling" : "disabling");
                 _monitoringTimer.Enabled = value;
             }
         }
@@ -120,29 +130,32 @@ namespace ATxCommon.Monitoring
         /// <summary>
         /// Create performance counter and initialize it.
         /// </summary>
-        public Cpu() {
+        public Cpu(string counterName = "% Processor Time") {
             _interval = 250;
             _limit = 25;
             _probation = 40;
-            Log.Info("Initializing CPU load monitoring...");
+            Log.Info("Initializing {0} performance monitoring for [{1}].", Category, counterName);
+            // assemble the description string to be used in messages:
+            _description = $"{Category} {counterName}";
             try {
-                Log.Debug("CPU monitoring initializing PerformanceCounter (takes one second)...");
-                _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-                _cpuCounter.NextValue();
-                Thread.Sleep(1000);
+                Log.Debug("{0} monitoring initializing PerformanceCounter (takes one second)...", Category);
+                _cpuCounter = new PerformanceCounter(Category, counterName, "_Total");
                 var curLoad = _cpuCounter.NextValue();
-                Log.Debug("CPU monitoring current load: {0:0.0}", curLoad);
+                Log.Debug("{0} initial value: {1:0.0}", _description, curLoad);
+                Thread.Sleep(1000);
+                curLoad = _cpuCounter.NextValue();
+                Log.Debug("{0} current value: {1:0.0}", _description, curLoad);
                 // now initialize the load state:
                 HighLoad = curLoad > _limit;
                 _monitoringTimer = new Timer(_interval);
                 _monitoringTimer.Elapsed += UpdateCpuLoad;
             }
             catch (Exception) {
-                Log.Error("Initializing CPU monitoring failed!");
+                Log.Error("{0} monitoring initialization failed!", Category);
                 throw;
             }
 
-            Log.Debug("Initializing CPU monitoring completed.");
+            Log.Debug("{0} monitoring initialization completed.", _description);
         }
 
         /// <summary>
@@ -160,33 +173,37 @@ namespace ATxCommon.Monitoring
                     if (_behaving > _probation) {
                         // this means the load was considered as "low" before, so raise an event:
                         OnLoadAboveLimit();
-                        Log.Trace("CPU load ({0:0.0}) violating limit ({1})!", _loadReadings[3], _limit);
+                        Log.Trace("{0} ({1:0.0}) violating limit ({2})!",
+                            _description, _loadReadings[3], _limit);
                     } else if (_behaving > 0) {
                         // this means we were still in probation, so no need to trigger again...
-                        Log.Trace("Resetting behaving counter to 0 (was {0}).", _behaving);
+                        Log.Trace("{0}: resetting behaving counter (was {1}).",
+                            _description, _behaving);
                     }
                   _behaving = 0;
                 } else {
                     _behaving++;
                     if (_behaving == _probation) {
-                        Log.Trace("CPU load below limit for {0} cycles, passing probation!", _probation);
+                        Log.Trace("{0} below limit for {1} cycles, passing probation!",
+                            _description, _probation);
                         OnLoadBelowLimit();
                     } else if (_behaving > _probation) {
-                        Log.Trace("CPU load behaving well since {0} cycles.", _behaving);
+                        Log.Trace("{0} behaving well since {1} cycles.",
+                            _description, _behaving);
                     } else if (_behaving < 0) {
-                        Log.Info("CPU load monitoring: integer wrap around happened, " +
-                                 "resetting probation counter (no reason to worry).");
+                        Log.Info("{0}: integer wrap around happened, resetting probation " +
+                                 "counter (no reason to worry).", _description);
                         _behaving = _probation + 1;
                     }
                 }
             }
             catch (Exception ex) {
-                Log.Error("UpdateCpuLoad failed: {0}", ex.Message);
+                Log.Error("Updating {0} counters failed: {1}", _description, ex.Message);
             }
             finally {
                 _monitoringTimer.Enabled = true;
             }
-            Log.Log(LogPerformanceReadings, "CPU load: {0:0.0} {1}",
+            Log.Log(LogPerformanceReadings, "{0}: {1:0.0} {2}", _description,
                 _loadReadings[3], _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
         }
 
