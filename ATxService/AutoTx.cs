@@ -324,13 +324,12 @@ namespace ATxService
             // terminate the service process if necessary:
             if (configInvalid) throw new Exception("Invalid config, check log file!");
 
-
-            // check the clean-shutdown status and send a notification if it was not true,
+            // now check the clean-shutdown status and send a notification if it was not true,
             // then set it to false while the service is running until it is properly
             // shut down via the OnStop() method:
             if (_status.CleanShutdown == false) {
                 Log.Error("WARNING: {0} was not shut down properly last time!\n\nThis could " +
-                    "indicate the computer has crashed or was forcefully shut off.", ServiceName);
+                          "indicate the computer has crashed or was forcefully shut off.", ServiceName);
             }
             _status.CleanShutdown = false;
         }
