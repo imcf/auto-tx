@@ -49,6 +49,8 @@ namespace ATxCommon.Monitoring
         private int _probation;
 
 
+        #region properties
+
         /// <summary>
         /// Current CPU load (usage percentage over all cores), averaged of the last four readings.
         /// </summary>
@@ -105,6 +107,8 @@ namespace ATxCommon.Monitoring
                 _monitoringTimer.Enabled = value;
             }
         }
+
+        #endregion
 
 
 

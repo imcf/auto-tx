@@ -51,6 +51,9 @@ namespace ATxCommon.Monitoring
         private float _limit;
 
 
+
+        #region properties
+
         /// <summary>
         /// Current PhysicalDisk Queue Length, averaged of the last four readings.
         /// </summary>
@@ -107,6 +110,9 @@ namespace ATxCommon.Monitoring
                 _monitoringTimer.Enabled = value;
             }
         }
+
+
+        #endregion
 
 
 
