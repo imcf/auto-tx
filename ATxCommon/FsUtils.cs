@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using ATxCommon.Serializables;
 using NLog;
 
 namespace ATxCommon
@@ -226,6 +227,42 @@ namespace ATxCommon
             retval &= CheckForDirectory(Path.Combine(managed, "UNMATCHED"));
             retval &= CheckForDirectory(Path.Combine(managed, "ERROR"));
             return retval;
+        }
+
+        /// <summary>
+        /// Helper to create directories for all users that have a dir in the local
+        /// user directory (C:\Users) AND in the DestinationDirectory.
+        /// </summary>
+        /// <param name="dest">The full path to the destination directory, as given in
+        /// <see cref="ServiceConfig.DestinationDirectory"/>.</param>
+        /// <param name="tmp">The (relative) path to the temporary transfer location, as given in
+        /// <see cref="ServiceConfig.TmpTransferDir"/>, commonly a single folder name.</param>
+        /// <param name="incoming">The full path to the incoming directory, as given in
+        /// <see cref="ServiceConfig.IncomingPath"/>.</param>
+        /// <returns>The DateTime.Now object upon success, exceptions propagated otherwise.</returns>
+        public static DateTime CreateIncomingDirectories(string dest, string tmp, string incoming) {
+            var localUserDirs = new DirectoryInfo(@"C:\Users")
+                .GetDirectories()
+                .Select(d => d.Name)
+                .ToArray();
+            var remoteUserDirs = new DirectoryInfo(dest)
+                .GetDirectories()
+                .Select(d => d.Name)
+                .ToArray();
+
+            foreach (var userDir in localUserDirs) {
+                // don't create an incoming directory for the same name as the
+                // temporary transfer location:
+                if (userDir == tmp)
+                    continue;
+
+                // don't create a directory if it doesn't exist on the target:
+                if (!remoteUserDirs.Contains(userDir))
+                    continue;
+
+                CreateNewDirectory(Path.Combine(incoming, userDir), false);
+            }
+            return DateTime.Now;
         }
 
         /// <summary>
