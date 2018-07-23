@@ -111,6 +111,10 @@ namespace ATxCommon.Monitoring
             }
         }
 
+        /// <summary>
+        /// Log level to use for reporting current performance readings.
+        /// </summary>
+        public LogLevel LogPerformanceReadings { get; set; } = LogLevel.Trace;
 
         #endregion
 
@@ -196,8 +200,8 @@ namespace ATxCommon.Monitoring
             finally {
                 _monitoringTimer.Enabled = true;
             }
-            Log.Trace("PhysicalDisk Queue Length: {0:0.000} {1}", _loadReadings[3],
-                _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
+            Log.Log(LogPerformanceReadings, "PhysicalDisk Queue Length: {0:0.000} {1}",
+                _loadReadings[3], _loadReadings[3] < Limit ? " [" + _behaving + "]" : "");
         }
 
         /// <summary>
