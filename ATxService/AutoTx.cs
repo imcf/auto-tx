@@ -115,10 +115,9 @@ namespace ATxService
             Log.Info("Attempting to start {0} service...", ServiceName);
             CreateEventLog();
             LoadSettings();
-            CreateIncomingDirectories();
-
 
             InitializePerformanceMonitors();
+            InitializeDirectories();
             StartupSummary();
 
             if (_config.DebugRoboSharp) {
@@ -263,9 +262,6 @@ namespace ATxService
                 Log.Error("LoadSettings() failed: {0}\n{1}", ex.Message, ex.StackTrace);
                 throw new Exception("Error in LoadSettings.");
             }
-            // NOTE: this is explicitly called *outside* the try-catch block so an Exception
-            // thrown by the checker will not be silenced but cause the startup to fail:
-            CheckConfiguration();
         }
 
         /// <summary>
@@ -308,20 +304,6 @@ namespace ATxService
                 // this should terminate the service process:
                 throw new Exception("Error loading status.");
             }
-        }
-
-        /// <summary>
-        /// Check if loaded configuration is valid, print a summary to the log.
-        /// </summary>
-        private void CheckConfiguration() {
-            var configInvalid = false;
-            if (FsUtils.CheckSpoolingDirectories(_config.IncomingPath, _config.ManagedPath) == false) {
-                Log.Error("ERROR checking spooling directories (incoming / managed)!");
-                configInvalid = true;
-            }
-
-            // terminate the service process if necessary:
-            if (configInvalid) throw new Exception("Invalid config, check log file!");
 
             // now check the clean-shutdown status and send a notification if it was not true,
             // then set it to false while the service is running until it is properly
@@ -644,7 +626,8 @@ namespace ATxService
             _status.SerializeHeartbeat();
 
             if (TimeUtils.SecondsSince(_lastUserDirCheck) >= 120)
-                CreateIncomingDirectories();
+                _lastUserDirCheck = FsUtils.CreateIncomingDirectories(
+                    _config.DestinationDirectory, _config.TmpTransferDir, _config.IncomingPath);
 
             // tasks depending on the service state:
             if (_status.ServiceSuspended) {
@@ -952,34 +935,19 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Helper to create directories for all users that have one in the local
-        /// user directory (C:\Users) AND in the DestinationDirectory.
+        /// Wrapper to check or create the spooling directories and the incoming dirs for all users.
         /// </summary>
-        private void CreateIncomingDirectories() {
-            var localUserDirs = new DirectoryInfo(@"C:\Users")
-                .GetDirectories()
-                .Select(d => d.Name)
-                .ToArray();
-            var remoteUserDirs = new DirectoryInfo(_config.DestinationDirectory)
-                .GetDirectories()
-                .Select(d => d.Name)
-                .ToArray();
-
-            foreach (var userDir in localUserDirs) {
-                // don't create an incoming directory for the same name as the
-                // temporary transfer location:
-                if (_config.TmpTransferDir == userDir)
-                    continue;
-
-                // don't create a directory if it doesn't exist on the target:
-                if (!remoteUserDirs.Contains(userDir))
-                    continue;
-
-                FsUtils.CreateNewDirectory(Path.Combine(_config.IncomingPath, userDir), false);
+        private void InitializeDirectories() {
+            if (FsUtils.CheckSpoolingDirectories(_config.IncomingPath, _config.ManagedPath) == false) {
+                const string msg = "ERROR checking spooling directories (incoming / managed)!";
+                Log.Error(msg);
+                throw new Exception(msg);
             }
-            _lastUserDirCheck = DateTime.Now;
-        }
 
+            _lastUserDirCheck = FsUtils.CreateIncomingDirectories(
+                _config.DestinationDirectory, _config.TmpTransferDir, _config.IncomingPath);
+        }
+        
         #endregion
 
     }
