@@ -10,11 +10,11 @@ using NLog.Targets;
 
 namespace ATxDiagnostics
 {
-    class ATxDiagnostics
+    internal class ATxDiagnostics
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        static void Main(string[] args) {
+        private static void Main(string[] args) {
             var loglevel = LogLevel.Debug;
             if (args.Length > 0 && args[0] == "trace") {
                 loglevel = LogLevel.Trace;
