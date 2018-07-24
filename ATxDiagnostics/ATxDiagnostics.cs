@@ -1,6 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.Management;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using ATxCommon;
 using ATxCommon.Monitoring;
@@ -30,67 +29,43 @@ namespace ATxDiagnostics
             logConfig.LoggingRules.Add(logRuleConsole);
             LogManager.Configuration = logConfig;
 
-            var commonAssembly = Assembly.GetAssembly(typeof(ATxCommon.Monitoring.Cpu));
+            // set the default performance monitors:
+            var perfMonitors = new[] {"CPU", "PhysicalDisk"};
+            // if requested explicitly as a command line parameter, override them:
+            if (args.Length > 1)
+                perfMonitors = args[1].Split(',');
+
+            var commonAssembly = Assembly.GetAssembly(typeof(Cpu));
             var commonVersionInfo = FileVersionInfo.GetVersionInfo(commonAssembly.Location);
             Log.Info("ATxCommon library version: {0}", commonVersionInfo.ProductVersion);
 
             Log.Debug("Free space on drive [C:]: " + Conv.BytesToString(SystemChecks.GetFreeDriveSpace("C:")));
-            
-            Log.Info("Checking CPU load using ATxCommon.Monitoring...");
-            var cpu = new Cpu {
-                Interval = 250,
-                Limit = 25,
-                Probation = 4,  // 4 * 250 ms = 1 second
-                Enabled = true
-            };
-            System.Threading.Thread.Sleep(10000);
-            cpu.Enabled = false;
-            Log.Info("Finished checking CPU load using ATxCommon.Monitoring.\n");
 
-            Log.Info("Checking CPU load using WMI...");
-            for (int i = 0; i < 10; i++) {
-                WmiQueryCpuLoad();
-                System.Threading.Thread.Sleep(1000);
-            }
-            Log.Info("Finished checking CPU load using WMI.\n");
-        }
-
-        private static int WmiQueryCpuLoad() {
-            Log.Trace("Querying WMI for CPU load...");
-            var watch = Stopwatch.StartNew();
-            var queryString = "SELECT Name, PercentProcessorTime " +
-                              "FROM Win32_PerfFormattedData_PerfOS_Processor";
-            var opts = new EnumerationOptions {
-                Timeout = new TimeSpan(0, 0, 10),
-                ReturnImmediately = false,
-            };
-            var searcher = new ManagementObjectSearcher("", queryString, opts);
-            Int32 usageInt32 = -1;
-
-            var managementObjects = searcher.Get();
-            if (managementObjects.Count > 0) {
-                Log.Trace("WMI query returned {0} objects.", managementObjects.Count);
-                foreach (var mo in managementObjects) {
-                    var obj = (ManagementObject)mo;
-                    var usage = obj["PercentProcessorTime"];
-                    var name = obj["Name"];
-
-                    usageInt32 = Convert.ToInt32(usage);
-                    Log.Debug("CPU usage {1}: {0}", usageInt32, name);
-
-                }
-            } else {
-                Log.Error("No objects returned from WMI!");
+            if (perfMonitors.Contains("CPU")) {
+                Log.Info("Watching CPU load using ATxCommon.Monitoring...");
+                var cpu = new Cpu {
+                    Interval = 250,
+                    Limit = 50,
+                    Probation = 4, // 4 * 250 ms = 1 second
+                    LogPerformanceReadings = LogLevel.Info,
+                    Enabled = true
+                };
             }
 
-            managementObjects.Dispose();
-            searcher.Dispose();
+            if (perfMonitors.Contains("PhysicalDisk")) {
+                Log.Info("Watching I/O load using ATxCommon.Monitoring...");
+                var disk = new PhysicalDisk {
+                    Interval = 250,
+                    Limit = 0.25F,
+                    Probation = 4, // 4 * 250 ms = 1 second
+                    LogPerformanceReadings = LogLevel.Info,
+                    Enabled = true
+                };
+            }
 
-            watch.Stop();
-            Log.Trace("WMI query took {0} ms.", watch.ElapsedMilliseconds);
-
-            return usageInt32;
+            while (true) {
+                System.Threading.Thread.Sleep(10000);   
+            }
         }
-
     }
 }
