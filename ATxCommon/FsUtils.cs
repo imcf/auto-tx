@@ -243,11 +243,11 @@ namespace ATxCommon
         public static DateTime CreateIncomingDirectories(string dest, string tmp, string incoming) {
             var localUserDirs = new DirectoryInfo(@"C:\Users")
                 .GetDirectories()
-                .Select(d => d.Name)
+                .Select(d => d.Name.ToLower())
                 .ToArray();
             var remoteUserDirs = new DirectoryInfo(dest)
                 .GetDirectories()
-                .Select(d => d.Name)
+                .Select(d => d.Name.ToLower())
                 .ToArray();
 
             foreach (var userDir in localUserDirs) {
