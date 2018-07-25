@@ -163,6 +163,7 @@ namespace ATxTray
 
             _miSvcSuspended.Text = @"No limits apply, service active.";
             _miSvcSuspended.Click += ShowContextMenu;
+            _miSvcSuspended.Visible = false;
 
             _miTxProgress.Text = @"No transfer running.";
             _miTxProgress.Click += ShowContextMenu;
