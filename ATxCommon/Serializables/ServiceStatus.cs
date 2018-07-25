@@ -100,7 +100,7 @@ namespace ATxCommon.Serializables
             catch (Exception) {
                 // if reading the status XML fails, we return an empty (new) one
                 status = new ServiceStatus();
-                Log.Warn("Deserializing [{0}] failed, creating new status using defauls.", file);
+                Log.Warn("Deserializing [{0}] failed, creating new status using defaults.", file);
             }
             status._config = config;
             ValidateStatus(status);
