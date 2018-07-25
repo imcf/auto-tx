@@ -415,6 +415,12 @@ namespace ATxService
             }
 
             Log.Debug(msg);
+            
+            // finally check if the validation gave warnings and send them to the admin:
+            var warnings = ServiceConfig.ValidatorWarnings;
+            if (string.IsNullOrWhiteSpace(warnings))
+                return;
+            SendAdminEmail(warnings);
         }
 
         #endregion

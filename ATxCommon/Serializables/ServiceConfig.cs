@@ -288,6 +288,9 @@ namespace ATxCommon.Serializables
             }
         }
 
+        [XmlIgnore]
+        public static string ValidatorWarnings { get; set; }
+
 
         #endregion
 
@@ -391,8 +394,10 @@ namespace ATxCommon.Serializables
                     SubOptimal(value.ToString(), name, "value is set very high, please check!");
             }
 
-            void SubOptimal(string value, string name, string msg) {
-                Log.Warn(">>> Sub-optimal setting detected: <{0}> [{1}] {2}", name, value, msg);
+            void SubOptimal(string value, string name, string message) {
+                var msg = $">>> Sub-optimal setting detected: <{name}> [{value}] {message}";
+                ValidatorWarnings += msg + "\n";
+                Log.Warn(msg);
             }
 
             void LogAndThrow(string msg) {
