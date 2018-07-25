@@ -247,7 +247,7 @@ function Create-Backup {
     $BaseDir = Split-Path -Parent $FileName
 
     # assemble a timestamp string like "2017-12-04T16.41.35"
-    $BakTimeStamp = Get-Date -Format s | foreach {$_ -replace ":", "."}
+    $BakTimeStamp = Get-Date -Format s | ForEach-Object {$_ -replace ":", "."}
     $BakName = "$($FileWithoutSuffix)_pre-$($BakTimeStamp)$($FileSuffix)"
     Log-Info "Creating backup of [$($FileName)] as [$($BaseDir)\$($BakName)]."
 
