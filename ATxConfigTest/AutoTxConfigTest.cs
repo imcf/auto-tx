@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ATxCommon.Serializables;
 using NLog;
 using NLog.Config;
@@ -14,7 +15,7 @@ namespace ATxConfigTest
             var logLevel = LogLevel.Info;
             var logPrefix = "";
             
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "var");
             if (args.Length > 0)
                 baseDir = args[0];
 
