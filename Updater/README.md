@@ -1,5 +1,5 @@
-Service Installation Updates
-============================
+Service Updates, Config and Log Files Management
+================================================
 
 The service can automatically be updated by running the `Update-Service.ps1`
 script. It will check a remote location (configurable via a config file) and do
@@ -16,8 +16,8 @@ the following tasks:
 - upload the local service log file to the storage location that is also used
   to retrieve updates
 
-Config File Options
--------------------
+Updater Config File Options
+---------------------------
 
 An example config file for the update script is provided as
 `UpdaterConfig-Example.inc.ps1`. The values should be mostly self-explaining, so
