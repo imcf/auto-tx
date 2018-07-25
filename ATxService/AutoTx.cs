@@ -178,7 +178,7 @@ namespace ATxService
                     return;
                 }
 
-                var subject = $"{ServiceName} - {Environment.MachineName} - Admin Notification";
+                var subject = $"{ServiceName} - {_config.HostAlias} - Admin Notification";
                 var body = $"Notification from '{_config.HostAlias}' [{Environment.MachineName}] (via NLog)\n\n" +
                            $"{LogFormatDefault}\n\n" +
                            "NOTE: messages of the same log level won't be sent via email for the\n" +
