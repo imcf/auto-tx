@@ -48,6 +48,7 @@ $PkgDir = "build_" + $PkgDir
 $BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
 $BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
+$BinariesDirDiag    = RelToAbs "..\ATxDiagnostics\bin\$($BuildConfiguration)"
 
 Write-Host -NoNewline "Creating package "
 Highlight $PkgDir "Red"
@@ -55,6 +56,7 @@ Write-Host " using binaries from:"
 Highlight $BinariesDirService "Green" $True
 Highlight $BinariesDirTrayApp "Green" $True
 Highlight $BinariesDirCfgTest "Green" $True
+Highlight $BinariesDirDiag    "Green" $True
 Write-Host
 
 if (Test-Path $PkgDir) {
@@ -71,6 +73,7 @@ New-Item -ItemType Container -Force -Path "$($PkgDir)\AutoTx\var" | Out-Null
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirService)\*" $tgt
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirTrayApp)\*" $tgt -EA Ignore
 Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirCfgTest)\*" $tgt -EA Ignore
+Copy-Item -Exclude *.pdb -Recurse "$($BinariesDirDiag)\*"    $tgt -EA Ignore
 # provide an up-to-date version of the example config file:
 $example = New-Item -ItemType Container -Path $PkgDir -Name "conf-example"
 Copy-Item "$($ResourceDir)\conf\config.common.xml" $example
