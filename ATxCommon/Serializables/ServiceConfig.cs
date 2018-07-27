@@ -507,7 +507,7 @@ namespace ATxCommon.Serializables
                 $"DestinationDirectory: {DestinationDirectory}\n" +
                 $"TmpTransferDir: {TmpTransferDir}\n" +
                 $"MaxCpuUsage: {MaxCpuUsage}%\n" +
-                $"MaxDiskQueue: {MaxDiskQueue} / 1000 (effectively {MaxDiskQueue/1000})\n" +
+                $"MaxDiskQueue: {MaxDiskQueue} / 1000 (effectively {(float)MaxDiskQueue/1000:0.000})\n" +
                 $"MinAvailableMemory: {MinAvailableMemory} MB\n" +
                 "\n" +
                 "############### OPTIONAL PARAMETERS ###############\n" +
