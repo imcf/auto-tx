@@ -109,13 +109,21 @@ namespace ATxTray
             catch (Exception ex) {
                 var msg = "Error during initialization: " + ex.Message;
                 Log.Error(msg);
-                _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
                 // we cannot terminate the message loop (Application.Run()) while the constructor
                 // is being run as it is not active yet - therefore we set the _status object to
                 // null which will terminate the application during the next "Elapsed" event:
                 _status = null;
+
+                /* Do NOT show the balloon tip at all, as this is highly disturbing for the
+                   user. For debugging purposes, the log message is definitely enough:
+
+                _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
                 // suspend the thread for 5s to make sure the balloon tip is shown for a while:
                 System.Threading.Thread.Sleep(5000);
+                */
+
+                // sleep briefly before exiting:
+                System.Threading.Thread.Sleep(100);
             }
 
             // we need to enable the timer no matter whether the initialization steps above have
