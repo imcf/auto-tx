@@ -217,7 +217,8 @@ namespace ATxService
             if (string.IsNullOrEmpty(report))
                 return "";
 
-            report += "\nTime since last grace notification: " +
+            report += $"\n{SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring)}" +
+                      "\nTime since last grace notification: " +
                       $"{TimeUtils.HumanSince(_status.LastGraceNotification)}\n";
             if (TimeUtils.MinutesSince(_status.LastGraceNotification) < _config.GraceNotificationDelta)
                 return report;
