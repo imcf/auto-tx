@@ -353,7 +353,9 @@ namespace ATxService
                 _phyDisk.LoadBelowLimit += OnLoadBelowLimit;
             }
             catch (Exception ex) {
-                Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}", ex.Message);
+                Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}\n" +
+                          "Please make sure the service account is a member of the local" +
+                          "group [Performance Monitor Users]!", ex.Message);
                 throw;
             }
         }
