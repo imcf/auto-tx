@@ -41,10 +41,19 @@ catch {
     Write-Host "Error reading build configuration, stopping."
     Exit
 }
+$CommitRefFile = "$($ResourceDir)\BuildCommit.txt"
+try {
+    $BuildCommit = Get-Content $CommitRefFile
+}
+catch {
+    Write-Host "Error getting commit reference from git!"
+    $BuildCommit = "UNKNOWN-COMMITREF"
+}
+
 
 
 $PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
-$PkgDir = "build_" + $PkgDir
+$PkgDir = "build_" + $PkgDir + "__" + $BuildCommit
 $BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
 $BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
@@ -80,16 +89,7 @@ Copy-Item "$($ResourceDir)\conf\config.common.xml" $example
 Copy-Item "$($ResourceDir)\conf\host-specific.template.xml" $example
 
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
-try {
-    $CommitRefFile = "$($ResourceDir)\BuildCommit.txt"
-    Copy-Item $CommitRefFile $($PkgDir)
-    $BuildCommit = Get-Content $CommitRefFile
-}
-catch {
-    Write-Host "Error getting commit reference from git!"
-    $BuildCommit = "<UNKNOWN>"
-}
-
+Copy-Item $CommitRefFile $($PkgDir) -EA SilentlyContinue
 
 Copy-Item "ScriptsConfig.ps1" $PkgDir
 Copy-Item "Install-Service.ps1" $PkgDir
