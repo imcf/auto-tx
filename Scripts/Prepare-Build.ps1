@@ -1,3 +1,5 @@
+# Helper script to be called by Visual Studio as a "pre-build" command.
+
 [CmdletBinding(DefaultParameterSetName="build")]
 Param(
     [Parameter(Mandatory=$True, ParameterSetName="build")]

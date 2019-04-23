@@ -1,4 +1,8 @@
-# helper script to install the AutoTx service on a computer
+# Helper script to install the AutoTx service on a computer. It is intended to
+# be run from *within* an AutoTx installation package created with the
+# `Make-Package.ps1` script.
+#
+# NOTE: the script will NOT update an existing installation of AutoTx!
 
 # set our requirements:
 #Requires -version 5.1

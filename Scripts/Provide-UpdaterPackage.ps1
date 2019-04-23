@@ -1,3 +1,13 @@
+# Helper script to locate the latest AutoTx installation package (expected to be
+# in a subdirectory of this script with a name like `build_2019-04-23_12-34-56`)
+# and copy it to the correct path so it can be picked up the AutoTx-Updater.
+#
+# NOTE: the script will prune a few files (currently hardcoded) from the package
+# copied to the central update location to prevent sensitive information from
+# being accidentially leaked through a publicly accessible location (see the
+# `$Exclude` variable below).
+
+
 [CmdletBinding()]
 Param(
     [Parameter(Mandatory=$True)][String] $UpdaterSettings

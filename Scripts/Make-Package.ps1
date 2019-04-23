@@ -1,5 +1,5 @@
-# helper script to create a package from an AutoTx build that can be used from
-# the included "Install-Service.ps1" script as well as with the AutoTx-Updater
+# Helper script to create a package from an AutoTx build that can be used from
+# the included `Install-Service.ps1` script as well as with the AutoTx-Updater.
 
 # set our requirements:
 #Requires -version 5.1

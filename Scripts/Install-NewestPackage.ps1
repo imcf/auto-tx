@@ -1,3 +1,7 @@
+# Helper script to locate the latest AutoTx installation package (expected to be
+# in a subdirectory of this script with a name like `build_2019-04-23_12-34-56`)
+# and call the installer script from *within* that package.
+
 # Make sure to run from the directory containing the script itself:
 $BaseDir = $(Split-Path $MyInvocation.MyCommand.Path)
 Push-Location $BaseDir
