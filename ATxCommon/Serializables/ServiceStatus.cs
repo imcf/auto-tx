@@ -19,6 +19,7 @@ namespace ATxCommon.Serializables
         private DateTime _lastStorageNotification;
         private DateTime _lastAdminNotification;
         private DateTime _lastGraceNotification;
+        private DateTime _lastStartupNotification;
 
         private string _statusDescription;
         private string _currentTransferSrc;
@@ -155,6 +156,18 @@ namespace ATxCommon.Serializables
             get => _lastGraceNotification;
             set {
                 _lastGraceNotification = value;
+                Serialize();
+            }
+        }
+
+        /// <summary>
+        /// Timestamp indicating when the last startup system health notification has been sent.
+        /// </summary>
+        [XmlElement("LastStartupNotification", DataType = "dateTime")]
+        public DateTime LastStartupNotification {
+            get => _lastStartupNotification;
+            set {
+                _lastStartupNotification = value;
                 Serialize();
             }
         }
@@ -374,7 +387,10 @@ namespace ATxCommon.Serializables
                 $"LastAdminNotification: {LastAdminNotification:yyyy-MM-dd HH:mm:ss}" +
                 $" ({TimeUtils.HumanSince(LastAdminNotification)})\n" +
                 $"LastGraceNotification: {LastGraceNotification:yyyy-MM-dd HH:mm:ss}" +
-                $" ({TimeUtils.HumanSince(LastGraceNotification)})\n";
+                $" ({TimeUtils.HumanSince(LastGraceNotification)})\n" +
+                $"LastStartupNotification: {LastStartupNotification:yyyy-MM-dd HH:mm:ss}" +
+                $" ({TimeUtils.HumanSince(LastStartupNotification)})\n" +
+                "";
         }
 
         #endregion validate and report
