@@ -9,11 +9,9 @@ Write-Host "Loaded configuration '$LocalConfiguration'." -Fore Green
 Write-Host $ServiceDir
 Write-Host $SourceDir
 
-$CurDir = Get-Location
-
-Set-Location "C:\Windows\Microsoft.NET\Framework\v4.0.30319"
+Push-Location "C:\Windows\Microsoft.NET\Framework\v4.0.30319"
 
 $ServiceExe = $ServiceDir + "\" + $ServiceName + ".exe"
 .\InstallUtil.exe -u $ServiceExe
 
-Set-Location $CurDir
+Pop-Location

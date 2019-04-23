@@ -79,8 +79,7 @@ function Parse-GitDescribe([string]$CommitName) {
 
 $ErrorActionPreference = "Stop"
 
-$OldLocation = Get-Location
-Set-Location $SolutionDir -ErrorAction Stop
+Push-Location $SolutionDir -ErrorAction Stop
 
 $BCommit = "$($SolutionDir)\Resources\BuildCommit.txt"
 $BuildDate = "$($SolutionDir)\Resources\BuildDate.txt"
@@ -141,4 +140,4 @@ Write-Output $(
 
 Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $DateShort
 
-Set-Location $OldLocation
+Pop-Location
