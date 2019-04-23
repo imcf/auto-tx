@@ -115,5 +115,39 @@ namespace ATxCommon
 
             return username == "";
         }
+
+        /// <summary>
+        /// Log names of running processes if loglevel is set to debug.
+        /// </summary>
+        /// <param name="longFormat">By default only the process names will be printed to the
+        /// log, enclosed by square brackets (e.g. [explorer]). If "longFormat" is set to true,
+        /// each process name will be printed on a separate line, followed by the title of the
+        /// corresponding main window (if existing).</param>
+        public static void LogRunningProcesses(bool longFormat=false) {
+            if (!Log.IsDebugEnabled)
+                return;
+
+            if (longFormat)
+                Log.Debug("\n\n>>>>>>>>>>>> running processes >>>>>>>>>>>>");
+            
+            var procs = "";
+            foreach (var running in Process.GetProcesses()) {
+                if (longFormat) {
+                    var title = running.MainWindowTitle;
+                    if (title.Length > 0) {
+                        title = " (\"" + title + "\")";
+                    }
+                    Log.Debug(" - {0}{1}", running.ProcessName, title);                    
+                } else {
+                    procs += $", [{running.ProcessName}]";
+                }
+            }
+
+            if (longFormat) {
+                Log.Debug("\n<<<<<<<<<<<< running processes <<<<<<<<<<<<\n");
+            } else {
+                Log.Debug("Currently running processes: {0}", procs.Substring(2));
+            }
+        }
     }
 }

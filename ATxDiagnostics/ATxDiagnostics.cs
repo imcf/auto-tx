@@ -41,15 +41,7 @@ namespace ATxDiagnostics
 
             Log.Debug("Free space on drive [C:]: " + Conv.BytesToString(SystemChecks.GetFreeDriveSpace("C:")));
 
-            Log.Debug("\n\n>>>>>>>>>>>> running processes >>>>>>>>>>>>");
-            foreach (var running in Process.GetProcesses()) {
-                var title = running.MainWindowTitle;
-                if (title.Length > 0) {
-                    title = " (\"" + title + "\")";
-                }
-                Log.Debug(" - {0}{1}", running.ProcessName, title);
-            }
-            Log.Debug("\n<<<<<<<<<<<< running processes <<<<<<<<<<<<\n");
+            SystemChecks.LogRunningProcesses(true);
 
             if (perfMonitors.Contains("CPU")) {
                 Log.Info("Watching CPU load using ATxCommon.Monitoring...");
