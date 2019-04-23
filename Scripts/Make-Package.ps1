@@ -4,6 +4,11 @@
 # set our requirements:
 #Requires -version 5.1
 
+
+# Make sure to run from the directory containing the script itself:
+$BaseDir = $(Split-Path $MyInvocation.MyCommand.Path)
+Push-Location $BaseDir
+
 $ResourceDir = "..\Resources"
 
 
@@ -104,3 +109,6 @@ Write-Host
 Write-Host -NoNewline "Location: "
 Highlight "$(RelToAbs $PkgDir)"
 Write-Host
+
+# Return to the original location before the script was called:
+Pop-Location

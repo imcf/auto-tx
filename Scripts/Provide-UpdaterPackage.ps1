@@ -3,6 +3,7 @@ Param(
     [Parameter(Mandatory=$True)][String] $UpdaterSettings
 )
 
+
 try {
     . $UpdaterSettings
 }
@@ -11,6 +12,11 @@ catch {
     Write-Host "Error reading settings file: '$($UpdaterSettings)' [$($ex)]"
     Exit
 }
+
+
+# Make sure to run from the directory containing the script itself:
+$BaseDir = $(Split-Path $MyInvocation.MyCommand.Path)
+Push-Location $BaseDir
 
 
 $UpdateBinariesPath = "$($UpdateSourcePath)\Service\Binaries"
@@ -41,3 +47,5 @@ catch {
     Exit
 }
 
+# Return to the original location before the script was called:
+Pop-Location
