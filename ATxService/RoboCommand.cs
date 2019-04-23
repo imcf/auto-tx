@@ -38,6 +38,8 @@ namespace ATxService
             _status.CurrentTransferSize = totalSize;
             _status.CurrentTransferSrc = sourcePath;
 
+            SystemChecks.LogRunningProcesses();
+
             // the user name is expected to be the last part of sourcePath:
             _status.TxTargetUser = new DirectoryInfo(sourcePath).Name;
             FsUtils.CreateNewDirectory(_status.TxTargetTmp, false);
