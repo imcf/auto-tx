@@ -1,3 +1,7 @@
+# Make sure to run from the directory containing the script itself:
+$BaseDir = $(Split-Path $MyInvocation.MyCommand.Path)
+Push-Location $BaseDir
+
 $LocalConfiguration = ".\ScriptsConfig.ps1"
 if (Test-Path $LocalConfiguration) {
 	. $LocalConfiguration
@@ -14,3 +18,5 @@ if (Test-Path $LogFile) {
 } else {
 	Write-Host "Logfile '$LogFile' doesn't exist."
 }
+
+Pop-Location
