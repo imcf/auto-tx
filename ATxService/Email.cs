@@ -100,7 +100,9 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Send a notification about low drive space to the admin.
+        /// Send a notification about low drive space to the admin if the time since the last
+        /// notification has elapsed the configured delta. In that case also a summary of the
+        /// grace location status is added to the report.
         /// </summary>
         /// <param name="spaceDetails">String describing the drives being low on space.</param>
         private void SendLowSpaceMail(string spaceDetails) {
