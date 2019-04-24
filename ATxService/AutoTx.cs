@@ -321,6 +321,10 @@ namespace ATxService
         /// Set up the performance monitor objects (CPU, Disk I/O, ...).
         /// </summary>
         private void InitializePerformanceMonitors() {
+            var lodctr_msg = "Occasionally the performance counters cache becomes corrupted " +
+                             "and needs to be reset manually. To do this, run the following " +
+                             "command from a shell with elevated privileges:\n\n  lodctr /r\n\n";
+
             try {
                 _cpu = new Cpu {
                     Interval = 250,
@@ -340,6 +344,7 @@ namespace ATxService
             }
             catch (Exception ex) {
                 Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
+                Log.Error(lodctr_msg);
                 throw;
             }
 
@@ -358,6 +363,7 @@ namespace ATxService
                 Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}\n" +
                           "Please make sure the service account is a member of the local" +
                           "group [Performance Monitor Users]!", ex.Message);
+                Log.Error(lodctr_msg);
                 throw;
             }
         }
