@@ -66,6 +66,9 @@ namespace ATxService
         /// </summary>
         private int _waitCyclesBeforeNextTx;
 
+        /// <summary>
+        /// Counter on how many load monitoring properties are currently exceeding their limit(s).
+        /// </summary>
         private int _exceedingLoadLimit = 0;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
