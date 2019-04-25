@@ -66,6 +66,7 @@ namespace ATxService
         /// </summary>
         private int _waitCyclesBeforeNextTx;
 
+        // ReSharper disable once RedundantDefaultMemberInitializer
         private int _exceedingLoadLimit = 0;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
