@@ -123,7 +123,7 @@ namespace ATxCommon
         /// log, enclosed by square brackets (e.g. [explorer]). If "longFormat" is set to true,
         /// each process name will be printed on a separate line, followed by the title of the
         /// corresponding main window (if existing).</param>
-        public static void LogRunningProcesses(bool longFormat=false) {
+        public static void LogRunningProcesses(bool longFormat = false) {
             if (!Log.IsDebugEnabled)
                 return;
 
