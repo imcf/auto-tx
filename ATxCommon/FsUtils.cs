@@ -56,7 +56,7 @@ namespace ATxCommon
         }
 
         /// <summary>
-        /// Recursively sum up size of all files under a given path.
+        /// Recursively sum up size (in bytes) of all files under a given path.
         /// </summary>
         /// <param name="path">Full path of the directory.</param>
         /// <returns>The total size in bytes.</returns>
