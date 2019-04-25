@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
+using ATxCommon.Serializables;
 using NLog;
 
 namespace ATxCommon
@@ -55,7 +56,7 @@ namespace ATxCommon
         /// Check all configured disks for their free space and generate a
         /// summary with details to be used in a notification message.
         /// </summary>
-        public static string CheckFreeDiskSpace(List<Serializables.DriveToCheck> drives) {
+        public static string CheckFreeDiskSpace(List<DriveToCheck> drives) {
             var msg = "";
             foreach (var driveToCheck in drives) {
                 var freeSpace = GetFreeDriveSpace(driveToCheck.DriveName);
