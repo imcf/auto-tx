@@ -297,6 +297,11 @@ namespace ATxCommon.Serializables
         [XmlIgnore]
         public static string ValidatorWarnings { get; set; }
 
+        /// <summary>
+        /// Convenience property converting the grace period to a human-friendly format.
+        /// </summary>
+        [XmlIgnore]
+        public string HumanGracePeriod => TimeUtils.DaysToHuman(GracePeriod, false);
 
         #endregion
 
