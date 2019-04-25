@@ -73,24 +73,27 @@ namespace ATxService
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
-        // the transfer state:
+        /// <summary>
+        /// The transfer state, one of "Stopped", "Active", "Paused" or "DoNothing".
+        /// 
+        /// Stopped:   The last transfer was finished successfully or none was started yet. A new
+        ///            transfer MAY ONLY BE STARTED if the service is in this state.
+        /// 
+        /// Active:    A transfer is currently running (i.e. new transfers MUST NOT be started).
+        /// 
+        /// Paused:    Assigned in PauseTransfer() which gets called from within RunMainTasks()
+        ///            when system parameters are not in their valid range. It gets evaluated if
+        ///            the parameters return to valid or if no user is logged on any more.
+        /// 
+        /// DoNothing: Assigned when the service gets shut down (in the OnStop() method) to prevent
+        ///            accidentially launching new transfers or doing other tasks.
+        /// </summary>
         private enum TxState
         {
             Stopped = 0,
-            // Stopped: the last transfer was finished successfully or none was started yet.
-            // A new transfer may only be started if the service is in this state.
-
             Active = 1,
-            // Active: a transfer is currently running (i.e. no new transfer may be started).
-
             Paused = 2,
-            // Paused is assigned in PauseTransfer() which gets called from within RunMainTasks()
-            // when system parameters are not in their valid range. It gets evaluated if the
-            // parameters return to valid or if no user is logged on any more.
-
             DoNothing = 3
-            // DoNothing is assigned when the service gets shut down (in the OnStop() method)
-            // to prevent accidentially launching new transfers etc.
         }
 
         private TxState _transferState = TxState.Stopped;
