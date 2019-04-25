@@ -56,6 +56,7 @@
     <Compile Include="Serializables\ServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializables\ServiceStatus.cs" />
+    <Compile Include="StorageStatus.cs" />
     <Compile Include="SystemChecks.cs" />
     <Compile Include="TimeUtils.cs" />
   </ItemGroup>
