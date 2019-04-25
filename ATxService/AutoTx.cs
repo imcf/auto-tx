@@ -395,28 +395,10 @@ namespace ATxService
                    "\n------ Loaded configuration settings ------\n" + _config.Summary();
 
 
-            msg += "\n------ Current system parameters ------\n" +
-                   "Hostname: " + Environment.MachineName + "\n" +
-                   "Free system memory: " + SystemChecks.GetFreeMemory() + " MB" + "\n";
-            foreach (var driveToCheck in _config.SpaceMonitoring) {
-                msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
-                       Conv.BytesToString(SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName)) + "\n";
-            }
+            var health = SystemChecks.HealthReport(_storage);
+            msg += "\n" + health;
 
-
-            msg += "\n------ Grace location status, threshold: " + _config.GracePeriod + " days " +
-                "(" + TimeUtils.DaysToHuman(_config.GracePeriod) + ") ------\n";
-            try {
-                var tmp = SendGraceLocationSummary(_config.GracePeriod);
-                if (string.IsNullOrEmpty(tmp)) {
-                    msg += " -- NO EXPIRED folders in grace location! --\n";
-                } else {
-                    msg += tmp;
-                }
-            }
-            catch (Exception ex) {
-                Log.Error("GraceLocationSummary() failed: {0}", ex.Message);
-            }
+            // TODO: send health report!
 
             Log.Debug(msg);
             

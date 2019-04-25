@@ -152,6 +152,24 @@ namespace ATxCommon
         }
 
         /// <summary>
+        /// Generate an overall system health report with free space, grace location status, etc.
+        /// </summary>
+        /// <param name="storage">StorageStatus object used for space and grace reports.</param>
+        /// <returns>A multi-line string containing the details assembled in the report. These
+        /// comprise system uptime, free RAM, free storage space and current grace location status.
+        /// </returns>
+        public static string HealthReport(StorageStatus storage) {
+            var report = "------ System health report ------\n\n" +
+                         $" - hostname: {Environment.MachineName}\n" +
+                         $" - uptime: {TimeUtils.SecondsToHuman(Uptime(), false)}\n" +
+                         $" - free system memory: {GetFreeMemory()} MB" + "\n\n";
+
+            report += storage.Summary();
+
+            return report;
+        }
+
+        /// <summary>
         /// Get the current system uptime in seconds. Note that this will miss all times where the
         /// system had been suspended / hibernated, as it is based on the OS's ticks counter.
         /// </summary>
