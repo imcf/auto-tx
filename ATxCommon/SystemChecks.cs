@@ -150,5 +150,15 @@ namespace ATxCommon
                 Log.Debug("Currently running processes: {0}", procs.Substring(2));
             }
         }
+
+        /// <summary>
+        /// Get the current system uptime in seconds. Note that this will miss all times where the
+        /// system had been suspended / hibernated, as it is based on the OS's ticks counter.
+        /// </summary>
+        /// <returns>The time since the last system boot in seconds.</returns>
+        public static long Uptime() {
+            var ticks = Stopwatch.GetTimestamp();
+            return ticks / Stopwatch.Frequency;
+        }
     }
 }
