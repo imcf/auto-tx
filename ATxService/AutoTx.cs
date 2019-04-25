@@ -95,6 +95,7 @@ namespace ATxService
 
         private ServiceConfig _config;
         private ServiceStatus _status;
+        private StorageStatus _storage;
 
         private static Timer _mainTimer;
 
@@ -118,6 +119,7 @@ namespace ATxService
 
             InitializePerformanceMonitors();
             InitializeDirectories();
+            SetupStorageStatus();
             StartupSummary();
 
             if (_config.DebugRoboSharp) {
@@ -956,6 +958,13 @@ namespace ATxService
 
             _lastUserDirCheck = FsUtils.CreateIncomingDirectories(
                 _config.DestinationDirectory, _config.TmpTransferDir, _config.IncomingPath);
+        }
+
+        /// <summary>
+        /// Set up the StorageStatus object using the current configuration.
+        /// </summary>
+        private void SetupStorageStatus() {
+            _storage = new StorageStatus(_config);
         }
         
         #endregion
