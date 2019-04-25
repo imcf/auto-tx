@@ -46,6 +46,7 @@
     <Compile Include="ActiveDirectory.cs" />
     <Compile Include="BuildDetails.cs" />
     <Compile Include="Conv.cs" />
+    <Compile Include="DirectoryDetails.cs" />
     <Compile Include="FsUtils.cs" />
     <Compile Include="Monitoring\Cpu.cs" />
     <Compile Include="Monitoring\MonitorBase.cs" />
