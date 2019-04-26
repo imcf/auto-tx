@@ -36,6 +36,7 @@ namespace ATxCommon
             _gracePeriodHuman = config.HumanGracePeriod;
             _graceLocation = new DirectoryInfo(config.DonePath);
             _expiredDirs = new Dictionary<string, List<DirectoryDetails>>();
+            Log.Debug("StorageStatus initialization complete, updating status...");
             Update(true);
         }
 
@@ -166,14 +167,19 @@ namespace ATxCommon
             Log.Debug("Updating storage status: checking grace location...");
             _expiredDirs.Clear();
             foreach (var userdir in _graceLocation.GetDirectories()) {
+                Log.Trace("Scanning directory [{0}]", userdir.Name);
                 var expired = new List<DirectoryDetails>();
                 foreach (var subdir in userdir.GetDirectories()) {
                     var dirDetails = new DirectoryDetails(subdir);
+                    Log.Trace("Checking directory [{0}]: {1}",
+                        dirDetails.Dir.Name, dirDetails.HumanAgeFromName);
                     if (dirDetails.AgeFromName < _gracePeriod)
                         continue;
 
+                    Log.Trace("Found expired directory [{0}]", dirDetails.Dir.Name);
                     expired.Add(dirDetails);
                 }
+                Log.Trace("Found {0} expired dirs.", expired.Count);
                 if (expired.Count > 0)
                     _expiredDirs.Add(userdir.Name, expired);
             }
