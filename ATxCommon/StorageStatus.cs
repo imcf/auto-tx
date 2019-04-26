@@ -197,8 +197,14 @@ namespace ATxCommon
         /// </summary>
         /// <param name="force">Update, independently of the last update timestamp.</param>
         public void Update(bool force = false) {
-            UpdateFreeSpace(force);
-            UpdateGraceLocation(force);
+            try {
+                UpdateFreeSpace(force);
+                UpdateGraceLocation(force);
+            }
+            catch (Exception ex) {
+                Log.Error("Updating storage status failed: {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
