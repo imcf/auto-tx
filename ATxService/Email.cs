@@ -101,8 +101,8 @@ namespace ATxService
 
         /// <summary>
         /// Send a notification about low drive space to the admin if the time since the last
-        /// notification has elapsed the configured delta. In that case also a summary of the
-        /// grace location status is added to the report.
+        /// notification has elapsed the configured delta. The report will also contain a summary
+        /// of the grace location status.
         /// </summary>
         /// <param name="spaceDetails">String describing the drives being low on space.</param>
         private void SendLowSpaceMail(string spaceDetails) {
@@ -207,9 +207,10 @@ namespace ATxService
 
         /// <summary>
         /// Send a report on expired folders in the grace location if applicable.
-        /// 
-        /// Create a summary of expired folders and send it to the admin address
-        /// if the configured GraceNotificationDelta has passed since the last email.
+        ///
+        /// A summary of expired folders is created and sent to the admin address if the configured
+        /// GraceNotificationDelta has passed since the last email. The report will also contain a
+        /// summary of free disk space for all configured drives.
         /// </summary>
         /// <param name="threshold">The number of days used as expiration threshold.</param>
         /// <returns>The summary report, empty if no expired folders exist.</returns>
