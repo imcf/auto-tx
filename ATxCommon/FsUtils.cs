@@ -52,7 +52,7 @@ namespace ATxCommon
                 Log.Error("ERROR: CheckForDirectory() parameter must not be empty!");
                 return false;
             }
-            return FsUtils.CreateNewDirectory(path, false) == path;
+            return CreateNewDirectory(path, false) == path;
         }
 
         /// <summary>
