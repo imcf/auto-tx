@@ -9,12 +9,13 @@ namespace ATxCommon
     public class StorageStatus
     {
         /// <summary>
-        /// By default the status will only be updated if more than UpdateDelta seconds have
+        /// By default the statuses will only be updated if more than UpdateDelta seconds have
         /// elapsed since the last update to prevent too many updates causing high system load.
         /// </summary>
         public int UpdateDelta = 20;
 
-        public DateTime LastStatusUpdate = DateTime.MinValue;
+        private DateTime _lastUpdateFreeSpace = DateTime.MinValue;
+        private DateTime _lastUpdateGraceLocation = DateTime.MinValue;
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -43,7 +44,7 @@ namespace ATxCommon
         /// </summary>
         public int ExpiredDirsCount {
             get {
-                Update();
+                UpdateGraceLocation();
                 return _expiredDirs.Count;
             }
         }
@@ -68,7 +69,7 @@ namespace ATxCommon
         /// </summary>
         public Dictionary<string, List<DirectoryDetails>> ExpiredDirs {
             get {
-                Update();
+                UpdateGraceLocation();
                 return _expiredDirs;
             }
         }
@@ -78,8 +79,8 @@ namespace ATxCommon
         /// </summary>
         /// <returns>A human-readable (i.e. formatted) string with details on the grace location
         /// and all expired directories, grouped by the topmost level (i.e. user dirs).</returns>
-            Update();
         public string GraceLocationSummary() {
+            UpdateGraceLocation();
             var summary = "------ Grace location status, " +
                           $"threshold: {_gracePeriod} days ({_gracePeriodHuman}) ------\n\n" +
                           $" - location: [{_graceLocation}]\n";
@@ -107,7 +108,7 @@ namespace ATxCommon
         /// configured drives. If <paramref name="onlyLowSpace"/> is set to "true", space will only
         /// be reported for drives that are below their corresponding threshold.</returns>
         public string SpaceSummary(bool onlyLowSpace = false) {
-            Update();
+            UpdateFreeSpace();
             var summary = "------ Storage space status ------\n\n";
             foreach (var drive in _drives) {
                 var msg = $" - drive [{drive.DriveName}] " +
@@ -126,31 +127,17 @@ namespace ATxCommon
         }
 
         /// <summary>
-        /// Update the current storage status in case the last update is already older than the
-        /// configured threshold <see cref="LastStatusUpdate"/>.
+        /// Update the storage status of free drive space if it's older than its threshold.
         /// </summary>
         /// <param name="force">Update, independently of the last update timestamp.</param>
-        public void Update(bool force = false) {
+        public void UpdateFreeSpace(bool force = false) {
             if (force)
-                LastStatusUpdate = DateTime.MinValue;
+                _lastUpdateFreeSpace = DateTime.MinValue;
 
-            if (TimeUtils.SecondsSince(LastStatusUpdate) < UpdateDelta)
+            if (TimeUtils.SecondsSince(_lastUpdateFreeSpace) < UpdateDelta)
                 return;
 
-            foreach (var userdir in _graceLocation.GetDirectories()) {
-                var expired = new List<DirectoryDetails>();
-                foreach (var subdir in userdir.GetDirectories()) {
-                    var dirDetails = new DirectoryDetails(subdir);
-                    if (dirDetails.AgeFromName < _gracePeriod)
-                        continue;
-
-                    expired.Add(dirDetails);
-                }
-                if (expired.Count > 0)
-
-                    _expiredDirs.Add(userdir.Name, expired);
-            }
-
+            Log.Debug("Updating storage status: checking free disk space...");
             foreach (var drive in _drives) {
                 try {
                     drive.FreeSpace = new DriveInfo(drive.DriveName).TotalFreeSpace;
@@ -162,7 +149,50 @@ namespace ATxCommon
                 }
             }
 
-            LastStatusUpdate = DateTime.Now;
+            _lastUpdateFreeSpace = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Update the storage status of the grace location if it's older than its threshold.
+        /// </summary>
+        /// <param name="force">Update, independently of the last update timestamp.</param>
+        public void UpdateGraceLocation(bool force = false) {
+            if (force)
+                _lastUpdateGraceLocation = DateTime.MinValue;
+
+            if (TimeUtils.SecondsSince(_lastUpdateGraceLocation) < UpdateDelta)
+                return;
+
+            Log.Debug("Updating storage status: checking grace location...");
+            foreach (var userdir in _graceLocation.GetDirectories()) {
+                var expired = new List<DirectoryDetails>();
+                foreach (var subdir in userdir.GetDirectories()) {
+                    var dirDetails = new DirectoryDetails(subdir);
+                    if (dirDetails.AgeFromName < _gracePeriod)
+                        continue;
+
+                    expired.Add(dirDetails);
+                }
+                if (expired.Count > 0)
+                    _expiredDirs.Add(userdir.Name, expired);
+            }
+
+            if (ExpiredDirsCount > 0) {
+                Log.Debug("Updated storage status: {0} expired directories in grace location.",
+                    ExpiredDirsCount);
+            }
+
+            _lastUpdateGraceLocation = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Update the current storage status in case the last update is already older than the
+        /// configured threshold <see cref="_lastUpdateFreeSpace"/>.
+        /// </summary>
+        /// <param name="force">Update, independently of the last update timestamp.</param>
+        public void Update(bool force = false) {
+            UpdateFreeSpace(force);
+            UpdateGraceLocation(force);
         }
 
         /// <summary>
