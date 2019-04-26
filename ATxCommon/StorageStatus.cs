@@ -177,13 +177,12 @@ namespace ATxCommon
                 if (expired.Count > 0)
                     _expiredDirs.Add(userdir.Name, expired);
             }
-
-            if (ExpiredDirsCount > 0) {
-                Log.Debug("Updated storage status: {0} expired directories in grace location.",
-                    ExpiredDirsCount);
-            }
-
             _lastUpdateGraceLocation = DateTime.Now;
+
+            if (_expiredDirs.Count > 0) {
+                Log.Debug("Updated storage status: {0} expired directories in grace location.",
+                    _expiredDirs.Count);
+            }
         }
 
         /// <summary>
