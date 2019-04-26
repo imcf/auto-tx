@@ -49,6 +49,21 @@ namespace ATxCommon
         }
 
         /// <summary>
+        /// Check if free space on all configured drives is above their threshold.
+        /// </summary>
+        /// <returns>False if any of the drives is below its threshold, true otherwise.</returns>
+        public bool AllDrivesAboveThreshold() {
+            UpdateFreeSpace();
+            foreach (var drive in _drives) {
+                if (drive.DiskSpaceLow()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Get a dictionary of expired directories from the grace location.
         /// </summary>
         public Dictionary<string, List<DirectoryDetails>> ExpiredUserDirs {
