@@ -24,7 +24,7 @@ namespace ATxCommon.Serializables
         public long FreeSpace { get; set; } = -1;
 
         /// <summary>
-        /// Convenience method to check if this drive's free space is below its threshold.
+        /// Check if this drive's free space is below its threshold.
         /// </summary>
         /// <returns>True if free space is below the threshold, false otherwise.</returns>
         public bool DiskSpaceLow() {
