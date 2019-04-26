@@ -138,7 +138,7 @@ namespace ATxCommon
             if (TimeUtils.SecondsSince(_lastUpdateFreeSpace) < UpdateDelta)
                 return;
 
-            Log.Debug("Updating storage status: checking free disk space...");
+            Log.Trace("Updating storage status: checking free disk space...");
             foreach (var drive in _drives) {
                 try {
                     drive.FreeSpace = new DriveInfo(drive.DriveName).TotalFreeSpace;
