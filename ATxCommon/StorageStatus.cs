@@ -164,6 +164,7 @@ namespace ATxCommon
                 return;
 
             Log.Debug("Updating storage status: checking grace location...");
+            _expiredDirs.Clear();
             foreach (var userdir in _graceLocation.GetDirectories()) {
                 var expired = new List<DirectoryDetails>();
                 foreach (var subdir in userdir.GetDirectories()) {
