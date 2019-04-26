@@ -63,8 +63,8 @@ namespace ATxCommon
         /// </summary>
         /// <returns>A human-readable (i.e. formatted) string with details on the grace location
         /// and all expired directories, grouped by the topmost level (i.e. user dirs).</returns>
-        public string ExpiredUserDirsSummary() {
             Update();
+        public string GraceLocationSummary() {
             var summary = "------ Grace location status, " +
                           $"threshold: {_gracePeriod} days ({_gracePeriodHuman}) ------\n\n" +
                           $" - location: [{_graceLocation}]\n";
@@ -155,7 +155,7 @@ namespace ATxCommon
         /// </summary>
         /// <returns>Human-readable string with details on free space + grace location.</returns>
         public string Summary() {
-            return $"{SpaceSummary()}\n{ExpiredUserDirsSummary()}";
+            return $"{SpaceSummary()}\n{GraceLocationSummary()}";
         }
     }
 }
