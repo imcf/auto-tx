@@ -18,7 +18,7 @@ namespace ATxCommon
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private readonly Dictionary<string, List<DirectoryDetails>> _expiredUserDirs;
+        private readonly Dictionary<string, List<DirectoryDetails>> _expiredDirs;
 
         private readonly List<DriveToCheck> _drives;
         private readonly int _gracePeriod;
@@ -34,17 +34,17 @@ namespace ATxCommon
             _gracePeriod = config.GracePeriod;
             _gracePeriodHuman = config.HumanGracePeriod;
             _graceLocation = new DirectoryInfo(config.DonePath);
-            _expiredUserDirs = new Dictionary<string, List<DirectoryDetails>>();
+            _expiredDirs = new Dictionary<string, List<DirectoryDetails>>();
             Update();
         }
 
         /// <summary>
         /// Number of expired directories in the grace location.
         /// </summary>
-        public int ExpiredUserDirsCount {
+        public int ExpiredDirsCount {
             get {
                 Update();
-                return _expiredUserDirs.Count;
+                return _expiredDirs.Count;
             }
         }
 
@@ -66,10 +66,10 @@ namespace ATxCommon
         /// <summary>
         /// Get a dictionary of expired directories from the grace location.
         /// </summary>
-        public Dictionary<string, List<DirectoryDetails>> ExpiredUserDirs {
+        public Dictionary<string, List<DirectoryDetails>> ExpiredDirs {
             get {
                 Update();
-                return _expiredUserDirs;
+                return _expiredDirs;
             }
         }
 
@@ -84,12 +84,12 @@ namespace ATxCommon
                           $"threshold: {_gracePeriod} days ({_gracePeriodHuman}) ------\n\n" +
                           $" - location: [{_graceLocation}]\n";
 
-            if (_expiredUserDirs.Count == 0)
+            if (_expiredDirs.Count == 0)
                 return summary + " -- NO EXPIRED folders in grace location! --";
 
-            foreach (var dir in _expiredUserDirs.Keys) {
+            foreach (var dir in _expiredDirs.Keys) {
                 summary += "\n - directory '" + dir + "'\n";
-                foreach (var subdir in _expiredUserDirs[dir]) {
+                foreach (var subdir in _expiredDirs[dir]) {
                     summary += $"    - {subdir.Dir.Name} " +
                                $"[age: {subdir.HumanAgeFromName}, " +
                                $"size: {subdir.HumanSize}]\n";
@@ -147,8 +147,8 @@ namespace ATxCommon
                     expired.Add(dirDetails);
                 }
                 if (expired.Count > 0)
-                    _expiredUserDirs.Add(userdir.Name, expired);
 
+                    _expiredDirs.Add(userdir.Name, expired);
             }
 
             foreach (var drive in _drives) {
