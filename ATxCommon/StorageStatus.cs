@@ -36,7 +36,7 @@ namespace ATxCommon
             _gracePeriodHuman = config.HumanGracePeriod;
             _graceLocation = new DirectoryInfo(config.DonePath);
             _expiredDirs = new Dictionary<string, List<DirectoryDetails>>();
-            Update();
+            Update(true);
         }
 
         /// <summary>
