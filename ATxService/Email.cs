@@ -20,7 +20,8 @@ namespace ATxService
             subject = $"{_config.EmailPrefix}{ServiceName} - {subject} - {_config.HostAlias}";
             body += $"\n\n--\n[{_versionSummary}]\n";
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
-                Log.Debug("SendEmail: {0}\n{1}", subject, body);
+                Log.Debug("SendEmail: config option <SmtpHost> is unset, not sending mail - " +
+                          "content shown below.\n[Subject] {0}\n[Body] {1}", subject, body);
                 return;
             }
             if (!recipient.Contains(@"@")) {
