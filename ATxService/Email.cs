@@ -78,16 +78,17 @@ namespace ATxService
         /// </summary>
         /// <param name="body">The email text.</param>
         /// <param name="subject">Optional subject for the email.</param>
-        private void SendAdminEmail(string body, string subject = "") {
+        /// <returns>True in case an email was sent, false otherwise.</returns>
+        private bool SendAdminEmail(string body, string subject = "") {
             if (_config.SendAdminNotification == false)
-                return;
+                return false;
 
             var delta = TimeUtils.MinutesSince(_status.LastAdminNotification);
             if (delta < _config.AdminNotificationDelta) {
                 Log.Warn("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
                     TimeUtils.MinutesToHuman(delta),
                     TimeUtils.MinutesToHuman(_config.AdminNotificationDelta), subject, body);
-                return;
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(subject))
@@ -97,7 +98,8 @@ namespace ATxService
             Log.Debug("Sending an admin notification email.");
             SendEmail(_config.AdminEmailAdress, subject, body);
             _status.LastAdminNotification = DateTime.Now;
-
+            Log.Debug("{0} sent to AdminEmailAdress.", subject);
+            return true;
         }
 
         /// <summary>
@@ -229,9 +231,7 @@ namespace ATxService
             }
 
             _status.LastGraceNotification = DateTime.Now;
-            SendAdminEmail(report, "grace location summary");
-            Log.Debug("Notification sent to AdminEmailAdress.");
-            return true;
+            return SendAdminEmail(report, "grace location summary");
         }
     }
 }
