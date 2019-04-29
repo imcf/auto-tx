@@ -808,41 +808,42 @@ namespace ATxService
                 }
             }
 
-            if (_status.CurrentTransferSrc.Length > 0) {
-                if (_transferredFiles.Count == 0) {
-                    var msg = "FinalizeTransfers: CurrentTransferSrc is set to " +
-                              $"[{_status.CurrentTransferSrc}], but the list of transferred " +
-                              "files is empty!\nThis indicates something went wrong during the " +
-                              "transfer, maybe a local permission problem?";
-                    Log.Warn(msg);
-                    SendAdminEmail(msg, "Error Finalizing Transfer!");
-                    try {
-                        var preserve = _status.CurrentTransferSrc
-                            .Replace(_config.ManagedPath, "")
-                            .Replace(@"\", "___");
-                        preserve = Path.Combine(_config.ErrorPath, preserve);
-                        var stale = new DirectoryInfo(_status.CurrentTransferSrc);
-                        stale.MoveTo(preserve);
-                        Log.Warn("Moved stale transfer source to [{0}]!", preserve);
-                    }
-                    catch (Exception ex) {
-                        Log.Error("Preserving the stale transfer source [{0}] in [{1}] failed: {2}",
-                            _status.CurrentTransferSrc, _config.ErrorPath, ex.Message);
-                    }
+            if (_status.CurrentTransferSrc.Length <= 0)
+                return;
 
-                    // reset current transfer variables:
-                    _status.CurrentTransferSrc = "";
-                    _status.CurrentTransferSize = 0;
-
-                    return;
+            if (_transferredFiles.Count == 0) {
+                var msg = "FinalizeTransfers: CurrentTransferSrc is set to " +
+                          $"[{_status.CurrentTransferSrc}], but the list of transferred " +
+                          "files is empty!\nThis indicates something went wrong during the " +
+                          "transfer, maybe a local permission problem?";
+                Log.Warn(msg);
+                SendAdminEmail(msg, "Error Finalizing Transfer!");
+                try {
+                    var preserve = _status.CurrentTransferSrc
+                        .Replace(_config.ManagedPath, "")
+                        .Replace(@"\", "___");
+                    preserve = Path.Combine(_config.ErrorPath, preserve);
+                    var stale = new DirectoryInfo(_status.CurrentTransferSrc);
+                    stale.MoveTo(preserve);
+                    Log.Warn("Moved stale transfer source to [{0}]!", preserve);
                 }
-                Log.Debug("Finalizing transfer, moving local data to grace location...");
-                MoveToGraceLocation();
-                SendTransferCompletedMail();
-                _status.CurrentTransferSrc = ""; // cleanup completed, so reset CurrentTransferSrc
+                catch (Exception ex) {
+                    Log.Error("Preserving the stale transfer source [{0}] in [{1}] failed: {2}",
+                        _status.CurrentTransferSrc, _config.ErrorPath, ex.Message);
+                }
+
+                // reset current transfer variables:
+                _status.CurrentTransferSrc = "";
                 _status.CurrentTransferSize = 0;
-                _transferredFiles.Clear(); // empty the list of transferred files
+
+                return;
             }
+            Log.Debug("Finalizing transfer, moving local data to grace location...");
+            MoveToGraceLocation();
+            SendTransferCompletedMail();
+            _status.CurrentTransferSrc = ""; // cleanup completed, so reset CurrentTransferSrc
+            _status.CurrentTransferSize = 0;
+            _transferredFiles.Clear(); // empty the list of transferred files
         }
 
         /// <summary>
