@@ -212,23 +212,26 @@ namespace ATxService
         /// GraceNotificationDelta has passed since the last email. The report will also contain a
         /// summary of free disk space for all configured drives.
         /// </summary>
-        /// <param name="threshold">The number of days used as expiration threshold.</param>
-        /// <returns>The summary report, empty if no expired folders exist.</returns>
-        private string SendGraceLocationSummary(int threshold) {
-            var report = FsUtils.GraceLocationSummary(
-                new DirectoryInfo(_config.DonePath), threshold);
-            if (string.IsNullOrEmpty(report))
-                return "";
+        /// <returns>True if a report was sent, false otherwise (includes situations where there
+        /// are expired directories but the report has not been sent via email as the grace
+        /// notification delta hasn't expired yet, the report will still be logged then).</returns>
+        private bool SendGraceLocationSummary() {
+            if (_storage.ExpiredDirsCount == 0)
+                return false;
 
-            report += $"\n{SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring)}" +
-                      "\nTime since last grace notification: " +
-                      $"{TimeUtils.HumanSince(_status.LastGraceNotification)}\n";
-            if (TimeUtils.MinutesSince(_status.LastGraceNotification) < _config.GraceNotificationDelta)
-                return report;
+            var report = _storage.Summary() +
+                         "\nTime since last grace notification: " +
+                         $"{TimeUtils.HumanSince(_status.LastGraceNotification)}\n";
+
+            if (TimeUtils.MinutesSince(_status.LastGraceNotification) < _config.GraceNotificationDelta) {
+                Log.Debug(report);
+                return false;
+            }
 
             _status.LastGraceNotification = DateTime.Now;
             SendAdminEmail(report, "grace location summary");
-            return report + "\nNotification sent to AdminEmailAdress.\n";
+            Log.Debug("Notification sent to AdminEmailAdress.");
+            return true;
         }
     }
 }

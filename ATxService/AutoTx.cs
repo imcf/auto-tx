@@ -915,9 +915,8 @@ namespace ATxService
                     sourceDirectory.Delete();
                     if (sourceDirectory.Parent != null)
                         sourceDirectory.Parent.Delete();
-                    // check age and size of existing folders in the grace location after
-                    // a transfer has completed, trigger a notification if necessary:
-                    Log.Debug(SendGraceLocationSummary(_config.GracePeriod));
+                    // check grace location and trigger a notification if necessary:
+                    SendGraceLocationSummary();
                     return;
                 }
                 errMsg = "unable to move " + sourceDirectory.FullName;
