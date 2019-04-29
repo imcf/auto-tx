@@ -174,15 +174,15 @@ namespace ATxService
         /// Configure logging to email targets.
         /// 
         /// Depending on the configuration, set up the logging via email. If no SmtpHost or no
-        /// AdminEmailAdress is configured, nothing will be done. If they're set in the config file,
+        /// AdminEmailAddress is configured, nothing will be done. If they're set in the config file,
         /// a log target for messages with level "Fatal" will be configured. In addition, if the
-        /// AdminDebugEmailAdress is set, another target for "Error" level messages is configured
+        /// AdminDebugEmailAddress is set, another target for "Error" level messages is configured
         /// using this address as recipient.
         /// </summary>
         private void SetupMailLogging() {
             try {
                 if (string.IsNullOrWhiteSpace(_config.SmtpHost) ||
-                    string.IsNullOrWhiteSpace(_config.AdminEmailAdress)) {
+                    string.IsNullOrWhiteSpace(_config.AdminEmailAddress)) {
                     Log.Info("SMTP host or admin recipient unconfigured, disabling mail logging.");
                     return;
                 }
@@ -202,7 +202,7 @@ namespace ATxService
                     SmtpServer = _config.SmtpHost,
                     SmtpPort = _config.SmtpPort,
                     From = _config.EmailFrom,
-                    To = _config.AdminEmailAdress,
+                    To = _config.AdminEmailAddress,
                     Subject = subject,
                     Body = body,
                 };
@@ -215,13 +215,13 @@ namespace ATxService
                 logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatalLimited);
 
                 // "Error" target
-                if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAdress)) {
+                if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAddress)) {
                     var mailTargetError = new MailTarget {
                         Name = "mailerror",
                         SmtpServer = _config.SmtpHost,
                         SmtpPort = _config.SmtpPort,
                         From = _config.EmailFrom,
-                        To = _config.AdminDebugEmailAdress,
+                        To = _config.AdminDebugEmailAddress,
                         Subject = subject,
                         Body = body,
                     };

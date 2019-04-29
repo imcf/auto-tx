@@ -92,13 +92,13 @@
     <!-- EmailPrefix: prefix label for email subjects -->
     <EmailPrefix>[Core Facility] </EmailPrefix>
 
-    <!-- AdminEmailAdress: an email address for admin notifications (including
+    <!-- AdminEmailAddress: an email address for admin notifications (including
          "Fatal" log messages) -->  
-    <AdminEmailAdress>admin@mydomain.xy</AdminEmailAdress>
+    <AdminEmailAddress>admin@mydomain.xy</AdminEmailAddress>
 
-    <!-- AdminDebugEmailAdress: an email address where to send certain debug
+    <!-- AdminDebugEmailAddress: an email address where to send certain debug
          messages to, e.g. on completed transfers -->
-    <AdminDebugEmailAdress>admin@mydomain.xy</AdminDebugEmailAdress>
+    <AdminDebugEmailAddress>admin@mydomain.xy</AdminDebugEmailAddress>
 
     <!-- SendTransferNotification: send email to user on finished transfers -->
     <SendTransferNotification>true</SendTransferNotification>
