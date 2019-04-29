@@ -133,6 +133,9 @@ namespace ATxService
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
+                // explicitly use SendEmail() instead of SendAdminEmail() here to circumvent the
+                // additional checks done in the latter one and make sure the low space email is
+                // sent out independently of that:
                 SendEmail(_config.AdminEmailAdress, "low disk space", body);
             }
             catch (Exception ex) {
