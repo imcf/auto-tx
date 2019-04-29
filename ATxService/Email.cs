@@ -102,12 +102,12 @@ namespace ATxService
         /// <summary>
         /// Send a notification about low drive space to the admin if the time since the last
         /// notification has elapsed the configured delta. The report will also contain a summary
-        /// of the grace location status.
+        /// of the grace location status. If none of the drives are low on space nothing will be
+        /// done (i.e. only a generic trace-level message will be logged).
         /// </summary>
-        /// <param name="spaceDetails">String describing the drives being low on space.</param>
-        private void SendLowSpaceMail(string spaceDetails) {
-            if (string.IsNullOrWhiteSpace(spaceDetails)) {
-                Log.Trace("SendLowSpaceMail(): spaceDetails emtpy!");
+        private void SendLowSpaceMail() {
+            if (_storage.AllDrivesAboveThreshold()) {
+                Log.Trace("Free space on all drives above threshold.");
                 return;
             }
 
@@ -118,25 +118,21 @@ namespace ATxService
                 return;
             }
 
-            // reaching this point means a notification will be sent to the admin, and in that
-            // case it makes sense to also include details about the grace location:
-            var graceReport = FsUtils.GraceLocationSummary(
-                new DirectoryInfo(_config.DonePath), _config.GracePeriod);
+            // reaching this point means a notification will be sent, so now we can ask for the
+            // full storage status report:
+            var report = _storage.Summary();
 
-
-            Log.Warn("WARNING: {0}", spaceDetails);
+            Log.Warn("WARNING: {0}", report);
             _status.LastStorageNotification = DateTime.Now;
 
             var substitutions = new List<Tuple<string, string>> {
                 Tuple.Create("SERVICE_NAME", ServiceName),
                 Tuple.Create("HOST_ALIAS", _config.HostAlias),
                 Tuple.Create("HOST_NAME", Environment.MachineName),
-                Tuple.Create("LOW_SPACE_DRIVES", spaceDetails)
+                Tuple.Create("LOW_SPACE_DRIVES", report)
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
-                if (graceReport.Length > 0)
-                    body += $"\n\n--\n{graceReport}";
                 SendEmail(_config.AdminEmailAdress, "low disk space", body);
             }
             catch (Exception ex) {

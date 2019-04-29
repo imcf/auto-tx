@@ -615,7 +615,7 @@ namespace ATxService
             // throw new Exception("just a test exception from RunMainTasks");
 
             // mandatory tasks, run on every call:
-            SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
+            SendLowSpaceMail();
             UpdateServiceState();
             _status.SerializeHeartbeat();
 
