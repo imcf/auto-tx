@@ -224,6 +224,12 @@ namespace ATxCommon.Serializables
         /// Minimum time in minutes between two low-space notifications. Default: 720 (12h).
         /// </summary>
         public int StorageNotificationDelta { get; set; } = 720;
+        
+        /// <summary>
+        /// Minimum time in minutes between two startup system health notifications.
+        /// Default: 2880 (2d).
+        /// </summary>
+        public int StartupNotificationDelta { get; set; } = 2880;
 
         #endregion
 
@@ -291,6 +297,11 @@ namespace ATxCommon.Serializables
         [XmlIgnore]
         public static string ValidatorWarnings { get; set; }
 
+        /// <summary>
+        /// Convenience property converting the grace period to a human-friendly format.
+        /// </summary>
+        [XmlIgnore]
+        public string HumanGracePeriod => TimeUtils.DaysToHuman(GracePeriod, false);
 
         #endregion
 
@@ -472,6 +483,7 @@ namespace ATxCommon.Serializables
             WarnOnHighValue(c.AdminNotificationDelta, nameof(c.AdminNotificationDelta), 1440);
             WarnOnHighValue(c.GraceNotificationDelta, nameof(c.GraceNotificationDelta), 10080);
             WarnOnHighValue(c.StorageNotificationDelta, nameof(c.StorageNotificationDelta), 10080);
+            WarnOnHighValue(c.StartupNotificationDelta, nameof(c.StartupNotificationDelta), 40320);
             WarnOnHighValue(c.GracePeriod, nameof(c.GracePeriod), 100);
 
             if (!c.DestinationDirectory.StartsWith(@"\\"))
@@ -557,6 +569,8 @@ namespace ATxCommon.Serializables
                     TimeUtils.MinutesToHuman(GraceNotificationDelta, false) + ")\n" +
                     $"StorageNotificationDelta: {StorageNotificationDelta} min (" +
                     TimeUtils.MinutesToHuman(StorageNotificationDelta, false) + ")\n" +
+                    $"StartupNotificationDelta: {StartupNotificationDelta} min (" +
+                    TimeUtils.MinutesToHuman(StartupNotificationDelta, false) + ")\n" +
                     "";
             }
             return msg;

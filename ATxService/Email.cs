@@ -20,7 +20,8 @@ namespace ATxService
             subject = $"{_config.EmailPrefix}{ServiceName} - {subject} - {_config.HostAlias}";
             body += $"\n\n--\n[{_versionSummary}]\n";
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
-                Log.Debug("SendEmail: {0}\n{1}", subject, body);
+                Log.Debug("SendEmail: config option <SmtpHost> is unset, not sending mail - " +
+                          "content shown below.\n[Subject] {0}\n[Body] {1}", subject, body);
                 return;
             }
             if (!recipient.Contains(@"@")) {
@@ -77,16 +78,17 @@ namespace ATxService
         /// </summary>
         /// <param name="body">The email text.</param>
         /// <param name="subject">Optional subject for the email.</param>
-        private void SendAdminEmail(string body, string subject = "") {
+        /// <returns>True in case an email was sent, false otherwise.</returns>
+        private bool SendAdminEmail(string body, string subject = "") {
             if (_config.SendAdminNotification == false)
-                return;
+                return false;
 
             var delta = TimeUtils.MinutesSince(_status.LastAdminNotification);
             if (delta < _config.AdminNotificationDelta) {
                 Log.Warn("Suppressed admin email, interval too short ({0} vs. {1}):\n\n{2}\n{3}",
                     TimeUtils.MinutesToHuman(delta),
                     TimeUtils.MinutesToHuman(_config.AdminNotificationDelta), subject, body);
-                return;
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(subject))
@@ -96,16 +98,19 @@ namespace ATxService
             Log.Debug("Sending an admin notification email.");
             SendEmail(_config.AdminEmailAdress, subject, body);
             _status.LastAdminNotification = DateTime.Now;
-
+            Log.Debug("{0} sent to AdminEmailAdress.", subject);
+            return true;
         }
 
         /// <summary>
-        /// Send a notification about low drive space to the admin.
+        /// Send a notification about low drive space to the admin if the time since the last
+        /// notification has elapsed the configured delta. The report will also contain a summary
+        /// of the grace location status. If none of the drives are low on space nothing will be
+        /// done (i.e. only a generic trace-level message will be logged).
         /// </summary>
-        /// <param name="spaceDetails">String describing the drives being low on space.</param>
-        private void SendLowSpaceMail(string spaceDetails) {
-            if (string.IsNullOrWhiteSpace(spaceDetails)) {
-                Log.Trace("SendLowSpaceMail(): spaceDetails emtpy!");
+        private void SendLowSpaceMail() {
+            if (_storage.AllDrivesAboveThreshold()) {
+                Log.Trace("Free space on all drives above threshold.");
                 return;
             }
 
@@ -116,25 +121,24 @@ namespace ATxService
                 return;
             }
 
-            // reaching this point means a notification will be sent to the admin, and in that
-            // case it makes sense to also include details about the grace location:
-            var graceReport = FsUtils.GraceLocationSummary(
-                new DirectoryInfo(_config.DonePath), _config.GracePeriod);
+            // reaching this point means a notification will be sent, so now we can ask for the
+            // full storage status report:
+            var report = _storage.Summary();
 
-
-            Log.Warn("WARNING: {0}", spaceDetails);
+            Log.Warn("WARNING: {0}", report);
             _status.LastStorageNotification = DateTime.Now;
 
             var substitutions = new List<Tuple<string, string>> {
                 Tuple.Create("SERVICE_NAME", ServiceName),
                 Tuple.Create("HOST_ALIAS", _config.HostAlias),
                 Tuple.Create("HOST_NAME", Environment.MachineName),
-                Tuple.Create("LOW_SPACE_DRIVES", spaceDetails)
+                Tuple.Create("LOW_SPACE_DRIVES", report)
             };
             try {
                 var body = LoadMailTemplate("DiskSpace-Low.txt", substitutions);
-                if (graceReport.Length > 0)
-                    body += $"\n\n--\n{graceReport}";
+                // explicitly use SendEmail() instead of SendAdminEmail() here to circumvent the
+                // additional checks done in the latter one and make sure the low space email is
+                // sent out independently of that:
                 SendEmail(_config.AdminEmailAdress, "low disk space", body);
             }
             catch (Exception ex) {
@@ -205,27 +209,48 @@ namespace ATxService
 
         /// <summary>
         /// Send a report on expired folders in the grace location if applicable.
-        /// 
-        /// Create a summary of expired folders and send it to the admin address
-        /// if the configured GraceNotificationDelta has passed since the last email.
+        ///
+        /// A summary of expired folders is created and sent to the admin address if the configured
+        /// GraceNotificationDelta has passed since the last email. The report will also contain a
+        /// summary of free disk space for all configured drives.
         /// </summary>
-        /// <param name="threshold">The number of days used as expiration threshold.</param>
-        /// <returns>The summary report, empty if no expired folders exist.</returns>
-        private string SendGraceLocationSummary(int threshold) {
-            var report = FsUtils.GraceLocationSummary(
-                new DirectoryInfo(_config.DonePath), threshold);
-            if (string.IsNullOrEmpty(report))
-                return "";
+        /// <returns>True if a report was sent, false otherwise (includes situations where there
+        /// are expired directories but the report has not been sent via email as the grace
+        /// notification delta hasn't expired yet, the report will still be logged then).</returns>
+        private bool SendGraceLocationSummary() {
+            if (_storage.ExpiredDirsCount == 0)
+                return false;
 
-            report += $"\n{SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring)}" +
-                      "\nTime since last grace notification: " +
-                      $"{TimeUtils.HumanSince(_status.LastGraceNotification)}\n";
-            if (TimeUtils.MinutesSince(_status.LastGraceNotification) < _config.GraceNotificationDelta)
-                return report;
+            var report = _storage.Summary() +
+                         "\nTime since last grace notification: " +
+                         $"{TimeUtils.HumanSince(_status.LastGraceNotification)}\n";
+
+            if (TimeUtils.MinutesSince(_status.LastGraceNotification) < _config.GraceNotificationDelta) {
+                Log.Debug(report);
+                return false;
+            }
 
             _status.LastGraceNotification = DateTime.Now;
-            SendAdminEmail(report, "grace location summary");
-            return report + "\nNotification sent to AdminEmailAdress.\n";
+            return SendAdminEmail(report, "grace location summary");
+        }
+
+        /// <summary>
+        /// Send a system health report if enough time has elapsed since the previous one.
+        /// </summary>
+        /// <param name="report">The health report.</param>
+        /// <returns>True in case the report was sent, false otherwise.</returns>
+        private bool SendHealthReport(string report) {
+            var elapsedHuman = TimeUtils.HumanSince(_status.LastStartupNotification);
+
+            if (TimeUtils.MinutesSince(_status.LastStartupNotification) < _config.StartupNotificationDelta) {
+                Log.Trace("Not sending system health report now, last one has been sent {0}",
+                    elapsedHuman);
+                return false;
+            }
+
+            report += $"\nPrevious system health report notification was sent {elapsedHuman}.\n";
+            _status.LastStartupNotification = DateTime.Now;
+            return SendAdminEmail(report, "system health report");
         }
     }
 }

@@ -118,6 +118,11 @@
          in case one of the drives is below the threshold (in minutes) -->
     <StorageNotificationDelta>720</StorageNotificationDelta>
 
+    <!-- StartupNotificationDelta: minimum time (in minutes) between two service
+         startup system health notification emails (default: 2880 (2d). Set to 0 
+         to disable startup health reports. -->
+    <StartupNotificationDelta>2880</StartupNotificationDelta>
+
     <!--  OPTIONAL NOTIFICATION / EMAIL SETTINGS  -->
 
 </ServiceConfig>

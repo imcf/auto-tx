@@ -1,4 +1,6 @@
-﻿namespace ATxCommon.Serializables
+﻿using System.Xml.Serialization;
+
+namespace ATxCommon.Serializables
 {
     /// <summary>
     /// Helper class for the nested SpaceMonitoring sections.
@@ -14,5 +16,19 @@
         /// Limit (in GB) of free space, lower values will trigger a notification.
         /// </summary>
         public long SpaceThreshold { get; set; }
+
+        /// <summary>
+        /// Free space of a drive in bytes, set to -1 if unknown or check resulted in an error.
+        /// </summary>
+        [XmlIgnore]
+        public long FreeSpace { get; set; } = -1;
+
+        /// <summary>
+        /// Check if this drive's free space is below its threshold.
+        /// </summary>
+        /// <returns>True if free space is below the threshold, false otherwise.</returns>
+        public bool DiskSpaceLow() {
+            return FreeSpace < SpaceThreshold * Conv.GigaBytes;
+        }
     }
 }

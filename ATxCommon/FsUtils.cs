@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -52,11 +51,11 @@ namespace ATxCommon
                 Log.Error("ERROR: CheckForDirectory() parameter must not be empty!");
                 return false;
             }
-            return FsUtils.CreateNewDirectory(path, false) == path;
+            return CreateNewDirectory(path, false) == path;
         }
 
         /// <summary>
-        /// Recursively sum up size of all files under a given path.
+        /// Recursively sum up size (in bytes) of all files under a given path.
         /// </summary>
         /// <param name="path">Full path of the directory.</param>
         /// <returns>The total size in bytes.</returns>
@@ -86,67 +85,6 @@ namespace ATxCommon
                 return -1;
             }
             return (baseTime - dirTimestamp).Days;
-        }
-
-        /// <summary>
-        /// Assemble a dictionary with information about expired directories.
-        /// </summary>
-        /// <param name="baseDir">The base directory to scan for subdirectories.</param>
-        /// <param name="thresh">The number of days used as expiration threshold.</param>
-        /// <returns>A dictionary having usernames as keys (of those users that actually do have
-        /// expired directories), where the values are lists of tuples with the DirInfo objects,
-        /// size (in bytes) and age (in days) of the expired directories.</returns>
-        public static Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>
-            ExpiredDirs(DirectoryInfo baseDir,int thresh) {
-
-            var collection = new Dictionary<string, List<Tuple<DirectoryInfo, long, int>>>();
-            var now = DateTime.Now;
-            foreach (var userdir in baseDir.GetDirectories()) {
-                var expired = new List<Tuple<DirectoryInfo, long, int>>();
-                foreach (var subdir in userdir.GetDirectories()) {
-                    var age = DirNameToAge(subdir, now);
-                    if (age < thresh)
-                        continue;
-                    long size = -1;
-                    try {
-                        size = GetDirectorySize(subdir.FullName);
-                    }
-                    catch (Exception ex) {
-                        Log.Error("ERROR getting directory size of [{0}]: {1}",
-                            subdir.FullName, ex.Message);
-                    }
-                    expired.Add(new Tuple<DirectoryInfo, long, int>(subdir, size, age));
-                }
-                if (expired.Count > 0)
-                    collection.Add(userdir.Name, expired);
-            }
-            return collection;
-        }
-
-        /// <summary>
-        /// Generate a report on expired folders in the grace location.
-        /// 
-        /// Check all user-directories in the grace location for subdirectories whose timestamp
-        /// (the directory name) exceeds the configured grace period and generate a summary
-        /// containing the age and size of those directories.
-        /// </summary>
-        /// <param name="graceLocation">The location to scan for expired folders.</param>
-        /// <param name="threshold">The number of days used as expiration threshold.</param>
-        public static string GraceLocationSummary(DirectoryInfo graceLocation, int threshold) {
-            var expired = ExpiredDirs(graceLocation, threshold);
-            var report = "";
-            foreach (var userdir in expired.Keys) {
-                report += "\n - user '" + userdir + "'\n";
-                foreach (var subdir in expired[userdir]) {
-                    report += string.Format("   - {0} [age: {2}, size: {1}]\n",
-                        subdir.Item1, Conv.BytesToString(subdir.Item2),
-                        TimeUtils.DaysToHuman(subdir.Item3));
-                }
-            }
-            if (string.IsNullOrEmpty(report))
-                return "";
-
-            return "Expired folders in grace location:\n" + report;
         }
 
         /// <summary>

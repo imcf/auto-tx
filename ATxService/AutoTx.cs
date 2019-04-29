@@ -69,6 +69,7 @@ namespace ATxService
         /// <summary>
         /// Counter on how many load monitoring properties are currently exceeding their limit(s).
         /// </summary>
+        // ReSharper disable once RedundantDefaultMemberInitializer
         private int _exceedingLoadLimit = 0;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
@@ -100,6 +101,7 @@ namespace ATxService
 
         private ServiceConfig _config;
         private ServiceStatus _status;
+        private StorageStatus _storage;
 
         private static Timer _mainTimer;
 
@@ -124,6 +126,7 @@ namespace ATxService
 
             InitializePerformanceMonitors();
             InitializeDirectories();
+            SetupStorageStatus();
             StartupSummary();
 
             if (_config.DebugRoboSharp) {
@@ -405,28 +408,9 @@ namespace ATxService
                    "\n------ Loaded configuration settings ------\n" + _config.Summary();
 
 
-            msg += "\n------ Current system parameters ------\n" +
-                   "Hostname: " + Environment.MachineName + "\n" +
-                   "Free system memory: " + SystemChecks.GetFreeMemory() + " MB" + "\n";
-            foreach (var driveToCheck in _config.SpaceMonitoring) {
-                msg += "Free space on drive '" + driveToCheck.DriveName + "': " +
-                       Conv.BytesToString(SystemChecks.GetFreeDriveSpace(driveToCheck.DriveName)) + "\n";
-            }
-
-
-            msg += "\n------ Grace location status, threshold: " + _config.GracePeriod + " days " +
-                "(" + TimeUtils.DaysToHuman(_config.GracePeriod) + ") ------\n";
-            try {
-                var tmp = SendGraceLocationSummary(_config.GracePeriod);
-                if (string.IsNullOrEmpty(tmp)) {
-                    msg += " -- NO EXPIRED folders in grace location! --\n";
-                } else {
-                    msg += tmp;
-                }
-            }
-            catch (Exception ex) {
-                Log.Error("GraceLocationSummary() failed: {0}", ex.Message);
-            }
+            var health = SystemChecks.HealthReport(_storage);
+            SendHealthReport(health);
+            msg += "\n" + health;
 
             Log.Debug(msg);
             
@@ -643,7 +627,7 @@ namespace ATxService
             // throw new Exception("just a test exception from RunMainTasks");
 
             // mandatory tasks, run on every call:
-            SendLowSpaceMail(SystemChecks.CheckFreeDiskSpace(_config.SpaceMonitoring));
+            SendLowSpaceMail();
             UpdateServiceState();
             _status.SerializeHeartbeat();
 
@@ -944,9 +928,8 @@ namespace ATxService
                     sourceDirectory.Delete();
                     if (sourceDirectory.Parent != null)
                         sourceDirectory.Parent.Delete();
-                    // check age and size of existing folders in the grace location after
-                    // a transfer has completed, trigger a notification if necessary:
-                    Log.Debug(SendGraceLocationSummary(_config.GracePeriod));
+                    // check grace location and trigger a notification if necessary:
+                    SendGraceLocationSummary();
                     return;
                 }
                 errMsg = "unable to move " + sourceDirectory.FullName;
@@ -969,6 +952,13 @@ namespace ATxService
 
             _lastUserDirCheck = FsUtils.CreateIncomingDirectories(
                 _config.DestinationDirectory, _config.TmpTransferDir, _config.IncomingPath);
+        }
+
+        /// <summary>
+        /// Set up the StorageStatus object using the current configuration.
+        /// </summary>
+        private void SetupStorageStatus() {
+            _storage = new StorageStatus(_config);
         }
         
         #endregion

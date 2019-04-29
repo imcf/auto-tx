@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
+using ATxCommon.Serializables;
 using NLog;
 
 namespace ATxCommon
@@ -55,7 +56,7 @@ namespace ATxCommon
         /// Check all configured disks for their free space and generate a
         /// summary with details to be used in a notification message.
         /// </summary>
-        public static string CheckFreeDiskSpace(List<Serializables.DriveToCheck> drives) {
+        public static string CheckFreeDiskSpace(List<DriveToCheck> drives) {
             var msg = "";
             foreach (var driveToCheck in drives) {
                 var freeSpace = GetFreeDriveSpace(driveToCheck.DriveName);
@@ -123,7 +124,7 @@ namespace ATxCommon
         /// log, enclosed by square brackets (e.g. [explorer]). If "longFormat" is set to true,
         /// each process name will be printed on a separate line, followed by the title of the
         /// corresponding main window (if existing).</param>
-        public static void LogRunningProcesses(bool longFormat=false) {
+        public static void LogRunningProcesses(bool longFormat = false) {
             if (!Log.IsDebugEnabled)
                 return;
 
@@ -148,6 +149,34 @@ namespace ATxCommon
             } else {
                 Log.Debug("Currently running processes: {0}", procs.Substring(2));
             }
+        }
+
+        /// <summary>
+        /// Generate an overall system health report with free space, grace location status, etc.
+        /// </summary>
+        /// <param name="storage">StorageStatus object used for space and grace reports.</param>
+        /// <returns>A multi-line string containing the details assembled in the report. These
+        /// comprise system uptime, free RAM, free storage space and current grace location status.
+        /// </returns>
+        public static string HealthReport(StorageStatus storage) {
+            var report = "------ System health report ------\n\n" +
+                         $" - hostname: {Environment.MachineName}\n" +
+                         $" - uptime: {TimeUtils.SecondsToHuman(Uptime(), false)}\n" +
+                         $" - free system memory: {GetFreeMemory()} MB" + "\n\n";
+
+            report += storage.Summary();
+
+            return report;
+        }
+
+        /// <summary>
+        /// Get the current system uptime in seconds. Note that this will miss all times where the
+        /// system had been suspended / hibernated, as it is based on the OS's ticks counter.
+        /// </summary>
+        /// <returns>The time since the last system boot in seconds.</returns>
+        public static long Uptime() {
+            var ticks = Stopwatch.GetTimestamp();
+            return ticks / Stopwatch.Frequency;
         }
     }
 }
