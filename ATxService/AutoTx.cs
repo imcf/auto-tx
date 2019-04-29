@@ -107,6 +107,7 @@ namespace ATxService
 
         #region initialize, load and check configuration + status
 
+        /// <inheritdoc />
         /// <summary>
         /// AutoTx constructor
         /// </summary>
