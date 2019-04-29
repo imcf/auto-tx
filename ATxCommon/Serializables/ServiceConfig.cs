@@ -193,12 +193,12 @@ namespace ATxCommon.Serializables
         /// <summary>
         /// The mail recipient address for admin notifications (including "Fatal" log messages).
         /// </summary>
-        public string AdminEmailAdress { get; set; }
+        public string AdminEmailAddress { get; set; }
 
         /// <summary>
         /// The mail recipient address for debug notifications (including "Error" log messages).
         /// </summary>
-        public string AdminDebugEmailAdress { get; set; }
+        public string AdminDebugEmailAddress { get; set; }
 
         /// <summary>
         /// Send an email to the user upon completed transfers. Default: true.
@@ -559,8 +559,8 @@ namespace ATxCommon.Serializables
                     $"SmtpPasswortCredential: --- not showing ---\n" +
                     $"EmailFrom: {EmailFrom}\n" +
                     $"EmailPrefix: {EmailPrefix}\n" +
-                    $"AdminEmailAdress: {AdminEmailAdress}\n" +
-                    $"AdminDebugEmailAdress: {AdminDebugEmailAdress}\n" +
+                    $"AdminEmailAddress: {AdminEmailAddress}\n" +
+                    $"AdminDebugEmailAddress: {AdminDebugEmailAddress}\n" +
                     $"SendTransferNotification: {SendTransferNotification}\n" +
                     $"SendAdminNotification: {SendAdminNotification}\n" +
                     $"AdminNotificationDelta: {AdminNotificationDelta} min (" +

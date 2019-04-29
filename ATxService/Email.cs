@@ -74,7 +74,7 @@ namespace ATxService
         }
 
         /// <summary>
-        /// Send a notification email to the AdminEmailAdress.
+        /// Send a notification email to the AdminEmailAddress.
         /// </summary>
         /// <param name="body">The email text.</param>
         /// <param name="subject">Optional subject for the email.</param>
@@ -96,9 +96,9 @@ namespace ATxService
 
             body = $"Notification from: {_config.HostAlias} ({Environment.MachineName})\n\n{body}";
             Log.Debug("Sending an admin notification email.");
-            SendEmail(_config.AdminEmailAdress, subject, body);
+            SendEmail(_config.AdminEmailAddress, subject, body);
             _status.LastAdminNotification = DateTime.Now;
-            Log.Debug("{0} sent to AdminEmailAdress.", subject);
+            Log.Debug("{0} sent to AdminEmailAddress.", subject);
             return true;
         }
 
@@ -139,7 +139,7 @@ namespace ATxService
                 // explicitly use SendEmail() instead of SendAdminEmail() here to circumvent the
                 // additional checks done in the latter one and make sure the low space email is
                 // sent out independently of that:
-                SendEmail(_config.AdminEmailAdress, "low disk space", body);
+                SendEmail(_config.AdminEmailAddress, "low disk space", body);
             }
             catch (Exception ex) {
                 Log.Error("Error loading email template: {0}", ex.Message);

@@ -66,29 +66,35 @@ namespace ATxService
         /// </summary>
         private int _waitCyclesBeforeNextTx;
 
+        /// <summary>
+        /// Counter on how many load monitoring properties are currently exceeding their limit(s).
+        /// </summary>
         // ReSharper disable once RedundantDefaultMemberInitializer
         private int _exceedingLoadLimit = 0;
 
         private DateTime _lastUserDirCheck = DateTime.MinValue;
 
-        // the transfer state:
+        /// <summary>
+        /// The transfer state, one of "Stopped", "Active", "Paused" or "DoNothing".
+        /// 
+        /// Stopped:   The last transfer was finished successfully or none was started yet. A new
+        ///            transfer MAY ONLY BE STARTED if the service is in this state.
+        /// 
+        /// Active:    A transfer is currently running (i.e. new transfers MUST NOT be started).
+        /// 
+        /// Paused:    Assigned in PauseTransfer() which gets called from within RunMainTasks()
+        ///            when system parameters are not in their valid range. It gets evaluated if
+        ///            the parameters return to valid or if no user is logged on any more.
+        /// 
+        /// DoNothing: Assigned when the service gets shut down (in the OnStop() method) to prevent
+        ///            accidentially launching new transfers or doing other tasks.
+        /// </summary>
         private enum TxState
         {
             Stopped = 0,
-            // Stopped: the last transfer was finished successfully or none was started yet.
-            // A new transfer may only be started if the service is in this state.
-
             Active = 1,
-            // Active: a transfer is currently running (i.e. no new transfer may be started).
-
             Paused = 2,
-            // Paused is assigned in PauseTransfer() which gets called from within RunMainTasks()
-            // when system parameters are not in their valid range. It gets evaluated if the
-            // parameters return to valid or if no user is logged on any more.
-
             DoNothing = 3
-            // DoNothing is assigned when the service gets shut down (in the OnStop() method)
-            // to prevent accidentially launching new transfers etc.
         }
 
         private TxState _transferState = TxState.Stopped;
@@ -103,6 +109,7 @@ namespace ATxService
 
         #region initialize, load and check configuration + status
 
+        /// <inheritdoc />
         /// <summary>
         /// AutoTx constructor
         /// </summary>
@@ -167,15 +174,15 @@ namespace ATxService
         /// Configure logging to email targets.
         /// 
         /// Depending on the configuration, set up the logging via email. If no SmtpHost or no
-        /// AdminEmailAdress is configured, nothing will be done. If they're set in the config file,
+        /// AdminEmailAddress is configured, nothing will be done. If they're set in the config file,
         /// a log target for messages with level "Fatal" will be configured. In addition, if the
-        /// AdminDebugEmailAdress is set, another target for "Error" level messages is configured
+        /// AdminDebugEmailAddress is set, another target for "Error" level messages is configured
         /// using this address as recipient.
         /// </summary>
         private void SetupMailLogging() {
             try {
                 if (string.IsNullOrWhiteSpace(_config.SmtpHost) ||
-                    string.IsNullOrWhiteSpace(_config.AdminEmailAdress)) {
+                    string.IsNullOrWhiteSpace(_config.AdminEmailAddress)) {
                     Log.Info("SMTP host or admin recipient unconfigured, disabling mail logging.");
                     return;
                 }
@@ -195,7 +202,7 @@ namespace ATxService
                     SmtpServer = _config.SmtpHost,
                     SmtpPort = _config.SmtpPort,
                     From = _config.EmailFrom,
-                    To = _config.AdminEmailAdress,
+                    To = _config.AdminEmailAddress,
                     Subject = subject,
                     Body = body,
                 };
@@ -208,13 +215,13 @@ namespace ATxService
                 logConfig.AddRuleForOneLevel(LogLevel.Fatal, mailTargetFatalLimited);
 
                 // "Error" target
-                if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAdress)) {
+                if (!string.IsNullOrWhiteSpace(_config.AdminDebugEmailAddress)) {
                     var mailTargetError = new MailTarget {
                         Name = "mailerror",
                         SmtpServer = _config.SmtpHost,
                         SmtpPort = _config.SmtpPort,
                         From = _config.EmailFrom,
-                        To = _config.AdminDebugEmailAdress,
+                        To = _config.AdminDebugEmailAddress,
                         Subject = subject,
                         Body = body,
                     };
@@ -321,6 +328,10 @@ namespace ATxService
         /// Set up the performance monitor objects (CPU, Disk I/O, ...).
         /// </summary>
         private void InitializePerformanceMonitors() {
+            var lodctr_msg = "Occasionally the performance counters cache becomes corrupted " +
+                             "and needs to be reset manually. To do this, run the following " +
+                             "command from a shell with elevated privileges:\n\n  lodctr /r\n\n";
+
             try {
                 _cpu = new Cpu {
                     Interval = 250,
@@ -340,6 +351,7 @@ namespace ATxService
             }
             catch (Exception ex) {
                 Log.Error("Unexpected error initializing CPU monitoring: {0}", ex.Message);
+                Log.Error(lodctr_msg);
                 throw;
             }
 
@@ -358,6 +370,7 @@ namespace ATxService
                 Log.Error("Unexpected error initializing PhysicalDisk monitoring: {0}\n" +
                           "Please make sure the service account is a member of the local" +
                           "group [Performance Monitor Users]!", ex.Message);
+                Log.Error(lodctr_msg);
                 throw;
             }
         }
@@ -779,41 +792,42 @@ namespace ATxService
                 }
             }
 
-            if (_status.CurrentTransferSrc.Length > 0) {
-                if (_transferredFiles.Count == 0) {
-                    var msg = "FinalizeTransfers: CurrentTransferSrc is set to " +
-                              $"[{_status.CurrentTransferSrc}], but the list of transferred " +
-                              "files is empty!\nThis indicates something went wrong during the " +
-                              "transfer, maybe a local permission problem?";
-                    Log.Warn(msg);
-                    SendAdminEmail(msg, "Error Finalizing Transfer!");
-                    try {
-                        var preserve = _status.CurrentTransferSrc
-                            .Replace(_config.ManagedPath, "")
-                            .Replace(@"\", "___");
-                        preserve = Path.Combine(_config.ErrorPath, preserve);
-                        var stale = new DirectoryInfo(_status.CurrentTransferSrc);
-                        stale.MoveTo(preserve);
-                        Log.Warn("Moved stale transfer source to [{0}]!", preserve);
-                    }
-                    catch (Exception ex) {
-                        Log.Error("Preserving the stale transfer source [{0}] in [{1}] failed: {2}",
-                            _status.CurrentTransferSrc, _config.ErrorPath, ex.Message);
-                    }
+            if (_status.CurrentTransferSrc.Length <= 0)
+                return;
 
-                    // reset current transfer variables:
-                    _status.CurrentTransferSrc = "";
-                    _status.CurrentTransferSize = 0;
-
-                    return;
+            if (_transferredFiles.Count == 0) {
+                var msg = "FinalizeTransfers: CurrentTransferSrc is set to " +
+                          $"[{_status.CurrentTransferSrc}], but the list of transferred " +
+                          "files is empty!\nThis indicates something went wrong during the " +
+                          "transfer, maybe a local permission problem?";
+                Log.Warn(msg);
+                SendAdminEmail(msg, "Error Finalizing Transfer!");
+                try {
+                    var preserve = _status.CurrentTransferSrc
+                        .Replace(_config.ManagedPath, "")
+                        .Replace(@"\", "___");
+                    preserve = Path.Combine(_config.ErrorPath, preserve);
+                    var stale = new DirectoryInfo(_status.CurrentTransferSrc);
+                    stale.MoveTo(preserve);
+                    Log.Warn("Moved stale transfer source to [{0}]!", preserve);
                 }
-                Log.Debug("Finalizing transfer, moving local data to grace location...");
-                MoveToGraceLocation();
-                SendTransferCompletedMail();
-                _status.CurrentTransferSrc = ""; // cleanup completed, so reset CurrentTransferSrc
+                catch (Exception ex) {
+                    Log.Error("Preserving the stale transfer source [{0}] in [{1}] failed: {2}",
+                        _status.CurrentTransferSrc, _config.ErrorPath, ex.Message);
+                }
+
+                // reset current transfer variables:
+                _status.CurrentTransferSrc = "";
                 _status.CurrentTransferSize = 0;
-                _transferredFiles.Clear(); // empty the list of transferred files
+
+                return;
             }
+            Log.Debug("Finalizing transfer, moving local data to grace location...");
+            MoveToGraceLocation();
+            SendTransferCompletedMail();
+            _status.CurrentTransferSrc = ""; // cleanup completed, so reset CurrentTransferSrc
+            _status.CurrentTransferSize = 0;
+            _transferredFiles.Clear(); // empty the list of transferred files
         }
 
         /// <summary>
