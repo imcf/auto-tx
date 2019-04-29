@@ -396,9 +396,8 @@ namespace ATxService
 
 
             var health = SystemChecks.HealthReport(_storage);
+            SendHealthReport(health);
             msg += "\n" + health;
-
-            // TODO: send health report!
 
             Log.Debug(msg);
             

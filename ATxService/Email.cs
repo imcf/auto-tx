@@ -233,5 +233,24 @@ namespace ATxService
             _status.LastGraceNotification = DateTime.Now;
             return SendAdminEmail(report, "grace location summary");
         }
+
+        /// <summary>
+        /// Send a system health report if enough time has elapsed since the previous one.
+        /// </summary>
+        /// <param name="report">The health report.</param>
+        /// <returns>True in case the report was sent, false otherwise.</returns>
+        private bool SendHealthReport(string report) {
+            var elapsedHuman = TimeUtils.HumanSince(_status.LastStartupNotification);
+
+            if (TimeUtils.MinutesSince(_status.LastStartupNotification) < _config.StartupNotificationDelta) {
+                Log.Trace("Not sending system health report now, last one has been sent {0}",
+                    elapsedHuman);
+                return false;
+            }
+
+            report += $"\nPrevious system health report notification was sent {elapsedHuman}.\n";
+            _status.LastStartupNotification = DateTime.Now;
+            return SendAdminEmail(report, "system health report");
+        }
     }
 }
