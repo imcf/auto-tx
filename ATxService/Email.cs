@@ -254,6 +254,7 @@ namespace ATxService
 
             report += $"\nPrevious system health report notification was sent {elapsedHuman}.\n";
             _status.LastStartupNotification = DateTime.Now;
+            Log.Debug("Sending system health report, previous one was sent {0}", elapsedHuman);
             return SendEmail(_config.HealthReportEmailAddress, "system health report", report);
         }
     }
