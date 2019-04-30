@@ -16,13 +16,14 @@ namespace ATxService
         /// <param name="recipient">A full email address OR a valid ActiveDirectory account.</param>
         /// <param name="subject">The subject, might be prefixed with a configurable string.</param>
         /// <param name="body">The email body.</param>
-        private void SendEmail(string recipient, string subject, string body) {
+        /// <returns>True in case an email was sent, false otherwise.</returns>
+        private bool SendEmail(string recipient, string subject, string body) {
             subject = $"{_config.EmailPrefix}{ServiceName} - {subject} - {_config.HostAlias}";
             body += $"\n\n--\n[{_versionSummary}]\n";
             if (string.IsNullOrEmpty(_config.SmtpHost)) {
                 Log.Debug("SendEmail: config option <SmtpHost> is unset, not sending mail - " +
                           "content shown below.\n[Subject] {0}\n[Body] {1}", subject, body);
-                return;
+                return false;
             }
             if (!recipient.Contains(@"@")) {
                 Log.Trace("Invalid recipient, trying to resolve via AD: {0}", recipient);
@@ -31,10 +32,10 @@ namespace ATxService
             if (string.IsNullOrWhiteSpace(recipient)) {
                 Log.Info("Invalid or empty recipient given, NOT sending email!");
                 Log.Debug("SendEmail: {0}\n{1}", subject, body);
-                return;
+                return false;
             }
             try {
-                var smtpClient = new SmtpClient() {
+                var smtpClient = new SmtpClient {
                     Port = _config.SmtpPort,
                     Host = _config.SmtpHost,
                     EnableSsl = true,
@@ -52,7 +53,10 @@ namespace ATxService
             catch (Exception ex) {
                 Log.Error("Error in SendEmail(): {0}\nInnerException: {1}\nStackTrace: {2}",
                     ex.Message, ex.InnerException, ex.StackTrace);
+                return false;
             }
+
+            return true;
         }
 
         /// <summary>
