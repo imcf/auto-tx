@@ -577,6 +577,7 @@ namespace ATxCommon.Serializables
                     $"EmailPrefix: {EmailPrefix}\n" +
                     $"AdminEmailAddress: {AdminEmailAddress}\n" +
                     $"AdminDebugEmailAddress: {AdminDebugEmailAddress}\n" +
+                    $"HealthReportEmailAddress: {HealthReportEmailAddress}\n" +
                     $"SendTransferNotification: {SendTransferNotification}\n" +
                     $"SendAdminNotification: {SendAdminNotification}\n" +
                     $"AdminNotificationDelta: {AdminNotificationDelta} min (" +
