@@ -254,8 +254,7 @@ namespace ATxService
 
             report += $"\nPrevious system health report notification was sent {elapsedHuman}.\n";
             _status.LastStartupNotification = DateTime.Now;
-            // TODO: recipients for the health report should be configurable, defaulting to admin
-            return SendAdminEmail(report, "system health report");
+            return SendEmail(_config.HealthReportEmailAddress, "system health report", report);
         }
     }
 }
