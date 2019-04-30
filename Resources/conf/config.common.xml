@@ -100,6 +100,10 @@
          messages to, e.g. on completed transfers -->
     <AdminDebugEmailAddress>admin@mydomain.xy</AdminDebugEmailAddress>
 
+    <!-- HealthReportEmailAddress: an email address where to send system health
+         reports to, falling back to AdminEmailAddress if empty -->
+    <HealthReportEmailAddress>admin@mydomain.xy</HealthReportEmailAddress>
+
     <!-- SendTransferNotification: send email to user on finished transfers -->
     <SendTransferNotification>true</SendTransferNotification>
 
