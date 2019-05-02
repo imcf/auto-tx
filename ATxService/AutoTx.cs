@@ -408,7 +408,7 @@ namespace ATxService
                    "\n------ Loaded configuration settings ------\n" + _config.Summary();
 
 
-            var health = SystemChecks.HealthReport(_storage);
+            var health = SystemChecks.HealthReport(_storage, _config.HostAlias);
             SendHealthReport(health);
             msg += "\n" + health;
 

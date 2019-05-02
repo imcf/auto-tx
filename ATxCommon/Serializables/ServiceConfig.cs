@@ -17,6 +17,8 @@ namespace ATxCommon.Serializables
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        private string _healthReportEmailAddress;
+
 
         #region required configuration parameters
 
@@ -199,6 +201,20 @@ namespace ATxCommon.Serializables
         /// The mail recipient address for debug notifications (including "Error" log messages).
         /// </summary>
         public string AdminDebugEmailAddress { get; set; }
+
+        /// <summary>
+        /// The mail recipient address for system health reports, falling back to AdminEmailAddress
+        /// in case it is not set explicitly.
+        /// </summary>
+        public string HealthReportEmailAddress {
+            get {
+                if (string.IsNullOrEmpty(_healthReportEmailAddress))
+                    return AdminEmailAddress;
+
+                return _healthReportEmailAddress;
+            }
+            set => _healthReportEmailAddress = value;
+        }
 
         /// <summary>
         /// Send an email to the user upon completed transfers. Default: true.
@@ -561,6 +577,7 @@ namespace ATxCommon.Serializables
                     $"EmailPrefix: {EmailPrefix}\n" +
                     $"AdminEmailAddress: {AdminEmailAddress}\n" +
                     $"AdminDebugEmailAddress: {AdminDebugEmailAddress}\n" +
+                    $"HealthReportEmailAddress: {HealthReportEmailAddress}\n" +
                     $"SendTransferNotification: {SendTransferNotification}\n" +
                     $"SendAdminNotification: {SendAdminNotification}\n" +
                     $"AdminNotificationDelta: {AdminNotificationDelta} min (" +

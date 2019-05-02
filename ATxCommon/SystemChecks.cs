@@ -155,11 +155,13 @@ namespace ATxCommon
         /// Generate an overall system health report with free space, grace location status, etc.
         /// </summary>
         /// <param name="storage">StorageStatus object used for space and grace reports.</param>
+        /// <param name="humanSystemName">A human-friendly name/description of the system.</param>
         /// <returns>A multi-line string containing the details assembled in the report. These
         /// comprise system uptime, free RAM, free storage space and current grace location status.
         /// </returns>
-        public static string HealthReport(StorageStatus storage) {
+        public static string HealthReport(StorageStatus storage, string humanSystemName="N/A") {
             var report = "------ System health report ------\n\n" +
+                         $" - human name: {humanSystemName}\n" +
                          $" - hostname: {Environment.MachineName}\n" +
                          $" - uptime: {TimeUtils.SecondsToHuman(Uptime(), false)}\n" +
                          $" - free system memory: {GetFreeMemory()} MB" + "\n\n";

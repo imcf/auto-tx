@@ -41,7 +41,7 @@ namespace ATxCommon
         }
 
         /// <summary>
-        /// Number of expired directories in the grace location.
+        /// Number of expired (1st-level) directories in the grace location.
         /// </summary>
         public int ExpiredDirsCount {
             get {
@@ -49,6 +49,11 @@ namespace ATxCommon
                 return _expiredDirs.Count;
             }
         }
+
+        /// <summary>
+        /// Total number of expired (2nd-level) directories in the grace location.
+        /// </summary>
+        public int ExpiredSubDirsCount { get; private set; }
 
         /// <summary>
         /// Check if free space on all configured drives is above their threshold.
@@ -82,6 +87,7 @@ namespace ATxCommon
         /// and all expired directories, grouped by the topmost level (i.e. user dirs).</returns>
         public string GraceLocationSummary() {
             UpdateGraceLocation();
+            long totalSizeExpired = 0;
             var summary = "------ Grace location status, " +
                           $"threshold: {_gracePeriod} days ({_gracePeriodHuman}) ------\n\n" +
                           $" - location: [{_graceLocation}]\n";
@@ -92,11 +98,15 @@ namespace ATxCommon
             foreach (var dir in _expiredDirs.Keys) {
                 summary += "\n - directory '" + dir + "'\n";
                 foreach (var subdir in _expiredDirs[dir]) {
+                    totalSizeExpired += subdir.Size;
                     summary += $"    - {subdir.Dir.Name} " +
                                $"[age: {subdir.HumanAgeFromName}, " +
                                $"size: {subdir.HumanSize}]\n";
                 }
             }
+
+            summary += $"\n - summary: {ExpiredSubDirsCount} expired folders with a total size " +
+                       $"of {Conv.BytesToString(totalSizeExpired)}\n";
 
             return summary;
         }
@@ -166,6 +176,7 @@ namespace ATxCommon
 
             Log.Debug("Updating storage status: checking grace location...");
             _expiredDirs.Clear();
+            ExpiredSubDirsCount = 0;
             foreach (var userdir in _graceLocation.GetDirectories()) {
                 Log.Trace("Scanning directory [{0}]", userdir.Name);
                 var expired = new List<DirectoryDetails>();
@@ -178,6 +189,7 @@ namespace ATxCommon
 
                     Log.Trace("Found expired directory [{0}]", dirDetails.Dir.Name);
                     expired.Add(dirDetails);
+                    ExpiredSubDirsCount++;
                 }
                 Log.Trace("Found {0} expired dirs.", expired.Count);
                 if (expired.Count > 0)
@@ -185,10 +197,11 @@ namespace ATxCommon
             }
             _lastUpdateGraceLocation = DateTime.Now;
 
-            if (_expiredDirs.Count > 0) {
-                Log.Debug("Updated storage status: {0} expired directories in grace location.",
-                    _expiredDirs.Count);
-            }
+            if (_expiredDirs.Count == 0)
+                return;
+
+            Log.Debug("Updated grace location status: {0} top-level dirs with a total of {1}" +
+                      "expired sub-directories found.", _expiredDirs.Count, ExpiredSubDirsCount);
         }
 
         /// <summary>
