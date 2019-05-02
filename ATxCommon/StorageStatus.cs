@@ -186,8 +186,13 @@ namespace ATxCommon
             _lastUpdateGraceLocation = DateTime.Now;
 
             if (_expiredDirs.Count > 0) {
-                Log.Debug("Updated storage status: {0} expired directories in grace location.",
-                    _expiredDirs.Count);
+                var detailCount = 0;
+                foreach (var toplevel in _expiredDirs.Keys) {
+                    detailCount += _expiredDirs[toplevel].Count;
+                }
+                Log.Debug("Updated storage status: {0} top-level directories with a total of " +
+                          "{1} expired sub-directories in grace location.",
+                    _expiredDirs.Count, detailCount);
             }
         }
 
