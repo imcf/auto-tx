@@ -41,7 +41,7 @@ namespace ATxCommon
         }
 
         /// <summary>
-        /// Number of expired directories in the grace location.
+        /// Number of expired (1st-level) directories in the grace location.
         /// </summary>
         public int ExpiredDirsCount {
             get {
