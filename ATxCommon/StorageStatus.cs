@@ -105,7 +105,8 @@ namespace ATxCommon
                 }
             }
 
-            summary += $"\n - sum of expired folders: {Conv.BytesToString(totalSizeExpired)}\n";
+            summary += $"\n - summary: {ExpiredSubDirsCount} expired folders with a total size " +
+                       $"of {Conv.BytesToString(totalSizeExpired)}\n";
 
             return summary;
         }
