@@ -49,6 +49,14 @@ Done creating package [build_2019-04-23_14-14-42__3.0-70-gf90a55c]
 Location: [C:\Devel\AutoTx\Scripts\build_2019-04-23_14-14-42__3.0-70-gf90a55c]
 ```
 
+## Combining Building and Packaging
+
+To combine the two previous steps in one go, use this command:
+
+```PowerShell
+.\Scripts\msbuild\build\debug.cmd ; if ($? -eq 0) { .\Scripts\Deploy-NewBuild.ps1 ; }
+```
+
 ## Triggering the Updater
 
 Running the updater can be done in various ways, for example you could simply
