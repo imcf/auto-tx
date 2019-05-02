@@ -51,6 +51,11 @@ namespace ATxCommon
         }
 
         /// <summary>
+        /// Total number of expired (2nd-level) directories in the grace location.
+        /// </summary>
+        public int ExpiredSubDirsCount { get; private set; }
+
+        /// <summary>
         /// Check if free space on all configured drives is above their threshold.
         /// </summary>
         /// <returns>False if any of the drives is below its threshold, true otherwise.</returns>
@@ -170,6 +175,7 @@ namespace ATxCommon
 
             Log.Debug("Updating storage status: checking grace location...");
             _expiredDirs.Clear();
+            ExpiredSubDirsCount = 0;
             foreach (var userdir in _graceLocation.GetDirectories()) {
                 Log.Trace("Scanning directory [{0}]", userdir.Name);
                 var expired = new List<DirectoryDetails>();
@@ -182,6 +188,7 @@ namespace ATxCommon
 
                     Log.Trace("Found expired directory [{0}]", dirDetails.Dir.Name);
                     expired.Add(dirDetails);
+                    ExpiredSubDirsCount++;
                 }
                 Log.Trace("Found {0} expired dirs.", expired.Count);
                 if (expired.Count > 0)
@@ -192,12 +199,8 @@ namespace ATxCommon
             if (_expiredDirs.Count == 0)
                 return;
 
-            var detailCount = 0;
-            foreach (var toplevel in _expiredDirs.Keys) {
-                detailCount += _expiredDirs[toplevel].Count;
-            }
-            Log.Debug("Updated grace location status: {0} top-level directories with a total of " +
-                      "{1} expired sub-directories found.", _expiredDirs.Count, detailCount);
+            Log.Debug("Updated grace location status: {0} top-level dirs with a total of {1}" +
+                      "expired sub-directories found.", _expiredDirs.Count, ExpiredSubDirsCount);
         }
 
         /// <summary>
