@@ -121,9 +121,10 @@ namespace ATxCommon
         /// Log names of running processes if loglevel is set to debug.
         /// </summary>
         /// <param name="longFormat">By default only the process names will be printed to the
-        /// log, enclosed by square brackets (e.g. [explorer]). If "longFormat" is set to true,
-        /// each process name will be printed on a separate line, followed by the title of the
-        /// corresponding main window (if existing).</param>
+        /// log, enclosed by square brackets (e.g. [explorer]), sorted alphabetically with
+        /// duplicates being removed. If "longFormat" is set to true, each process name will be
+        /// printed on a separate line, followed by the title of the corresponding main window
+        /// in case this is non-empty (requires special permissions for the process).</param>
         public static void LogRunningProcesses(bool longFormat = false) {
             if (!Log.IsDebugEnabled)
                 return;
@@ -131,23 +132,27 @@ namespace ATxCommon
             if (longFormat)
                 Log.Debug("\n\n>>>>>>>>>>>> running processes >>>>>>>>>>>>");
             
-            var procs = "";
+            var processNames = new SortedSet<string>();
             foreach (var running in Process.GetProcesses()) {
                 if (longFormat) {
                     var title = running.MainWindowTitle;
-                    if (title.Length > 0) {
+                    if (!string.IsNullOrWhiteSpace(title)) {
                         title = " (\"" + title + "\")";
                     }
                     Log.Debug(" - {0}{1}", running.ProcessName, title);                    
                 } else {
-                    procs += $", [{running.ProcessName}]";
+                    processNames.Add(running.ProcessName);
                 }
             }
 
             if (longFormat) {
                 Log.Debug("\n<<<<<<<<<<<< running processes <<<<<<<<<<<<\n");
             } else {
-                Log.Debug("Currently running processes: {0}", procs.Substring(2));
+                var uniqueNames = "";
+                foreach (var processName in processNames) {
+                    uniqueNames += $", [{processName}]";
+                }
+                Log.Debug("Currently running processes: {0}", uniqueNames.Substring(2));
             }
         }
 
