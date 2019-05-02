@@ -82,6 +82,7 @@ namespace ATxCommon
         /// and all expired directories, grouped by the topmost level (i.e. user dirs).</returns>
         public string GraceLocationSummary() {
             UpdateGraceLocation();
+            long totalSizeExpired = 0;
             var summary = "------ Grace location status, " +
                           $"threshold: {_gracePeriod} days ({_gracePeriodHuman}) ------\n\n" +
                           $" - location: [{_graceLocation}]\n";
@@ -92,11 +93,14 @@ namespace ATxCommon
             foreach (var dir in _expiredDirs.Keys) {
                 summary += "\n - directory '" + dir + "'\n";
                 foreach (var subdir in _expiredDirs[dir]) {
+                    totalSizeExpired += subdir.Size;
                     summary += $"    - {subdir.Dir.Name} " +
                                $"[age: {subdir.HumanAgeFromName}, " +
                                $"size: {subdir.HumanSize}]\n";
                 }
             }
+
+            summary += $"\n - sum of expired folders: {Conv.BytesToString(totalSizeExpired)}\n";
 
             return summary;
         }
