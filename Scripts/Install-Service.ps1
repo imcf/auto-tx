@@ -10,7 +10,7 @@
 
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory=$False)][switch] $StartService
+    [Parameter(Mandatory = $False)][switch] $StartService
 )
 
 function Start-MyService {
@@ -18,8 +18,7 @@ function Start-MyService {
     try {
         Start-Service $ServiceName
         Write-Host "[OK]" -Fore Green
-    }
-    catch {
+    } catch {
         $ex = $_.Exception
         Write-Host "[FAILED]" -Fore Red
         Write-Host $ex.Message
@@ -45,8 +44,7 @@ function Copy-ServiceFiles {
         # create a dummy log file, so admins can already start watching it:
         Out-File -FilePath $ServiceLog -InputObject "$($ServiceName) installed" -Encoding utf8
         Write-Host "[OK]" -Fore Green
-    }
-    catch {
+    } catch {
         $ex = $_.Exception
         Write-Host "[FAILED]" -Fore Red
         Write-Host $ex.Message
@@ -73,15 +71,13 @@ function Add-PerfMonGroupMember {
     try {
         Add-LocalGroupMember -Group $GroupName -Member $ServiceUser
         Write-Host $("Successfully added user [$($ServiceUser)] to the local"
-                     "group [$($GroupName)].")
-    }
-    catch [Microsoft.PowerShell.Commands.MemberExistsException] {
+            "group [$($GroupName)].")
+    } catch [Microsoft.PowerShell.Commands.MemberExistsException] {
         Write-Host $("User [$($ServiceUser)] is already a member of the local"
-                     "group [$($GroupName)], no action required.")
-    }
-    catch {
+            "group [$($GroupName)], no action required.")
+    } catch {
         Write-Host $("Adding user [$($ServiceUser)] to the local group"
-                     "[$($GroupName)] failed: $($_.Exception.Message)")
+            "[$($GroupName)] failed: $($_.Exception.Message)")
     }
 }
 
