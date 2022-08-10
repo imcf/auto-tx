@@ -43,7 +43,7 @@ function Copy-ServiceFiles {
         Copy-Item -Recurse -Force -Path "$ServiceName\*" -Destination $ServiceDir
         Copy-Item -Recurse -Force -Path "conf-example" -Destination $ServiceDir
         # create a dummy log file, so admins can already start watching it:
-        Out-File -FilePath $ServiceLog -InputObject "$($ServiceName) installed"
+        Out-File -FilePath $ServiceLog -InputObject "$($ServiceName) installed" -Encoding utf8
         Write-Host "[OK]" -Fore Green
     }
     catch {
