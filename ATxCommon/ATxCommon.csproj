@@ -68,6 +68,9 @@
   <PropertyGroup>
     <PreBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)Scripts\Prepare-Build.ps1 -SolutionDir $(SolutionDir) -ConfigurationName $(ConfigurationName)</PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>PowerShell -NoProfile -ExecutionPolicy RemoteSigned $(SolutionDir)Scripts\Post-Build-Script.ps1 -SolutionDir $(SolutionDir)</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
