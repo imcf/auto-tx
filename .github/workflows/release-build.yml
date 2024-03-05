@@ -18,7 +18,8 @@ jobs:
 
     strategy:
       matrix:
-        configuration: [Debug, Release]
+#        configuration: [Debug, Release] # commented this for the moment, because below msbuild is called with "Release" config
+        configuration: [Debug]
 
     runs-on: windows-2019  # this is the last Github runner VM that supports .Net Framework 2019
 
