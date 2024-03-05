@@ -25,9 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-      
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v2
+                  
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.5
         
@@ -39,3 +39,4 @@ jobs:
       
       - name: Build solution
         run: msbuild AutoTx.sln -t:rebuild -property:Configuration=Release
+             # msbuild AutoTx.sln /t:Build /p:Configuration=Release <- from the 
