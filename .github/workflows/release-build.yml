@@ -1,0 +1,41 @@
+# This workflow build the release version of AutoTx.
+# It uses the Github runner `windows-2019`, which still supports .Net framework 4
+# according to this page:
+# https://github.com/orgs/community/discussions/25253
+
+name: .NET Core Desktop
+
+on:
+  [push]
+  # push:
+  #   branches: [ "master" ]
+  # pull_request:
+  #   branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-2019  # this is the last Github runner VM that supports .Net Framework 2019
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.5
+        
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1.1
+      
+      - name: Restore Packages
+        run: nuget restore AutoTx.sln
+      
+      - name: Build solution
+        run: msbuild AutoTx.sln -t:rebuild -property:Configuration=Release
