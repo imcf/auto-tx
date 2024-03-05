@@ -23,16 +23,17 @@ jobs:
     runs-on: windows-2019  # this is the last Github runner VM that supports .Net Framework 2019
 
     steps:
-      - uses: actions/checkout@v2
-
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v2
-                  
+                 
       - name: Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.0
-        
+      
       - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
       
       - name: Restore Packages
         run: nuget restore AutoTx.sln
