@@ -28,8 +28,8 @@ jobs:
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v2
                   
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
+      - name: Setup NuGet.exe for use with actions
+        uses: NuGet/setup-nuget@v2.0.0
         
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.1
