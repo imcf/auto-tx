@@ -43,4 +43,7 @@ jobs:
         run: nuget restore AutoTx.sln
       
       - name: Build solution
-        run: .\Scripts\msbuild\build\release.cmd 
+        run: .\Scripts\msbuild\build\release.cmd
+
+      - name: Package release
+        run: .\Scripts\Make-Package.ps1
