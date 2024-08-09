@@ -13,35 +13,34 @@ on:
   #   branches: [ "master" ]
 
 jobs:
-
   build:
-
     strategy:
       matrix:
-#        configuration: [Debug, Release] # commented this for the moment, because below msbuild is called with "Release" config
+        # configuration: [Debug, Release] # commented this for the moment, because below msbuild is called with "Release" config
         configuration: [Debug]
 
-    runs-on: windows-2019  # this is the last Github runner VM that supports .Net Framework 2019
+    # this is the last Github runner VM that supports .Net Framework 2019
+    runs-on: windows-2019
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
-            fetch-depth: 0
-            lfs: 'true'
-      
+          fetch-depth: 0
+          lfs: "true"
+
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v2
-                 
+
       - name: Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.0
-      
+
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v2
-      
+
       - name: Restore Packages
         run: nuget restore AutoTx.sln
-      
+
       - name: Build solution
         run: .\Scripts\msbuild\build\release.cmd
 
