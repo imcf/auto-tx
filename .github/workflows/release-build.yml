@@ -6,11 +6,9 @@
 name: .NET Core Desktop
 
 on:
-  [push]
-  # push:
-  #   branches: [ "master" ]
-  # pull_request:
-  #   branches: [ "master" ]
+  push:
+    tags:
+      - "*.*"
 
 jobs:
   build:
@@ -46,3 +44,32 @@ jobs:
 
       - name: Package release
         run: .\Scripts\Make-Package.ps1
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }} # Use the tag name
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Description of the release.
+          draft: false
+          prerelease: false
+
+      - name: Find the built ZIP file
+        id: find_zip
+        run: |
+          ZIP_FILE=$(find ./path/to/your/ -name "asset_*.zip" -print -quit)
+          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.ZIP_FILE }}
+          asset_name: $(basename ${{ env.ZIP_FILE }})
+          asset_content_type: application/zip
