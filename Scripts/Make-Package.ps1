@@ -96,7 +96,7 @@ Copy-Item "$($ResourceDir)\conf\host-specific.template.xml" $example
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 Copy-Item $CommitRefFile $($PkgDir) -EA SilentlyContinue
 
-Copy-Item "ScriptsConfig.ps1" $PkgDir
+Copy-Item "ScriptsConfigTemplate.ps1" $PkgDir
 Copy-Item "Install-Service.ps1" $PkgDir
 
 Write-Host -NoNewline "Done creating package "
