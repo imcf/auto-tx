@@ -57,8 +57,9 @@ catch {
 
 
 
-$PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
-$PkgDir = "build_" + $PkgDir + "__" + $BuildCommit
+$PkgDir = "AutoTx"
+$PkgDir = "build\" + $PkgDir + "__" + $BuildCommit
+$PkgZip = $PkgDir + '.zip'
 $BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
 $BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
@@ -98,6 +99,13 @@ Copy-Item $CommitRefFile $($PkgDir) -EA SilentlyContinue
 
 Copy-Item "ScriptsConfigTemplate.ps1" $PkgDir
 Copy-Item "Install-Service.ps1" $PkgDir
+
+# create package Zip
+if (Test-Path $PkgZip) {
+    Write-Host "Removing existing package Zip file [$($PkgZip)]...`n"
+    Remove-Item -Recurse -Force $PkgZip
+}
+Compress-Archive -Path $PkgDir -DestinationPath $PkgZip
 
 Write-Host -NoNewline "Done creating package "
 Highlight $PkgDir
