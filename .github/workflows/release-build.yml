@@ -43,5 +43,4 @@ jobs:
         run: nuget restore AutoTx.sln
       
       - name: Build solution
-        run: msbuild AutoTx.sln -t:rebuild -property:Configuration=Release
-             # msbuild AutoTx.sln /t:Build /p:Configuration=Release <- from the 
+        run: .\Scripts\msbuild\build\release.cmd 
