@@ -57,8 +57,7 @@ catch {
 
 
 
-$PkgDir = "AutoTx"
-$PkgDir = "build\" + $PkgDir + "__" + $BuildCommit
+$PkgDir = "build\" + "AutoTx" + "__" + $BuildCommit
 $PkgZip = $PkgDir + '.zip'
 $BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
@@ -107,6 +106,7 @@ if (Test-Path $PkgZip) {
 }
 Write-Host "Creating package Zip file: [$($PkgZip)] ...`n"
 Compress-Archive -Path $PkgDir -DestinationPath $PkgZip
+$PkgZipAbs = $(RelToAbs $PkgZip) # return from script for Github Actions
 
 Write-Host -NoNewline "Done creating package "
 Highlight $PkgDir
@@ -121,3 +121,6 @@ Write-Host
 
 # Return to the original location before the script was called:
 Pop-Location
+
+# Return path to the created package, so that we can use it in Github Actions:
+return $PkgZipAbs

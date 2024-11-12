@@ -46,7 +46,10 @@ jobs:
         run: .\Scripts\msbuild\build\release.cmd
 
       - name: Package release
-        run: .\Scripts\Make-Package.ps1
+        run: |
+          $packageZipPath = .\Scripts\Make-Package.ps1
+          echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
+        shell: pwsh
 
       - name: Create GitHub Release
         id: create_release
@@ -54,18 +57,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }} # Use the tag name
-          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.sha }} # TODO: revert this to use github.ref_name for the version tag
+          release_name: AutoTx-${{ github.sha }} # TODO: use version tag here
           body: |
             Description of the release.
-          draft: false
-          prerelease: false
-
-      - name: Find the built ZIP file
-        id: find_zip
-        run: |
-          ZIP_FILE=$(find ./path/to/your/ -name "asset_*.zip" -print -quit)
-          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+          draft: ${{ github.ref != 'refs/heads/master' }}
+          prerelease: true # TODO: revert this to false
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -73,6 +70,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.ZIP_FILE }}
-          asset_name: $(basename ${{ env.ZIP_FILE }})
+          asset_path: ${{ env.PACKAGE_ZIP_PATH }}
+          asset_name: $(basename ${{ env.PACKAGE_ZIP_PATH }})
           asset_content_type: application/zip
