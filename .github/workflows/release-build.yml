@@ -7,8 +7,11 @@ name: .NET Core Desktop
 
 on:
   push:
-    tags:
-      - "*.*"
+    branches:
+      - "feature/20240305-setup-github-actions"
+#  push:
+#    tags:
+#      - "*.*"
 
 jobs:
   build:
