@@ -102,9 +102,10 @@ Copy-Item "Install-Service.ps1" $PkgDir
 
 # create package Zip
 if (Test-Path $PkgZip) {
-    Write-Host "Removing existing package Zip file [$($PkgZip)]...`n"
+    Write-Host "Removing existing package Zip file: [$($PkgZip)] ...`n"
     Remove-Item -Recurse -Force $PkgZip
 }
+Write-Host "Creating package Zip file: [$($PkgZip)] ...`n"
 Compress-Archive -Path $PkgDir -DestinationPath $PkgZip
 
 Write-Host -NoNewline "Done creating package "
