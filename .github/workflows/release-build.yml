@@ -10,7 +10,7 @@ on:
     branches:
       - "feature/20240305-setup-github-actions"
 #  push:
-#    tags:
+#    tags: # TODO: readd this when we are ready to create releases
 #      - "*.*"
 
 jobs:
@@ -71,6 +71,7 @@ jobs:
           draft: ${{ github.ref != 'refs/heads/master' }}
           prerelease: true # TODO: revert this to false
 
+      # TODO: This is unmaintained; eplace with: https://github.com/softprops/action-gh-release
       - name: Upload Zip file of build to release
         uses: actions/upload-release-asset@v1
         env:
