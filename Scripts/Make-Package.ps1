@@ -57,7 +57,7 @@ catch {
 
 
 
-$PkgDir = "build\" + "AutoTx" + "__" + $BuildCommit
+$PkgDir = "build\" + "AutoTx" + "-" + $BuildCommit + "_x64"
 $PkgZip = $PkgDir + '.zip'
 $BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
