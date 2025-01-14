@@ -44,7 +44,7 @@ jobs:
 
       - name: Print NuGet packages path
         run: |
-          echo "NuGet packages path: ${{ github.workspace }}\.nuget\packages"
+          echo "NuGet packages path: ${{ github.workspace }}/.nuget/packages"
         shell: pwsh
 
       # Cache NuGet packages to speed up build. Hash is based on project files,
@@ -53,11 +53,18 @@ jobs:
       # invalidate the cache.
       - uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}\.nuget\packages
+          path: ${{ github.workspace }}/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-0
-      
+
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
+        continue-on-error: true
+        run: |
+          echo "Cached NuGet packages:"
+          ls -lh ~/.nuget/packages
+            
       - name: Restore NuGet packages
         run: nuget restore AutoTx.sln
 
