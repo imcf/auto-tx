@@ -27,7 +27,7 @@ jobs:
     runs-on: windows-2019
 
     env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
 
     steps:
       - name: Checkout code base
@@ -44,7 +44,7 @@ jobs:
 
       - name: Print NuGet packages path
         run: |
-          echo "NuGet packages path: ${{ github.workspace }}/.nuget/packages"
+          echo "NuGet packages path: $NUGET_PACKAGES
         shell: pwsh
 
       # Cache NuGet packages to speed up build. Hash is based on project files,
@@ -65,7 +65,7 @@ jobs:
         if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
         continue-on-error: true
         run: |
-          echo "Using cached NuGet packages:"
+          echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
           ls $NUGET_PACKAGES
             
       - name: List NuGet Packages
