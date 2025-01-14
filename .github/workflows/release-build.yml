@@ -36,45 +36,52 @@ jobs:
           fetch-depth: 0
           lfs: "true"
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+      # - name: Setup MSBuild
+      #   uses: microsoft/setup-msbuild@v2
 
-      - name: Setup NuGet.exe for use with actions
-        uses: NuGet/setup-nuget@v2.0.0
+      # - name: Setup NuGet.exe for use with actions
+      #   uses: NuGet/setup-nuget@v2.0.0
 
-      - name: Print NuGet packages path
-        run: |
-          echo "NuGet packages path: $NUGET_PACKAGES"
-        shell: pwsh
+      # - name: Print NuGet packages path
+      #   run: |
+      #     echo "NuGet packages path: $NUGET_PACKAGES"
+      #   shell: pwsh
 
-      # Cache NuGet packages to speed up build. Hash is based on project files,
-      # which define the dependencies.
-      # Note the appending of 0 to the key: You can modify this value to
-      # invalidate the cache.
-      - uses: actions/cache@v4
-        id: nuget-packages
-        env:
-          cache-name: nuget-package-cache
-        with:
-          path: ${{ env.NUGET_PACKAGES }}
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}
+      # # Cache NuGet packages to speed up build. Hash is based on project files,
+      # # which define the dependencies.
+      # # Note the appending of 0 to the key: You can modify this value to
+      # # invalidate the cache.
+      # - uses: actions/cache@v4
+      #   id: nuget-packages
+      #   env:
+      #     cache-name: nuget-package-cache
+      #   with:
+      #     path: ${{ env.NUGET_PACKAGES }}
+      #     key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-${{ env.cache-name }}
 
-      - name: List NuGet Packages
-        if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
-        continue-on-error: true
-        run: |
-          echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
-          ls $NUGET_PACKAGES
+      # - name: List NuGet Packages
+      #   if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
+      #   continue-on-error: true
+      #   run: |
+      #     echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
+      #     ls $NUGET_PACKAGES
             
-      - name: List NuGet Packages
-        if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
-        continue-on-error: true
-        run: echo "Not using cached NuGet packages."
+      # - name: List NuGet Packages
+      #   if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
+      #   continue-on-error: true
+      #   run: echo "Not using cached NuGet packages."
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 4.5
+          cache: true
           
-      - name: Restore NuGet packages
-        run: nuget restore AutoTx.sln
+      # - name: Restore NuGet packages
+      #   run: nuget restore AutoTx.sln
+
+      - run: dotnet restore --locked-mode
 
       - name: Build solution
         run: .\Scripts\msbuild\build\release.cmd
