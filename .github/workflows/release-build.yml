@@ -52,19 +52,27 @@ jobs:
       # Note the appending of 0 to the key: You can modify this value to
       # invalidate the cache.
       - uses: actions/cache@v4
+        id: nuget-packages
+        env:
+          cache-name: nuget-package-cache
         with:
-          path: ${{ github.workspace }}/.nuget/packages
+          path: ${{ env.NUGET_PACKAGES }}
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-0
+            ${{ runner.os }}-${{ env.cache-name }}
 
       - name: List NuGet Packages
         if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
         continue-on-error: true
         run: |
-          echo "Cached NuGet packages:"
-          ls -lh ~/.nuget/packages
+          echo "Using cached NuGet packages:"
+          ls $NUGET_PACKAGES
             
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        run: echo "Not using cached NuGet packages."
+          
       - name: Restore NuGet packages
         run: nuget restore AutoTx.sln
 
