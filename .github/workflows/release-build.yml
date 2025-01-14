@@ -44,7 +44,7 @@ jobs:
 
       - name: Print NuGet packages path
         run: |
-          echo "NuGet packages path: $NUGET_PACKAGES
+          echo "NuGet packages path: $NUGET_PACKAGES"
         shell: pwsh
 
       # Cache NuGet packages to speed up build. Hash is based on project files,
