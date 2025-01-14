@@ -26,6 +26,9 @@ jobs:
     # this is the last Github runner VM that supports .Net Framework 2019
     runs-on: windows-2019
 
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
     steps:
       - name: Checkout code base
         uses: actions/checkout@v4.1.1
@@ -39,6 +42,16 @@ jobs:
       - name: Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.0
 
+      # Cache NuGet packages to speed up build. Hash is based on project files.
+      # Note the appending of 0 to the key: You can modify this value to
+      # invalidate the cache.
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\.nuget\packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-0
+      
       - name: Restore NuGet packages
         run: nuget restore AutoTx.sln
 
