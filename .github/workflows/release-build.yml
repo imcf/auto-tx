@@ -42,7 +42,8 @@ jobs:
       - name: Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.0
 
-      # Cache NuGet packages to speed up build. Hash is based on project files.
+      # Cache NuGet packages to speed up build. Hash is based on project files,
+      # which define the dependencies.
       # Note the appending of 0 to the key: You can modify this value to
       # invalidate the cache.
       - uses: actions/cache@v4
