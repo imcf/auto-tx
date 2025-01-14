@@ -90,7 +90,13 @@ jobs:
           $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
           echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
         shell: pwsh
-        
+
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v2
+        with:
+          prerelease: true
+    
       - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
@@ -100,8 +106,7 @@ jobs:
           tag_name: ${{ github.sha }} # TODO: revert this to use github.ref_name for the version tag
           release_name: AutoTx-${{ github.sha }} # TODO: use version tag here
           # TODO: get release description from change log
-          body: |
-            Description of the release.
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
           draft: ${{ github.ref != 'refs/heads/master' }}
           prerelease: true # TODO: revert this to false
 
