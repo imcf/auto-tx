@@ -27,22 +27,19 @@ jobs:
     runs-on: windows-2019
 
     steps:
-      - name: Checkout
+      - name: Checkout code base
         uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
           lfs: "true"
 
-      - name: setup-msbuild
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
       - name: Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.0
 
-      - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Restore Packages
+      - name: Restore NuGet packages
         run: nuget restore AutoTx.sln
 
       - name: Build solution
@@ -54,13 +51,13 @@ jobs:
           echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: Extract filename from PACKAGE_ZIP_PATH
+      - name: Get filename from Zip file path
         run: |
           $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
           echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
         shell: pwsh
         
-      - name: Create GitHub Release
+      - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
         env:
