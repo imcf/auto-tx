@@ -98,6 +98,7 @@ if ($GenericTemplate) {
 
 try {
     $CommitName = & git describe --tags --long --match "[0-9]*.[0-9]*"
+    $GitDescribeOutput = $CommitName
     if (-Not $?) { throw }
     $GitStatus = & git status --porcelain
     if (-Not $?) { throw }
@@ -134,6 +135,7 @@ $CommitName | Out-File -Force $BCommit -ErrorAction Ignore
 $ConfigurationName | Out-File -Force $BuildConfig -ErrorAction Ignore
 
 Write-Output $(
+    "GitDescribeOutput: [$GitDescribeOutput]"
     "build-config: [$($ConfigurationName)]"
     "build-date:   [$($Date)]"
     "git-branch:   [$($GitBranch)]"
