@@ -62,6 +62,7 @@ function Write-BuildDetails {
         $Date, `
         $Commit
     Write-Verbose "/// generated code ///`n$($Code)`n/// generated code ///`n"
+    Write-Output $($Code)
     Out-File -FilePath $Target -Encoding ASCII -InputObject $Code
 }
 
