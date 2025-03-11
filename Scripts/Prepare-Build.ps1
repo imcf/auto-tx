@@ -109,7 +109,7 @@ try {
     # if (-Not $?) { throw }
     # $GitBranch = & git symbolic-ref --short HEAD
     # if (-Not $?) { throw }
-    $GitBranch = ""
+    $GitBranch = "fakebranch"
 
     Write-Output "DEBUG POINT 1"
 
