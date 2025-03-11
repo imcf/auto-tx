@@ -7,8 +7,6 @@ name: Build AutoTx Release
 
 on:
   push:
-    branches:
-      - "feature/20240305-setup-github-actions"
     tags:
       - "build-workflow*"
       - "[0-9]+.[0-9]+.[0-9]+*"
