@@ -115,6 +115,7 @@ try {
 catch {
     $CommitName = "commit unknown"
     $GitBranch = "branch unknown"
+    $DescItems = "1", "0", "0", "nogit"
     Write-Output "$(">"*8) Running git failed, using default values! $("<"*8)"
 }
 
