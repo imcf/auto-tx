@@ -20,6 +20,7 @@ namespace ATxCommon
     public static class BuildDetails
     {{
         public const string GitCommitName = "{0}";
+        public const string GitBranch = "{1}";
         public const string GitMajor = "{2}";
         public const string GitMinor = "{3}";
         public const string GitPatch = "{4}";
@@ -38,6 +39,9 @@ function Write-BuildDetails {
         [Array]$Desc,
 
         [Parameter(Mandatory=$True)]
+        [String]$Branch,
+
+        [Parameter(Mandatory=$True)]
         [String]$Date
     )
 
@@ -51,6 +55,7 @@ function Write-BuildDetails {
     Write-Output "$($Target.Substring($Target.LastIndexOf('\')+1)) -> $($Target)"
     $Code = $CsTemplate -f `
         $CommitName, `
+        $Branch, `
         $Desc[0], `
         $Desc[1], `
         $Desc[2], `
@@ -86,7 +91,7 @@ $BuildDetailsCS = "$($SolutionDir)\ATxCommon\BuildDetails.cs"
 if ($GenericTemplate) {
     $VerbosePreference = "Continue"
     $DescItems = "1", "0", "0", "nogit"
-    Write-BuildDetails $BuildDetailsCS $DescItems "?build time?"
+    Write-BuildDetails $BuildDetailsCS $DescItems "?branch?" "?build time?"
     Set-Location $OldLocation
     Exit
 }
@@ -96,6 +101,8 @@ try {
     $GitDescribeOutput = $CommitName
     if (-Not $?) { throw }
     $GitStatus = & git status --porcelain
+    if (-Not $?) { throw }
+    $GitBranch = & git symbolic-ref --short HEAD
     if (-Not $?) { throw }
 
     $DescItems = Parse-GitDescribe $CommitName
@@ -107,6 +114,7 @@ try {
 }
 catch {
     $CommitName = "commit unknown"
+    $GitBranch = "branch unknown"
     $DescItems = "1", "0", "0", "nogit"
     Write-Output "$(">"*8) Running git failed, using default values! $("<"*8)"
 }
@@ -131,9 +139,10 @@ Write-Output $(
     "GitDescribeOutput: [$GitDescribeOutput]"
     "build-config: [$($ConfigurationName)]"
     "build-date:   [$($Date)]"
+    "git-branch:   [$($GitBranch)]"
     "git-describe: [$($CommitName)]$($StatusWarning)"
 )
 
-Write-BuildDetails $BuildDetailsCS $DescItems $DateShort
+Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $DateShort
 
 Pop-Location

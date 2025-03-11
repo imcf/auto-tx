@@ -40,4 +40,5 @@ using ATxCommon;
                                BuildDetails.GitPatch + ".0")]
 
 [assembly: AssemblyInformationalVersion(BuildDetails.BuildDate +
-                                        " " + BuildDetails.GitCommit)]
+                                        " " + BuildDetails.GitCommit +
+                                        " (" + BuildDetails.GitBranch + ")")]
