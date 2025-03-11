@@ -100,18 +100,18 @@ try {
     $CommitName = & git describe --tags --long --match "[0-9]*.[0-9]*"
     $GitDescribeOutput = $CommitName
     if (-Not $?) { throw }
-    $GitStatus = & git status --porcelain
-    if (-Not $?) { throw }
+    # $GitStatus = & git status --porcelain
+    # if (-Not $?) { throw }
     # $GitBranch = & git symbolic-ref --short HEAD
     # if (-Not $?) { throw }
     $GitBranch = ""
 
     $DescItems = Parse-GitDescribe $CommitName
 
-    if ($GitStatus.Length -gt 0) {
-        $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
-        $CommitName += "-unclean"
-    }
+    # if ($GitStatus.Length -gt 0) {
+    #     $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
+    #     $CommitName += "-unclean"
+    # }
 }
 catch {
     $CommitName = "commit unknown"
