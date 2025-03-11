@@ -101,8 +101,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha }} # TODO: revert this to use github.ref_name for the version tag
-          release_name: AutoTx-${{ github.sha }} # TODO: use version tag here
+          tag_name: ${{ github.ref_name }}
+          release_name: AutoTx-${{ github.ref_name }}
           # TODO: get release description from change log
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
           draft: ${{ github.ref != 'refs/heads/master' }}
