@@ -117,6 +117,13 @@ try {
 
     Write-Output "DEBUG POINT 2"
 
+    Write-Output $($DescItems[0])
+    Write-Output $($DescItems[1])
+    Write-Output $($DescItems[2])
+    Write-Output $($DescItems[3])
+    
+    Write-Output "DEBUG POINT 10"
+
     # if ($GitStatus.Length -gt 0) {
     #     $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
     #     $CommitName += "-unclean"
