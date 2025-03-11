@@ -69,18 +69,13 @@ function Write-BuildDetails {
 function Parse-GitDescribe([string]$CommitName) {
     Write-Verbose "Parsing 'git describe' result [$($CommitName)]..."
     try {
-        Write-Output "DEBUG POINT 3"
         $Items = $CommitName.Split('-').Split('.')
         if ($Items.Length -ne 4) { throw }
-        Write-Output "DEBUG POINT 4"
     }
     catch {
-        Write-Output "DEBUG POINT 6"
         throw "Can't parse commit name [$($CommitName)]!"
     }
-    Write-Output "DEBUG POINT 7"
     Write-Verbose "Just some $($Items[2]) commits after the last tag."
-    Write-Output "DEBUG POINT 8"
     Return $Items
 }
 
