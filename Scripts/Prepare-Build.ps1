@@ -45,14 +45,6 @@ function Write-BuildDetails {
         [String]$Date
     )
 
-    # if ($Desc[3].Equals("nogit")) {
-    #     $CommitName = "?commit?"
-    #     $Commit = "?sha1"
-    # }
-    # else {
-    #     $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
-    #     $Commit = $Desc[3].Substring(1)
-    # }
     Write-Output "$($Target.Substring($Target.LastIndexOf('\')+1)) -> $($Target)"
     $Code = $CsTemplate -f `
         $CommitName, `
@@ -89,11 +81,6 @@ function Parse-GitDescribe([string]$CommitName) {
         CommitSha             = $GitDescribeParts[2]
     }
 
-    # Write-Verbose "CommitInfo.`GitMajor: $($CommitInfo.GitMajor)"
-    # Write-Verbose "GitMinor: $($CommitInfo.GitMinor)"
-    # Write-Verbose "GitPatch: $($CommitInfo.GitPatch)"
-    # Write-Verbose "NumberCommitsAfterTag: $($CommitInfo.NumberCommitsAfterTag)"
-
     Return $CommitInfo
 }
 
@@ -125,8 +112,6 @@ try {
     # if (-Not $?) { throw }
     $GitBranch = "fakebranch"
 
-    Write-Output "DEBUG POINT 1"
-
     $CommitInfo = Parse-GitDescribe $CommitName
 
 
@@ -136,8 +121,8 @@ try {
     # }
 }
 catch {
-    Write-Error "An error occurred: $($_.Exception.Message)"
-    
+    Write-Error "An error occurred: $($_.Exception.Message)"    
+    Exit 1
 }
 
 
@@ -165,18 +150,6 @@ Write-Output $(
 )
 
 
-# $CommitInfo.GitMajor = $VersionParts[0]
-# GitMinor = $VersionParts[1]
-# GitPatch = $VersionParts[2]
-# NumberCommitsAfterTag = $GitDescribeParts[1]
-# Commitname 
-# $DescItems = "$($CommitInfo.GitMajor)", "$($CommitInfo.GitMinor)", "$($CommitInfo.GitPatch)", "$($CommitInfo.CommitName)"
-# Write-Verbose "$($CommitInfo.GitMajor)", "$($CommitInfo.GitMinor)", "$($CommitInfo.GitPatch)", "$($CommitInfo.CommitName)"
-# Write-Verbose "$($CommitInfo.GitMajor)", "$($CommitInfo.GitMinor)", "$($CommitInfo.GitPatch)", "$($CommitInfo.CommitName)"
-Write-Verbose "BuildDetailsCS: $($BuildDetailsCS)"
-Write-Verbose "GitBranch: $($GitBranch)"
-Write-Verbose "DateShort: $($DateShort)"
-Write-Verbose "CommitInfo: $($CommitInfo)"
 Write-BuildDetails $BuildDetailsCS $CommitInfo $GitBranch $DateShort
 
 Pop-Location
