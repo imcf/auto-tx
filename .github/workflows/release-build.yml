@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019 # this is the last Github runner VM that supports .Net Framework 2019, which is needed for AutoTx
+    runs-on: windows-2022
 
     env:
       NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
