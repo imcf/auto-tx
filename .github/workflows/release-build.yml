@@ -59,12 +59,12 @@ jobs:
         run: |
           echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
           ls $NUGET_PACKAGES
-            
+
       - name: List NuGet Packages
         if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: echo "Not using cached NuGet packages."
-          
+
       - name: Restore NuGet packages
         run: nuget restore AutoTx.sln
 
@@ -88,7 +88,7 @@ jobs:
         uses: ffurrer2/extract-release-notes@v2
         with:
           prerelease: true
-    
+
       - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
