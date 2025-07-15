@@ -21,7 +21,7 @@ The project adheres to [Semantic Versioning][3] (after version 3.1).
 
 ### Removed
 
-## [3.1] - 2018-03-14
+## [3.0] - 2018-03-14
 
 ### Added
 
@@ -42,10 +42,6 @@ The project adheres to [Semantic Versioning][3] (after version 3.1).
 ### Changed
 
 ### Removed
-
-## [3.0] - 2018-03-14
-
-- No changelog available.
 
 ## [2.1] - 2018-03-07
 
@@ -101,8 +97,7 @@ The project adheres to [Semantic Versioning][3] (after version 3.1).
 
 - No changelog available.
 
-[unreleased]: https://github.com/imcf/auto-tx/compare/3.1...HEAD
-[3.1]: https://github.com/imcf/auto-tx/compare/3.0...3.1
+[unreleased]: https://github.com/imcf/auto-tx/compare/3.0...HEAD
 [3.0]: https://github.com/imcf/auto-tx/compare/2.1...3.0
 [2.1]: https://github.com/imcf/auto-tx/compare/2.0...2.1
 [2.0]: https://github.com/imcf/auto-tx/compare/1.4...2.0
