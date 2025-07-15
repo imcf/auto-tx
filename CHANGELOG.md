@@ -14,12 +14,9 @@ The project adheres to [Semantic Versioning][3] (after version 3.1).
 
 ### Added
 
-- Build project build with GitHub Actions.
-- Add CHANGELOG.md file to the project.
-
-### Changed
-
-### Removed
+- Build project with GitHub Actions.
+- Add CHANGELOG.md file.
+- Switch to semantic versioning.
 
 ## [3.0] - 2018-03-14
 
