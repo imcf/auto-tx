@@ -10,13 +10,25 @@ The format is based on [Keep a Changelog][0] and the file is parsed with the
 
 The project adheres to [Semantic Versioning][3] (after version 3.1).
 
-## [Unreleased]
+## [3.1.0] - 2026-03-25
 
 ### Added
 
-- Build project with GitHub Actions.
-- Add CHANGELOG.md file.
-- Switch to semantic versioning.
+- `CHANGELOG.md` file for tracking releases (this file).
+- GitHub Actions CI/CD automation.
+  - Release build workflow (`release-build.yml`) for automated building and
+    publishing.
+  - Automatically create GitHub releases with version tags and release notes.
+  - Package build artifacts as Zip files for distribution and append them to
+    Github release.
+  - Enable workflow triggering through GitHub UI.
+- Use Git LFS support for versioning binary dependencies.
+  - `RoboSharp.dll` managed via Git LFS. This ensures reproducible builds with
+    Github Actions.
+  - `.gitattributes` configuration for proper handling of binary files.
+- Semantic versioning for releases.
+  - Version tags follow semantic versioning format (e.g., `v3.1.0`).
+  - Version information is embedded in builds.
 
 ## [3.0] - 2018-03-14
 
@@ -94,7 +106,7 @@ The project adheres to [Semantic Versioning][3] (after version 3.1).
 
 - No changelog available.
 
-[unreleased]: https://github.com/imcf/auto-tx/compare/3.0...HEAD
+[3.1.0]: https://github.com/imcf/auto-tx/compare/3.0...HEAD
 [3.0]: https://github.com/imcf/auto-tx/compare/2.1...3.0
 [2.1]: https://github.com/imcf/auto-tx/compare/2.0...2.1
 [2.0]: https://github.com/imcf/auto-tx/compare/1.4...2.0
