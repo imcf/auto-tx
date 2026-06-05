@@ -59,7 +59,7 @@ function Write-BuildDetails {
     Out-File -FilePath $Target -Encoding ASCII -InputObject $Code
 }
 
-function Parse-GitDescribe([string]$CommitName) {    
+function Parse-GitDescribe([string]$CommitName) {
     Write-Verbose "Parsing 'git describe' result [$($CommitName)]..."
     $GitDescribeParts = $CommitName.Split('-')
 
@@ -119,9 +119,8 @@ try {
     #     $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
     #     $CommitName += "-unclean"
     # }
-}
-catch {
-    Write-Error "An error occurred: $($_.Exception.Message)"    
+} catch {
+    Write-Error "An error occurred: $($_.Exception.Message)"
     Exit 1
 }
 
