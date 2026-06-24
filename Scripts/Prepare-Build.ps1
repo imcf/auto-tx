@@ -1,16 +1,16 @@
 # Helper script to be called by Visual Studio as a "pre-build" command.
 
-[CmdletBinding(DefaultParameterSetName="build")]
+[CmdletBinding(DefaultParameterSetName = "build")]
 Param(
-    [Parameter(Mandatory=$True, ParameterSetName="build")]
-    [Parameter(Mandatory=$True, ParameterSetName="gentemplate")]
+    [Parameter(Mandatory = $True, ParameterSetName = "build")]
+    [Parameter(Mandatory = $True, ParameterSetName = "gentemplate")]
     [string] $SolutionDir
     ,
-    [Parameter(Mandatory=$True, ParameterSetName="build")]
+    [Parameter(Mandatory = $True, ParameterSetName = "build")]
     [ValidateSet("Debug", "Release")]
     [string] $ConfigurationName
     ,
-    [Parameter(ParameterSetName="gentemplate")]
+    [Parameter(ParameterSetName = "gentemplate")]
     [switch] $GenericTemplate
 )
 
@@ -32,50 +32,56 @@ namespace ATxCommon
 
 function Write-BuildDetails {
     Param (
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory = $True)]
         [String]$Target,
 
-        [Parameter(Mandatory=$True)]
-        [Array]$Desc,
+        [Parameter(Mandatory = $True)]
+        [Hashtable]$CommitInfo,
 
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory = $True)]
         [String]$Branch,
 
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory = $True)]
         [String]$Date
     )
 
-    if ($Desc[3].Equals("nogit")) {
-        $CommitName = "?commit?"
-        $Commit = "?sha1"
-    } else {
-        $CommitName = "$($Desc[0]).$($Desc[1])-$($Desc[2])-$($Desc[3])"
-        $Commit = $Desc[3].Substring(1)
-    }
     Write-Output "$($Target.Substring($Target.LastIndexOf('\')+1)) -> $($Target)"
     $Code = $CsTemplate -f `
         $CommitName, `
-        $Branch, `
-        $Desc[0], `
-        $Desc[1], `
-        $Desc[2], `
+        $CommitInfo.GitBranch, `
+        $CommitInfo.GitMajor, `
+        $CommitInfo.GitMinor, `
+        $CommitInfo.GitPatch, `
         $Date, `
-        $Commit
+        $CommitInfo.CommitSha
     Write-Verbose "/// generated code ///`n$($Code)`n/// generated code ///`n"
+    Write-Output $($Code)
     Out-File -FilePath $Target -Encoding ASCII -InputObject $Code
 }
 
 function Parse-GitDescribe([string]$CommitName) {
     Write-Verbose "Parsing 'git describe' result [$($CommitName)]..."
-    try {
-        $Items = $CommitName.Split('-').Split('.')
-        if ($Items.Length -ne 4) { throw }
+    $GitDescribeParts = $CommitName.Split('-')
+
+    # Commit name must be of format "v3.2.0-0-g526824a" (three parts)
+    if ($GitDescribeParts.Length -ne 3) { throw "GitDescribeParts.Length != 3 (`$GitDescribeParts = `$CommitName.Split('-')): [$($CommitName)]" }
+
+    $VersionParts = $GitDescribeParts[0].Split('.')
+
+    # Version string must be of format: "v1.2.3" (three parts) or "v1.2.3.a4" (four parts)
+    if ($VersionParts.Length -lt 3) { throw "VersionParts.Length < 3  (`$VersionParts=`$GitDescribeParts[0].Split('.')); GitDescribeParts[0]: $($GitDescribeParts[0])" }
+    if ($VersionParts.Length -gt 4) { throw "VersionParts.Length > 4  (`$VersionParts=`$GitDescribeParts[0].Split('.')); GitDescribeParts[0]: $($GitDescribeParts[0])" }
+
+    $CommitInfo = @{
+        CommitName            = $CommitName
+        GitMajor              = $VersionParts[0].TrimStart('v')
+        GitMinor              = $VersionParts[1]
+        GitPatch              = $VersionParts[2]
+        NumberCommitsAfterTag = $GitDescribeParts[1]
+        CommitSha             = $GitDescribeParts[2]
     }
-    catch {
-        throw "Can't parse commit name [$($CommitName)]!"
-    }
-    Write-Verbose "Just some $($Items[2]) commits after the last tag."
-    Return $Items
+
+    Return $CommitInfo
 }
 
 
@@ -97,24 +103,25 @@ if ($GenericTemplate) {
 }
 
 try {
-    $CommitName = & git describe --tags --long --match "[0-9]*.[0-9]*"
+    $CommitName = & git describe --tags --long --match "v[0-9]*.[0-9]*.[0-9]*"
+    $GitDescribeOutput = $CommitName
     if (-Not $?) { throw }
-    $GitStatus = & git status --porcelain
-    if (-Not $?) { throw }
-    $GitBranch = & git symbolic-ref --short HEAD
-    if (-Not $?) { throw }
+    # $GitStatus = & git status --porcelain
+    # if (-Not $?) { throw }
+    # $GitBranch = & git symbolic-ref --short HEAD
+    # if (-Not $?) { throw }
+    $GitBranch = "fakebranch"
 
-    $DescItems = Parse-GitDescribe $CommitName
+    $CommitInfo = Parse-GitDescribe $CommitName
 
-    if ($GitStatus.Length -gt 0) {
-        $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
-        $CommitName += "-unclean"
-    }
-}
-catch {
-    $CommitName = "commit unknown"
-    $GitBranch = "branch unknown"
-    Write-Output "$(">"*8) Running git failed, using default values! $("<"*8)"
+
+    # if ($GitStatus.Length -gt 0) {
+    #     $StatusWarning = "  <--  WARNING, repository has uncommitted changes!"
+    #     $CommitName += "-unclean"
+    # }
+} catch {
+    Write-Error "An error occurred: $($_.Exception.Message)"
+    Exit 1
 }
 
 
@@ -134,12 +141,14 @@ $CommitName | Out-File -Force $BCommit -ErrorAction Ignore
 $ConfigurationName | Out-File -Force $BuildConfig -ErrorAction Ignore
 
 Write-Output $(
+    "GitDescribeOutput: [$GitDescribeOutput]"
     "build-config: [$($ConfigurationName)]"
     "build-date:   [$($Date)]"
     "git-branch:   [$($GitBranch)]"
     "git-describe: [$($CommitName)]$($StatusWarning)"
 )
 
-Write-BuildDetails $BuildDetailsCS $DescItems $GitBranch $DateShort
+
+Write-BuildDetails $BuildDetailsCS $CommitInfo $GitBranch $DateShort
 
 Pop-Location

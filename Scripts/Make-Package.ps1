@@ -57,8 +57,8 @@ catch {
 
 
 
-$PkgDir = $BuildDate -replace ':','-' -replace ' ','_'
-$PkgDir = "build_" + $PkgDir + "__" + $BuildCommit
+$PkgDir = "build\" + "AutoTx" + "-" + $BuildCommit + "_x64"
+$PkgZip = $PkgDir + '.zip'
 $BinariesDirService = RelToAbs "..\ATxService\bin\$($BuildConfiguration)"
 $BinariesDirTrayApp = RelToAbs "..\ATxTray\bin\$($BuildConfiguration)"
 $BinariesDirCfgTest = RelToAbs "..\ATxConfigTest\bin\$($BuildConfiguration)"
@@ -96,8 +96,17 @@ Copy-Item "$($ResourceDir)\conf\host-specific.template.xml" $example
 Copy-Item "$($ResourceDir)\BuildConfiguration.txt" $($PkgDir)
 Copy-Item $CommitRefFile $($PkgDir) -EA SilentlyContinue
 
-Copy-Item "ScriptsConfig.ps1" $PkgDir
+Copy-Item "ScriptsConfigTemplate.ps1" $PkgDir
 Copy-Item "Install-Service.ps1" $PkgDir
+
+# create package Zip
+if (Test-Path $PkgZip) {
+    Write-Host "Removing existing package Zip file: [$($PkgZip)] ...`n"
+    Remove-Item -Recurse -Force $PkgZip
+}
+Write-Host "Creating package Zip file: [$($PkgZip)] ...`n"
+Compress-Archive -Path $PkgDir -DestinationPath $PkgZip
+$PkgZipAbs = $(RelToAbs $PkgZip) # return from script for Github Actions
 
 Write-Host -NoNewline "Done creating package "
 Highlight $PkgDir
@@ -112,3 +121,6 @@ Write-Host
 
 # Return to the original location before the script was called:
 Pop-Location
+
+# Return path to the created package, so that we can use it in Github Actions:
+return $PkgZipAbs

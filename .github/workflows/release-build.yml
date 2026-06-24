@@ -1,0 +1,115 @@
+# This workflow build the release version of AutoTx.
+# It uses the Github runner `windows-2019`, which still supports .Net framework 4
+# according to this page:
+# https://github.com/orgs/community/discussions/25253
+
+name: Build AutoTx Release
+
+on:
+  push:
+    tags:
+      - "build-workflow*"
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  pull_request:
+    branches:
+      - "master"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+
+    steps:
+      - name: Checkout code base
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+          lfs: "true"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet.exe for use with actions
+        uses: NuGet/setup-nuget@v2.0.0
+
+      - name: Print NuGet packages path
+        run: |
+          echo "NuGet packages path: $NUGET_PACKAGES"
+        shell: pwsh
+
+      # Cache NuGet packages to speed up build. Hash is based on project files,
+      # which define the dependencies.
+      # Note the appending of 0 to the key: You can modify this value to
+      # invalidate the cache.
+      - uses: actions/cache@v4
+        id: nuget-packages
+        env:
+          cache-name: nuget-package-cache
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.cache-name }}
+
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
+        continue-on-error: true
+        run: |
+          echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
+          ls $NUGET_PACKAGES
+
+      - name: List NuGet Packages
+        if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        run: echo "Not using cached NuGet packages."
+
+      - name: Restore NuGet packages
+        run: nuget restore AutoTx.sln
+
+      - name: Build solution
+        run: .\Scripts\msbuild\build\release.cmd
+
+      - name: Package release
+        run: |
+          $packageZipPath = .\Scripts\Make-Package.ps1
+          echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Get filename from Zip file path
+        run: |
+          $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
+          echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v2
+        with:
+          prerelease: true
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: AutoTx-${{ github.ref_name }}
+          # TODO: get release description from change log
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+          draft: ${{ github.ref != 'refs/heads/master' }}
+          prerelease: true # TODO: revert this to false
+
+      # TODO: This is unmaintained; replace with: https://github.com/softprops/action-gh-release
+      - name: Upload Zip file of build to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.PACKAGE_ZIP_PATH }}
+          asset_name: ${{ env.PACKAGE_ZIP_NAME }}
+          asset_content_type: application/zip
