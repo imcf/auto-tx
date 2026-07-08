@@ -32,7 +32,11 @@ Open a *PowerShell* console with elevated privileges ("Run as Administrator").
 Launch `InstallUtil` as follows:
 
 ```PowerShell
-& "C:\Windows\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe" /username=<SERVICEACCOUNT> /password=<SERVICEPASS> /unattended C:\Tools\AutoTx\AutoTx.exe
+& "C:\Windows\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe" `
+    /username=<SERVICEACCOUNT> `
+    /password=<SERVICEPASS> `
+    /unattended `
+    C:\Tools\AutoTx\AutoTx.exe
 ```
 
 ### Add the service account to group "Performance Monitor Users"
