@@ -18,7 +18,9 @@ goals:
 - No additional software has to be operated by the user for initiating the
   transfer, avoiding the need for learning yet another tool.
 
-## Features
+## Details
+
+### Features
 
 - **User-initiated:** data is actively "handed over" to the service by the user
   to prevent interfering with running acquisitions.
@@ -44,7 +46,7 @@ goals:
   some post-acquisition script or whatever fits your scenario) or by using the
   guided folder selection dialog provided through the tray app context menu.
 
-## Concept
+### Concept
 
 The service is expected to operate in an *ActiveDirectory* (AD) environment,
 with a dedicated AD-account (referred to as the *service account*) being used to
@@ -78,7 +80,7 @@ deletion of data is implemented. Instead, the service keeps track of the grace
 location and will send notification emails to the admin once a given time
 period has expired (defaulting to 30 days).
 
-## Under the hood
+### Under the hood
 
 For the actual transfer task, the service is using a C# wrapper for the
 Microsoft RoboCopy tool called [RoboSharp][web_robosharp].
@@ -87,12 +89,11 @@ Logging is done using the amazing [NLog][web_nlog] framework, allowing a great
 deal of flexibility in terms of log levels, targets (file, email, eventlog) and
 rules.
 
-
-# Installation
+## Installation
 
 See the [instructions for installing the service](INSTALLATION.md) for details.
 
-# Operation
+## Operation
 
 ## Configuration
 
@@ -165,7 +166,7 @@ The service comes with a dedicated updater to facilitate managing updates and
 configurations on many machines. See the [Updater Readme](Updater/README.md) for
 all the details.
 
-# Contributing
+## Contributing
 
 Please see the [Development And Contribution Guide](CONTRIBUTING.md) for details
 about compiling from source, filing pull requests etc.
