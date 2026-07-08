@@ -195,5 +195,4 @@ about compiling from source, filing pull requests etc.
 [web_bioz]: https://www.biozentrum.unibas.ch/
 [web_unibas]: https://www.unibas.ch/
 [web_robosharp]: https://github.com/tjscience/RoboSharp
-[web_robosharp_fork]: https://git.scicore.unibas.ch/vamp/robosharp
 [web_nlog]: http://nlog-project.org/
