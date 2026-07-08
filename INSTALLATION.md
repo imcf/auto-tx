@@ -20,7 +20,6 @@ package. To use the script, follow these steps:
   the service installation location and start the service using `Start-Service
   AutoTx`.
 
-
 ## Manual Installation Instructions
 
 **PLEASE NOTE:** these instructions are mostly for documentation purposes, by
@@ -32,7 +31,7 @@ above.
 Open a *PowerShell* console with elevated privileges ("Run as Administrator").
 Launch `InstallUtil` as follows:
 
-```
+```PowerShell
 & "C:\Windows\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe" /username=<SERVICEACCOUNT> /password=<SERVICEPASS> /unattended C:\Tools\AutoTx\AutoTx.exe
 ```
 
@@ -42,13 +41,13 @@ Monitoring the CPU load requires the service account to be a member of this
 group. If this is not done via ActiveDirectory GPO's, you can do it for the
 local system by running this command:
 
-```
+```PowerShell
 Add-LocalGroupMember -Group "Performance Monitor Users" -Member <SERVICEACCOUNT>
 ```
 
 ### Service Startup
 
-```
+```PowerShell
 Start-Service AutoTx
 Get-Content -Wait -Tail 200 C:\Tools\AutoTx\service.log
 ```
