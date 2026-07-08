@@ -154,9 +154,10 @@ After a transfer has completed, the service moves all folders of that transfer
 into one subfolder inside the `$ManagedDirectory/DONE/<username>/` location. The
 subfolders are named with a timestamp `YYYY-MM-DD__hh-mm-ss`. The grace location
 checks are done
- - at service startup
- - after a transfer has finished
- - once every *N* hours, configurable for every host
+
+- at service startup
+- after a transfer has finished
+- once every *N* hours, configurable for every host
 
 ## Updates
 
@@ -168,7 +169,6 @@ all the details.
 
 Please see the [Development And Contribution Guide](CONTRIBUTING.md) for details
 about compiling from source, filing pull requests etc.
-
 
 [img_autotx_logo]: https://git.scicore.unibas.ch/vamp/auto-tx/raw/master/Resources/auto-tx-logo.png
 

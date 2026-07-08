@@ -36,7 +36,6 @@ Refactoring suggestions and / or pull requests are welcome!
   automatically filling assembly details during the build you can use our fork
   provided here: [RoboSharp fork][web_robosharp_fork].
 
-
 ## Building + Installing
 
 - Open the solution file in *Visual Studio* and adjust the path to the
@@ -91,11 +90,13 @@ Compare e.g.
 ```powershell
 if (ServiceIsRunning $ServiceName) { Write-Host "Success" }
 ```
+
 vs.
 
 ```powershell
 if (Check-Service $ServiceName) { Write-Host "Success" }
 ```
+
 where the former one is literally readable and concise, whereas the latter one
 requires those not familiar with the code to go and check what the method
 actually does.
