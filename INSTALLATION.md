@@ -1,9 +1,11 @@
 # AutoTx Service Installation
 
+## Installation Methods
+
 The AutoTx service doesn't have a *conventional* installer but rather has to be
 registered using the `InstallUtil.exe` tool coming with the .NET framework.
 
-## Using The Installation Script
+### Using The Installation Script
 
 A PowerShell script to help with the installation is provided with each AutoTx
 package. To use the script, follow these steps:
@@ -20,13 +22,13 @@ package. To use the script, follow these steps:
   the service installation location and start the service using `Start-Service
   AutoTx`.
 
-## Manual Installation Instructions
+### Manual Installation Instructions
 
 **PLEASE NOTE:** these instructions are mostly for documentation purposes, by
 default it is **strongly recommended** to use the installation script described
 above.
 
-### Register the service
+#### Register the service
 
 Open a *PowerShell* console with elevated privileges ("Run as Administrator").
 Launch `InstallUtil` as follows:
@@ -39,7 +41,7 @@ Launch `InstallUtil` as follows:
     C:\Tools\AutoTx\AutoTx.exe
 ```
 
-### Add the service account to group "Performance Monitor Users"
+#### Add the service account to group "Performance Monitor Users"
 
 Monitoring the CPU load requires the service account to be a member of this
 group. If this is not done via ActiveDirectory GPO's, you can do it for the
@@ -49,7 +51,7 @@ local system by running this command:
 Add-LocalGroupMember -Group "Performance Monitor Users" -Member <SERVICEACCOUNT>
 ```
 
-### Service Startup
+#### Service Startup
 
 ```PowerShell
 Start-Service AutoTx
