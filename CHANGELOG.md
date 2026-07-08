@@ -8,11 +8,17 @@ All notable changes to this project must be documented in this file.
 The format is based on [Keep a Changelog][0] and the file is parsed with the
 ["extract-release-notes GitHub action"][1].
 
-The project adheres to [Semantic Versioning][3] (after version 3.1).
+The project adheres to [Semantic Versioning][3] (starting with version 4.0).
 
-## [3.1.0] - 2026-03-25
+## [4.0.0]
 
-### Added
+### 💥 Breaking
+
+- Configuration key `SmtpPasswortCredential` had its spelling fixed and is now
+  called `SmtpPasswordCredential` (`Password` vs. `Passwort`). This affects
+  configuration files as well as log message outputs.
+
+### ✨ Added
 
 - `CHANGELOG.md` file for tracking releases (this file).
 - GitHub Actions CI/CD automation.
@@ -106,7 +112,6 @@ The project adheres to [Semantic Versioning][3] (after version 3.1).
 
 - No changelog available.
 
-[3.1.0]: https://github.com/imcf/auto-tx/compare/3.0...HEAD
 [3.0]: https://github.com/imcf/auto-tx/compare/2.1...3.0
 [2.1]: https://github.com/imcf/auto-tx/compare/2.0...2.1
 [2.0]: https://github.com/imcf/auto-tx/compare/1.4...2.0

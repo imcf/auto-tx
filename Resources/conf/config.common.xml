@@ -82,9 +82,9 @@
     <!-- SmtpPort: SMTP server port, defaults to 25 if omitted -->
     <SmtpPort>25</SmtpPort>
     <!-- SmtpUserCredential: SMTP user name if authentication required -->
-    <SmtpUserCredential />  
-    <!-- SmtpPasswortCredential: SMTP password if authentication required -->
-    <SmtpPasswortCredential />
+    <SmtpUserCredential />
+    <!-- SmtpPasswordCredential: SMTP password if authentication required -->
+    <SmtpPasswordCredential />
 
     <!--EmailFrom: address to be used as "From:" in notification mails -->
     <EmailFrom>admin@mydomain.xy</EmailFrom>
@@ -93,7 +93,7 @@
     <EmailPrefix>[Core Facility] </EmailPrefix>
 
     <!-- AdminEmailAddress: an email address for admin notifications (including
-         "Fatal" log messages) -->  
+         "Fatal" log messages) -->
     <AdminEmailAddress>admin@mydomain.xy</AdminEmailAddress>
 
     <!-- AdminDebugEmailAddress: an email address where to send certain debug
@@ -123,7 +123,7 @@
     <StorageNotificationDelta>720</StorageNotificationDelta>
 
     <!-- StartupNotificationDelta: minimum time (in minutes) between two service
-         startup system health notification emails (default: 2880 (2d). Set to 0 
+         startup system health notification emails (default: 2880 (2d). Set to 0
          to disable startup health reports. -->
     <StartupNotificationDelta>2880</StartupNotificationDelta>
 

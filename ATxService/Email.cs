@@ -43,7 +43,7 @@ namespace ATxService
                     DeliveryMethod = SmtpDeliveryMethod.Network,
                     UseDefaultCredentials = false,
                     Credentials = new System.Net.NetworkCredential(_config.SmtpUserCredential,
-                        _config.SmtpPasswortCredential)
+                        _config.SmtpPasswordCredential)
                 };
                 var mail = new MailMessage(_config.EmailFrom, recipient, subject, body) {
                     BodyEncoding = Encoding.UTF8

@@ -180,7 +180,7 @@ namespace ATxCommon.Serializables
         /// <summary>
         /// SMTP password to authenticate when sending emails (if required).
         /// </summary>
-        public string SmtpPasswortCredential { get; set; }
+        public string SmtpPasswordCredential { get; set; }
 
         /// <summary>
         /// The email address to be used as "From:" when sending mail notifications.
@@ -572,7 +572,7 @@ namespace ATxCommon.Serializables
                     $"SmtpHost: {SmtpHost}\n" +
                     $"SmtpPort: {SmtpPort}\n" +
                     $"SmtpUserCredential: {SmtpUserCredential}\n" +
-                    $"SmtpPasswortCredential: --- not showing ---\n" +
+                    $"SmtpPasswordCredential: --- not showing ---\n" +
                     $"EmailFrom: {EmailFrom}\n" +
                     $"EmailPrefix: {EmailPrefix}\n" +
                     $"AdminEmailAddress: {AdminEmailAddress}\n" +
