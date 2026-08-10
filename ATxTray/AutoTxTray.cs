@@ -25,6 +25,16 @@ namespace ATxTray
 
         private static readonly Timer AppTimer = new Timer(1000);
 
+        // Number of init attempts before giving up
+        private const int MaxInitAttempts = 5;
+
+        // Wait time in seconds between attempts
+        private const int SecondsBetweenAttempts = 5;
+        
+        // Flag indicating whether the initialization was successful
+        // This was done by _status previously, but we retry now, so need a separate flag
+        private static bool _initialized = false; 
+
         private static string _statusFile;
         private static string _submitPath;
         private static ServiceConfig _config;
@@ -89,6 +99,25 @@ namespace ATxTray
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
 
+        private void InitializeMultipleTimes(string baseDir) {
+            for (var attempt = 1; attempt <= MaxInitAttempts; attempt++) {
+                // update the hover text, but right-clicking the icon still won't work during init attempts
+                UpdateHoverText($"Initialization attempt {attempt} of {MaxInitAttempts}...");
+                Log.Debug("Initialization attempt {0} of {1}...", attempt, MaxInitAttempts);
+                if (TryInitialize(baseDir)) {
+                    _initialized = true;
+                    Log.Info("{0} initialized on attempt {1}.", AppTitle, attempt);
+                    return;
+                }
+
+                // wait before retrying, except for the last attempt where we give up:
+                if (attempt < MaxInitAttempts)
+                    System.Threading.Thread.Sleep(SecondsBetweenAttempts * 1000);
+            }
+
+            Log.Error("AtxTray could not be initialized after {0} attempts, giving up!", 
+                        MaxInitAttempts);
+        }
             Log.Trace("Trying to read service config and status files...");
             try {
                 _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "conf"));
