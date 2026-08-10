@@ -265,14 +265,6 @@ namespace ATxTray
         /// Refresh status information and update tray icon and context menu items accordingly.
         /// </summary>
         private void AppTimerElapsed(object sender, ElapsedEventArgs e) {
-            // previous version: a failed initialization was signalled by the constructor setting
-            // _status to null, which was checked here to terminate the application:
-            //
-            // if (_status == null) {
-            //     AutoTxTrayExit();
-            //     return;
-            // }
-
             // if the initialization failed at this stage, just exit:
             if (!_initialized) {
                 AutoTxTrayExit();
