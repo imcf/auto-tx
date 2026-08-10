@@ -93,12 +93,28 @@ namespace ATxTray
             Log.Debug(" - status file: [{0}]", _statusFile);
 
             _notifyIcon.Icon = _tiStopped;
-            _notifyIcon.Visible = true;
+            _notifyIcon.Visible = true; // Show icon in tray, even though right-clicking won't work until the init is complete
             _notifyIcon.DoubleClick += PickDirectoryForNewTransfer;
 
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
 
+            // doesn't depend on the configuration, so it is done before initializing:
+            SetupContextMenu();
+
+            InitializeMultipleTimes(baseDir);
+
+            // the timer is enabled no matter whether the initialization succeeded, as it is the
+            // only way to cleanly exit the application (see the AppTimerElapsed method):
+            AppTimer.Elapsed += AppTimerElapsed;
+            AppTimer.Enabled = true;
+            Log.Trace("Enabled timer.");
+        }
+
+        /// <summary>
+        /// Try to initialize, repeating the attempt up to 5 times with 5 seconds in between.
+        /// These values can be changed in the constants MaxInitAttempts and SecondsBetweenAttempts.
+        /// </summary>
         private void InitializeMultipleTimes(string baseDir) {
             for (var attempt = 1; attempt <= MaxInitAttempts; attempt++) {
                 // update the hover text, but right-clicking the icon still won't work during init attempts
@@ -140,34 +156,12 @@ namespace ATxTray
                 fsw.Changed += StatusFileUpdated;
                 fsw.EnableRaisingEvents = true;
 
-                Log.Info("{0} initialization completed.", AppTitle);
+                return true;
             }
             catch (Exception ex) {
-                var msg = "Error during initialization: " + ex.Message;
-                Log.Error(msg);
-                // we cannot terminate the message loop (Application.Run()) while the constructor
-                // is being run as it is not active yet - therefore we set the _status object to
-                // null which will terminate the application during the next "Elapsed" event:
-                _status = null;
-
-                /* Do NOT show the balloon tip at all, as this is highly disturbing for the
-                   user. For debugging purposes, the log message is definitely enough:
-
-                _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
-                // suspend the thread for 5s to make sure the balloon tip is shown for a while:
-                System.Threading.Thread.Sleep(5000);
-                */
-
-                // sleep briefly before exiting:
-                System.Threading.Thread.Sleep(100);
+                Log.Error("Initialization failed: {0}", ex);
+                return false;
             }
-
-            // we need to enable the timer no matter whether the initialization steps above have
-            // succeeded since this is the only way to cleanly exit the application (by checking
-            // the _status in the AppTimerElapsed method):
-            AppTimer.Elapsed += AppTimerElapsed;
-            AppTimer.Enabled = true;
-            Log.Trace("Enabled timer.");
         }
 
         /// <summary>
