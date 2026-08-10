@@ -102,7 +102,7 @@ namespace ATxTray
             // doesn't depend on the configuration, so it is done before initializing:
             SetupContextMenu();
 
-            InitializeMultipleTimes(baseDir);
+            InitializeWithRetries(baseDir);
 
             // the timer is enabled no matter whether the initialization succeeded, as it is the
             // only way to cleanly exit the application (see the AppTimerElapsed method):
@@ -115,7 +115,7 @@ namespace ATxTray
         /// Try to initialize, repeating the attempt up to 5 times with 5 seconds in between.
         /// These values can be changed in the constants MaxInitAttempts and SecondsBetweenAttempts.
         /// </summary>
-        private void InitializeMultipleTimes(string baseDir) {
+        private void InitializeWithRetries(string baseDir) {
             for (var attempt = 1; attempt <= MaxInitAttempts; attempt++) {
                 // update the hover text, but right-clicking the icon still won't work during init attempts
                 UpdateHoverText($"Initialization attempt {attempt} of {MaxInitAttempts}...");
