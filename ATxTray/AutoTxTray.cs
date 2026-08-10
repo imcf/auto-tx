@@ -159,7 +159,7 @@ namespace ATxTray
                 return true;
             }
             catch (Exception ex) {
-                Log.Error("Initialization failed: {0}", ex);
+                Log.Error("Initialization failed: {0}", ex.ToString());
                 return false;
             }
         }
