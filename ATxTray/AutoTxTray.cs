@@ -118,12 +118,19 @@ namespace ATxTray
             Log.Error("AtxTray could not be initialized after {0} attempts, giving up!", 
                         MaxInitAttempts);
         }
+
+        /// <summary>
+        /// Try to read the service config and status files and set up the file system watcher.
+        /// Extracted from the constructor from v3.1.0.
+        /// </summary>
+        /// <returns>True on success, false if anything went wrong.</returns>
+        private static bool TryInitialize(string baseDir) {
+            // same try-except block as in previous version, but return boolean instead of _status=null
             Log.Trace("Trying to read service config and status files...");
             try {
                 _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "conf"));
                 _submitPath = Path.Combine(_config.IncomingPath, Environment.UserName);
                 UpdateStatusInformation();
-                SetupContextMenu();
 
                 var fsw = new FileSystemWatcher {
                     Path = Path.Combine(baseDir, "var"),
