@@ -82,7 +82,13 @@ namespace ATxService
                 _roboCommand.CopyOptions.DirectoryCopyFlags = _config.DirectoryCopyFlags;
 
                 // select options
-                _roboCommand.SelectionOptions.ExcludeOlder = true;
+                // /XO :: eXclude Older files
+
+                // commented out, because if a transfer gets interrupted, the target file's timestamp
+                // is newer than the src file - which leads to the file being ignored upon resuming the transfer
+                // only once the transfer is complete does the old ts get copied to the new file
+                // _roboCommand.SelectionOptions.ExcludeOlder = true;
+
                 // retry options
                 _roboCommand.RetryOptions.RetryCount = 0;
                 _roboCommand.RetryOptions.RetryWaitTime = 0;
