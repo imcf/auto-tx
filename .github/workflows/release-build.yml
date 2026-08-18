@@ -30,7 +30,7 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: 🥇 Setup NuGet.exe for use with actions
-        uses: NuGet/setup-nuget@v4.0.0
+        uses: NuGet/setup-nuget@v4.0
 
       - name: 🐛 Debug NuGet packages path
         run: |
@@ -87,27 +87,20 @@ jobs:
         uses: ffurrer2/extract-release-notes@v3.1.0
         with:
           prerelease: true
+          release_notes_file: RELEASE-NOTES.md
 
-      - name: Create GitHub release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: 🐛 Debug workspace
+      #   run: |
+      #     ls ${{ github.workspace }}
+
+      - name: 🚀 Create Release and Upload Artifacts
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: AutoTx-${{ github.ref_name }}
-          # TODO: get release description from change log
-          body: ${{ steps.extract-release-notes.outputs.release_notes }}
-          draft: ${{ github.ref != 'refs/heads/master' }}
-          prerelease: true # TODO: revert this to false
-
-      # TODO: This is unmaintained; replace with: https://github.com/softprops/action-gh-release
-      - name: Upload Zip file of build to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_ZIP_PATH }}
-          asset_name: ${{ env.PACKAGE_ZIP_NAME }}
-          asset_content_type: application/zip
+          name: AutoTx-${{ github.ref_name }}
+          generate_release_notes: false
+          body_path: ${{ github.workspace }}/RELEASE-NOTES.md
+          draft: false
+          prerelease: true
+          files: |
+            ${{ env.PACKAGE_ZIP_PATH }}
