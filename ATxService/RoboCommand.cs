@@ -87,6 +87,7 @@ namespace ATxService
                 // commented out, because if a transfer gets interrupted, the target file's timestamp
                 // is newer than the src file - which leads to the file being ignored upon resuming the transfer
                 // only once the transfer is complete does the old ts get copied to the new file
+                // functionally equivalent to setting .ExcludeOlder=false;
                 // _roboCommand.SelectionOptions.ExcludeOlder = true;
 
                 // retry options
