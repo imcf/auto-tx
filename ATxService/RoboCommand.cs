@@ -82,7 +82,16 @@ namespace ATxService
                 _roboCommand.CopyOptions.DirectoryCopyFlags = _config.DirectoryCopyFlags;
 
                 // select options
-                _roboCommand.SelectionOptions.ExcludeOlder = true;
+                // /XO :: eXclude Older files
+                // disabled "exclude-older" on 2026-08-18, because if a transfer gets
+                // interrupted (e.g. by a regular service shutdown), the timestamp of
+                // the file that was being transferred at that moment will be newer than
+                // the one from the source file - which leads to the file being ignored
+                // by RoboCopy upon resuming the transfer / service startup (only once
+                // the transfer of a file is complete the *source* timestamp does get
+                // copied to the *target* file)
+                _roboCommand.SelectionOptions.ExcludeOlder = false;
+
                 // retry options
                 _roboCommand.RetryOptions.RetryCount = 0;
                 _roboCommand.RetryOptions.RetryWaitTime = 0;
