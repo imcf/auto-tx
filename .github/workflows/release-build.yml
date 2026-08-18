@@ -13,6 +13,7 @@ on:
 
 jobs:
   build:
+    name: 🏗️👷 Build AutoTx
     runs-on: windows-2022
 
     env:
@@ -51,37 +52,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ env.cache-name }}
 
-      - name: List NuGet Packages
+      - name: 🐛 Debug cached 💾 NuGet packages
         if: ${{ steps.nuget-packages.outputs.cache-hit == 'true' }}
         continue-on-error: true
         run: |
           echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
           ls $NUGET_PACKAGES
 
-      - name: List NuGet Packages
+      - name: 🪧 Confirm using un-cached ❌💾 NuGet packages
         if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: echo "Not using cached NuGet packages."
 
-      - name: Restore NuGet packages
+      - name: 🧬 Restore NuGet packages from solution file
         run: nuget restore AutoTx.sln
 
-      - name: Build solution
+      - name: 🏗️👷 Build solution
         run: .\Scripts\msbuild\build\release.cmd
 
-      - name: Package release
+      - name: 🎁 Create package
         run: |
           $packageZipPath = .\Scripts\Make-Package.ps1
           echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: Get filename from Zip file path
+      - name: 🔍 Get filename from Zip file path
         run: |
           $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
           echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: Extract release notes
+      - name: 📝🔍 Extract release notes
         id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v3.1.0
         with:
