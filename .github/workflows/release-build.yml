@@ -1,8 +1,3 @@
-# This workflow build the release version of AutoTx.
-# It uses the Github runner `windows-2019`, which still supports .Net framework 4
-# according to this page:
-# https://github.com/orgs/community/discussions/25253
-
 name: Build AutoTx Release
 
 on:
