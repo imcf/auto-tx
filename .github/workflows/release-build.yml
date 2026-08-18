@@ -19,17 +19,17 @@ jobs:
       NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
 
     steps:
-      - name: 📥 Checkout repo
-        uses: actions/checkout@v4.1.1
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           lfs: "true"
 
       - name: 👷 Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: 🥇 Setup NuGet.exe for use with actions
-        uses: NuGet/setup-nuget@v2.0.0
+        uses: NuGet/setup-nuget@v4.0.0
 
       - name: 🐛 Debug NuGet packages path
         run: |
@@ -40,7 +40,8 @@ jobs:
       # which define the dependencies.
       # Note the appending of 0 to the key: You can modify this value to
       # invalidate the cache.
-      - uses: actions/cache@v4
+      - name: 💾 Cache NuGet packages
+        uses: actions/cache@v6
         id: nuget-packages
         env:
           cache-name: nuget-package-cache
@@ -82,7 +83,7 @@ jobs:
 
       - name: Extract release notes
         id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v2
+        uses: ffurrer2/extract-release-notes@v3.1.0
         with:
           prerelease: true
 
