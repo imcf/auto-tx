@@ -89,9 +89,9 @@ jobs:
           prerelease: true
           release_notes_file: RELEASE-NOTES.md
 
-      # - name: 🐛 Debug workspace
-      #   run: |
-      #     ls ${{ github.workspace }}
+      - name: 🐛 Debug workspace
+        run: |
+          ls ${{ github.workspace }}
 
       - name: 🚀 Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
