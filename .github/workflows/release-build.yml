@@ -1,4 +1,4 @@
-name: Build AutoTx Release
+name: 🌍📦 Publish AutoTx Release
 
 on:
   push:
@@ -18,19 +18,19 @@ jobs:
       NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
 
     steps:
-      - name: Checkout code base
+      - name: 📥 Checkout repo
         uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
           lfs: "true"
 
-      - name: Setup MSBuild
+      - name: 👷 Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Setup NuGet.exe for use with actions
+      - name: 🥇 Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.0
 
-      - name: Print NuGet packages path
+      - name: 🐛 Debug NuGet packages path
         run: |
           echo "NuGet packages path: $NUGET_PACKAGES"
         shell: pwsh
