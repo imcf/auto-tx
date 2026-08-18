@@ -90,6 +90,7 @@ namespace ATxService
                 // by RoboCopy upon resuming the transfer / service startup (only once
                 // the transfer of a file is complete the *source* timestamp does get
                 // copied to the *target* file)
+                _roboCommand.SelectionOptions.ExcludeOlder = false;
 
                 // retry options
                 _roboCommand.RetryOptions.RetryCount = 0;
