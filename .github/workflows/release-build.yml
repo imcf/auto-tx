@@ -1,4 +1,4 @@
-name: 🌍📦 Publish AutoTx Release
+name: 🧑‍🏭📦🌍 Build / Publish
 
 on:
   push:
@@ -11,8 +11,11 @@ on:
       - devel
   workflow_dispatch:
 
+
 jobs:
-  build:
+
+
+  build-autotx:
     name: 🏗️👷 Build AutoTx
     runs-on: windows-2022
 
@@ -20,6 +23,7 @@ jobs:
       NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
 
     steps:
+
       - name: 📥 Checkout repository
         uses: actions/checkout@v7
         with:
@@ -39,9 +43,7 @@ jobs:
 
       # Cache NuGet packages to speed up build. Hash is based on project files,
       # which define the dependencies.
-      # Note the appending of 0 to the key: You can modify this value to
-      # invalidate the cache.
-      - name: 💾 Cache NuGet packages
+      - name: 💾 Cache 🥇 NuGet packages
         uses: actions/cache@v6
         id: nuget-packages
         env:
@@ -59,7 +61,7 @@ jobs:
           echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
           ls $NUGET_PACKAGES
 
-      - name: 🪧 Confirm using un-cached ❌💾 NuGet packages
+      - name: 💬 Using non-cached ❌💾 NuGet packages?
         if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: echo "Not using cached NuGet packages."
@@ -70,16 +72,21 @@ jobs:
       - name: 🏗️👷 Build solution
         run: .\Scripts\msbuild\build\release.cmd
 
-      - name: 🎁 Create package
+      - name: 🏭📦🔨 Assemble package
         run: |
           $packageZipPath = .\Scripts\Make-Package.ps1
           echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
+          echo "PACKAGE_ZIP_PATH=$packageZipPath"
         shell: pwsh
 
       - name: 🔍 Get filename from Zip file path
         run: |
           $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
           echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
+          echo "PACKAGE_ZIP_NAME=$packageZipName"
+          $packageDir = Split-Path -Parent "$env:PACKAGE_ZIP_PATH"
+          echo "PACKAGE_DIR=$packageDir" >> $env:GITHUB_ENV
+          echo "PACKAGE_DIR=$packageDir"
         shell: pwsh
 
       - name: 📝🔍 Extract release notes
@@ -87,11 +94,51 @@ jobs:
         uses: ffurrer2/extract-release-notes@v3.1.0
         with:
           prerelease: true
-          release_notes_file: RELEASE-NOTES.md
+          release_notes_file: ${{ env.PACKAGE_DIR }}/RELEASE-NOTES.md
 
-      - name: 🐛 Debug workspace
+      - name: 🐛 Debug PACKAGE_DIR
         run: |
-          ls ${{ github.workspace }}
+          ls ${{ env.PACKAGE_DIR }}
+
+      - name: 🧿📋☑️ Collect build artifacts
+        run: |
+          Write-Host "Current location contents:"
+          ls ./
+          Write-Host "Preparing 'artifacts' dir for upload..."
+          New-Item -ItemType Directory artifacts | Out-Null
+          Move-Item "${{ env.PACKAGE_ZIP_PATH }}" ./artifacts/
+          Move-Item "${{ env.PACKAGE_DIR }}/RELEASE-NOTES.md" ./artifacts/
+          Write-Host "Current artifacts/ contents:"
+          ls ./artifacts/
+
+      - name: 📤🧿 Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-package
+          path: artifacts
+          compression-level: 0
+
+      - name: 🐛 Debug ref_type
+        run: |
+          echo ${{ github.ref_type}}
+
+
+  publish:  # only run if the workflow was triggered by a tag:
+    if: ${{ github.ref_type == 'tag' }}
+
+    name: 🚚🌍 Publish AutoTx
+    runs-on: ubuntu-latest
+    needs: build-autotx
+
+    steps:
+
+      - name: 📥🧿 Download build artifacts
+        uses: actions/download-artifact@v8
+
+      - name: 🐛 Debug
+        run: |
+          echo github.ref_name: ${{ github.ref_name }}
+          ls ./
 
       - name: 🚀 Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
@@ -99,8 +146,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: AutoTx-${{ github.ref_name }}
           generate_release_notes: false
-          body_path: ${{ github.workspace }}/RELEASE-NOTES.md
+          body_path: RELEASE-NOTES.md
           draft: false
           prerelease: true
           files: |
-            ${{ env.PACKAGE_ZIP_PATH }}
+            AutoTx*.zip
