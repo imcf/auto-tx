@@ -11,8 +11,11 @@ on:
       - devel
   workflow_dispatch:
 
+
 jobs:
-  build:
+
+
+  build-autotx:
     name: 🏗️👷 Build AutoTx
     runs-on: windows-2022
 
@@ -20,6 +23,7 @@ jobs:
       NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
 
     steps:
+
       - name: 📥 Checkout repository
         uses: actions/checkout@v7
         with:
