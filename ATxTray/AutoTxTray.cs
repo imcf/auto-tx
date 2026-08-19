@@ -25,6 +25,16 @@ namespace ATxTray
 
         private static readonly Timer AppTimer = new Timer(1000);
 
+        // Number of init attempts before giving up
+        private const int MaxInitAttempts = 5;
+
+        // Base wait time in seconds, multiplied by the number of the attempts that failed
+        private const int SecondsBetweenAttempts = 7;
+        
+        // Flag indicating whether the initialization was successful
+        // This was done by _status previously, but we retry now, so need a separate flag
+        private static bool _initialized = false; 
+
         private static string _statusFile;
         private static string _submitPath;
         private static ServiceConfig _config;
@@ -83,18 +93,62 @@ namespace ATxTray
             Log.Debug(" - status file: [{0}]", _statusFile);
 
             _notifyIcon.Icon = _tiStopped;
-            _notifyIcon.Visible = true;
+            _notifyIcon.Visible = true; // Show icon in tray, even though right-clicking won't work until the init is complete
             _notifyIcon.DoubleClick += PickDirectoryForNewTransfer;
 
             // this doesn't work properly, the menu will not close etc. so we disable it for now:
             // _notifyIcon.Click += ShowContextMenu;
 
+            // doesn't depend on the configuration, so it is done before initializing:
+            SetupContextMenu();
+
+            InitializeWithRetries(baseDir);
+
+            // the timer is enabled no matter whether the initialization succeeded, as it is the
+            // only way to cleanly exit the application (see the AppTimerElapsed method):
+            AppTimer.Elapsed += AppTimerElapsed;
+            AppTimer.Enabled = true;
+            Log.Trace("Enabled timer.");
+        }
+
+        /// <summary>
+        /// Try to initialize, repeating the attempt up to 7 times.
+        /// The pause before a retry grows with every attempt.
+        /// </summary>
+        private void InitializeWithRetries(string baseDir) {
+            for (var attempt = 1; attempt <= MaxInitAttempts; attempt++) {
+                // update the hover text, but right-clicking the icon still won't work during init attempts
+                UpdateHoverText($"Initialization attempt {attempt} of {MaxInitAttempts}...");
+                Log.Debug("Initialization attempt {0} of {1}...", attempt, MaxInitAttempts);
+                if (TryInitialize(baseDir)) {
+                    _initialized = true;
+                    Log.Info("{0} initialized on attempt {1}.", AppTitle, attempt);
+                    return;
+                }
+
+                // wait before retrying, except for the last attempt where we give up:
+                if (attempt < MaxInitAttempts){
+                    Log.Info($"Waiting {SecondsBetweenAttempts * attempt} seconds before retrying...");
+                    System.Threading.Thread.Sleep(SecondsBetweenAttempts * attempt * 1000);
+                }
+            }
+
+            Log.Error("AtxTray could not be initialized after {0} attempts, giving up!", 
+                        MaxInitAttempts);
+        }
+
+        /// <summary>
+        /// Try to read the service config and status files and set up the file system watcher.
+        /// Extracted from the constructor from v3.1.0.
+        /// </summary>
+        /// <returns>True on success, false if anything went wrong.</returns>
+        private static bool TryInitialize(string baseDir) {
+            // same try-except block as in previous version, but return boolean instead of _status=null
             Log.Trace("Trying to read service config and status files...");
             try {
                 _config = ServiceConfig.Deserialize(Path.Combine(baseDir, "conf"));
                 _submitPath = Path.Combine(_config.IncomingPath, Environment.UserName);
                 UpdateStatusInformation();
-                SetupContextMenu();
 
                 var fsw = new FileSystemWatcher {
                     Path = Path.Combine(baseDir, "var"),
@@ -104,34 +158,12 @@ namespace ATxTray
                 fsw.Changed += StatusFileUpdated;
                 fsw.EnableRaisingEvents = true;
 
-                Log.Info("{0} initialization completed.", AppTitle);
+                return true;
             }
             catch (Exception ex) {
-                var msg = "Error during initialization: " + ex.Message;
-                Log.Error(msg);
-                // we cannot terminate the message loop (Application.Run()) while the constructor
-                // is being run as it is not active yet - therefore we set the _status object to
-                // null which will terminate the application during the next "Elapsed" event:
-                _status = null;
-
-                /* Do NOT show the balloon tip at all, as this is highly disturbing for the
-                   user. For debugging purposes, the log message is definitely enough:
-
-                _notifyIcon.ShowBalloonTip(5000, AppTitle, msg, ToolTipIcon.Error);
-                // suspend the thread for 5s to make sure the balloon tip is shown for a while:
-                System.Threading.Thread.Sleep(5000);
-                */
-
-                // sleep briefly before exiting:
-                System.Threading.Thread.Sleep(100);
+                Log.Error("Initialization failed: {0}", ex.ToString());
+                return false;
             }
-
-            // we need to enable the timer no matter whether the initialization steps above have
-            // succeeded since this is the only way to cleanly exit the application (by checking
-            // the _status in the AppTimerElapsed method):
-            AppTimer.Elapsed += AppTimerElapsed;
-            AppTimer.Enabled = true;
-            Log.Trace("Enabled timer.");
         }
 
         /// <summary>
@@ -140,7 +172,10 @@ namespace ATxTray
         private static void SetupLogging() {
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
-                FileName = $"var/{Path.GetFileNameWithoutExtension(Application.ExecutablePath)}.log",
+                // log file is placed in the user's AppData folder, as writing to baseDir\var 
+                // is disabled in user context - e.g. C:\Users\<username>\AppData\ATxTray.log
+                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    $"{Path.GetFileNameWithoutExtension(Application.ExecutablePath)}.log"),
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
                 // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
             };
@@ -232,7 +267,8 @@ namespace ATxTray
         /// Refresh status information and update tray icon and context menu items accordingly.
         /// </summary>
         private void AppTimerElapsed(object sender, ElapsedEventArgs e) {
-            if (_status == null) {
+            // if the initialization failed at this stage, just exit:
+            if (!_initialized) {
                 AutoTxTrayExit();
                 return;
             }
