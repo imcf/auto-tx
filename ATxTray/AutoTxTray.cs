@@ -172,7 +172,7 @@ namespace ATxTray
             var fileTarget = new FileTarget {
                 // log file is placed in the user's AppData folder, as writing to baseDir\var 
                 // is disabled in user context - e.g. C:\Users\<username>\AppData\ATxTray.log
-                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     $"{Path.GetFileNameWithoutExtension(Application.ExecutablePath)}.log"),
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
                 // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
