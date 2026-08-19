@@ -82,6 +82,8 @@ jobs:
         run: |
           $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
           echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
+          $packageDir = Split-Path -Parent "$env:PACKAGE_ZIP_PATH"
+          echo "PACKAGE_DIR=$packageDir" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: 📝🔍 Extract release notes
@@ -89,7 +91,7 @@ jobs:
         uses: ffurrer2/extract-release-notes@v3.1.0
         with:
           prerelease: true
-          release_notes_file: RELEASE-NOTES.md
+          release_notes_file: ${{ env.PACKAGE_DIR }}/RELEASE-NOTES.md
 
       - name: 🐛 Debug workspace
         run: |
