@@ -128,7 +128,7 @@ namespace ATxTray
 
                 // wait before retrying, except for the last attempt where we give up:
                 if (attempt < MaxInitAttempts)
-                    System.Threading.Thread.Sleep(SecondsBetweenAttempts * 1000);
+                    System.Threading.Thread.Sleep(SecondsBetweenAttempts * attempt * 1000);
             }
 
             Log.Error("AtxTray could not be initialized after {0} attempts, giving up!", 
