@@ -170,8 +170,8 @@ namespace ATxTray
         private static void SetupLogging() {
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
-                // absolute on purpose, a relative path would depend on the working directory
-                // which is not set when starting from the shortcut in the startup folder:
+                // log file is placed in the user's AppData folder, as writing to baseDir\var 
+                // is disabled in user context - e.g. C:\Users\<username>\AppData\ATxTray.log
                 FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     $"{Path.GetFileNameWithoutExtension(Application.ExecutablePath)}.log"),
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
