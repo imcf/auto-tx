@@ -97,14 +97,35 @@ jobs:
         run: |
           ls ${{ github.workspace }}
 
+      - name: 🧿📋☑️ Collect build artifacts
+        run: |
+          Write-Host "Current location contents:"
+          ls ./
+          Write-Host "Preparing 'artifacts' dir for upload..."
+          New-Item -ItemType Directory artifacts | Out-Null
+          Move-Item "${{ env.PACKAGE_ZIP_PATH }}" ./artifacts/
+          Move-Item "${{ env.PACKAGE_DIR }}/RELEASE-NOTES.md" ./artifacts/
+          Write-Host "Current artifacts/ contents:"
+          ls ./artifacts/
+
+      - name: 📤🧿 Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-package
+          path: artifacts
+          compression-level: 0
+
+      - name: 📥🧿 Download build artifacts
+        uses: actions/download-artifact@v8
+
       - name: 🚀 Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name: AutoTx-${{ github.ref_name }}
           generate_release_notes: false
-          body_path: ${{ github.workspace }}/RELEASE-NOTES.md
+          body_path: RELEASE-NOTES.md
           draft: false
           prerelease: true
           files: |
-            ${{ env.PACKAGE_ZIP_PATH }}
+            AutoTx*.zip
