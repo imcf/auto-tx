@@ -28,8 +28,7 @@ namespace ATxTray
         // Number of init attempts before giving up
         private const int MaxInitAttempts = 5;
 
-        // Base wait time in seconds, multiplied by the number of the attempt that just failed -
-        // so the pause grows with every retry (5, 10, 15, ... seconds with the value below)
+        // Base wait time in seconds, multiplied by the number of the attempts that failed
         private const int SecondsBetweenAttempts = 7;
         
         // Flag indicating whether the initialization was successful
@@ -113,7 +112,7 @@ namespace ATxTray
         }
 
         /// <summary>
-        /// Try to initialize, repeating the attempt up to 5 times.
+        /// Try to initialize, repeating the attempt up to 7 times.
         /// The pause before a retry grows with every attempt.
         /// </summary>
         private void InitializeWithRetries(string baseDir) {
