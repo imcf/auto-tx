@@ -122,6 +122,16 @@ jobs:
         run: |
           echo ${{ github.ref_type}}
 
+
+  publish:  # only run if the workflow was triggered by a tag:
+    if: ${{ github.ref_type == 'tag' }}
+
+    name: 🚚🌍 Publish AutoTx
+    runs-on: ubuntu-latest
+    needs: build-autotx
+
+    steps:
+
       - name: 📥🧿 Download build artifacts
         uses: actions/download-artifact@v8
 
