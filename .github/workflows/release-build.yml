@@ -39,7 +39,7 @@ jobs:
 
       # Cache NuGet packages to speed up build. Hash is based on project files,
       # which define the dependencies.
-      - name: 💾 Cache NuGet packages
+      - name: 💾 Cache 🥇 NuGet packages
         uses: actions/cache@v6
         id: nuget-packages
         env:
@@ -57,7 +57,7 @@ jobs:
           echo "Using cached NuGet packages in directory: $NUGET_PACKAGES"
           ls $NUGET_PACKAGES
 
-      - name: 🪧 Confirm using un-cached ❌💾 NuGet packages
+      - name: 💬 Using non-cached ❌💾 NuGet packages?
         if: ${{ steps.nuget-packages.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: echo "Not using cached NuGet packages."
@@ -68,7 +68,7 @@ jobs:
       - name: 🏗️👷 Build solution
         run: .\Scripts\msbuild\build\release.cmd
 
-      - name: 🎁 Create package
+      - name: 🏭📦🔨 Assemble package
         run: |
           $packageZipPath = .\Scripts\Make-Package.ps1
           echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
