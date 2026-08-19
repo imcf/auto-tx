@@ -1,4 +1,4 @@
-name: 🌍📦 Publish AutoTx Release
+name: 🧑‍🏭📦🌍 Build / Publish
 
 on:
   push:
@@ -39,8 +39,6 @@ jobs:
 
       # Cache NuGet packages to speed up build. Hash is based on project files,
       # which define the dependencies.
-      # Note the appending of 0 to the key: You can modify this value to
-      # invalidate the cache.
       - name: 💾 Cache NuGet packages
         uses: actions/cache@v6
         id: nuget-packages
