@@ -81,7 +81,7 @@ namespace ATxTray
         /// <param name="baseDir">The base directory of the AutoTx service installation.</param>
         public AutoTxTray(string baseDir) {
 
-            SetupLogging(baseDir);
+            SetupLogging();
 
             _statusFile = Path.Combine(baseDir, "var", "status.xml");
 
@@ -167,12 +167,12 @@ namespace ATxTray
         /// <summary>
         /// Configure logging using a file target.
         /// </summary>
-        private static void SetupLogging(string baseDir) {
+        private static void SetupLogging() {
             var logConfig = new LoggingConfiguration();
             var fileTarget = new FileTarget {
                 // absolute on purpose, a relative path would depend on the working directory
                 // which is not set when starting from the shortcut in the startup folder:
-                FileName = Path.Combine(baseDir, "var",
+                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     $"{Path.GetFileNameWithoutExtension(Application.ExecutablePath)}.log"),
                 Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] ${message}"
                 // Layout = @"${date:format=yyyy-MM-dd HH\:mm\:ss} [${level}] (${logger}) ${message}"
