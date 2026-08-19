@@ -76,14 +76,17 @@ jobs:
         run: |
           $packageZipPath = .\Scripts\Make-Package.ps1
           echo "PACKAGE_ZIP_PATH=$packageZipPath" >> $env:GITHUB_ENV
+          echo "PACKAGE_ZIP_PATH=$packageZipPath"
         shell: pwsh
 
       - name: 🔍 Get filename from Zip file path
         run: |
           $packageZipName = [System.IO.Path]::GetFileName($env:PACKAGE_ZIP_PATH)
           echo "PACKAGE_ZIP_NAME=$packageZipName" >> $env:GITHUB_ENV
+          echo "PACKAGE_ZIP_NAME=$packageZipName"
           $packageDir = Split-Path -Parent "$env:PACKAGE_ZIP_PATH"
           echo "PACKAGE_DIR=$packageDir" >> $env:GITHUB_ENV
+          echo "PACKAGE_DIR=$packageDir"
         shell: pwsh
 
       - name: 📝🔍 Extract release notes
@@ -93,9 +96,9 @@ jobs:
           prerelease: true
           release_notes_file: ${{ env.PACKAGE_DIR }}/RELEASE-NOTES.md
 
-      - name: 🐛 Debug workspace
+      - name: 🐛 Debug PACKAGE_DIR
         run: |
-          ls ${{ github.workspace }}
+          ls ${{ env.PACKAGE_DIR }}
 
       - name: 🧿📋☑️ Collect build artifacts
         run: |
@@ -115,8 +118,17 @@ jobs:
           path: artifacts
           compression-level: 0
 
+      - name: 🐛 Debug ref_type
+        run: |
+          echo ${{ github.ref_type}}
+
       - name: 📥🧿 Download build artifacts
         uses: actions/download-artifact@v8
+
+      - name: 🐛 Debug
+        run: |
+          echo github.ref_name: ${{ github.ref_name }}
+          ls ./
 
       - name: 🚀 Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
