@@ -169,9 +169,7 @@ namespace ATxService
                 // "older", "newer" and "changed" happen when resuming an interrupted transfer
                 // RoboCopy still copies those files so they have to be counted as transferred as well and logged:
                 if (processed.FileClass.ToLower().Equals("new file") ||
-                    processed.FileClass.ToLower().Equals("older") ||
-                    processed.FileClass.ToLower().Equals("newer") ||
-                    processed.FileClass.ToLower().Equals("changed")) {
+                    processed.FileClass.ToLower().Equals("older")) {
                     _transferredFiles.Add($"{processed.Name} ({Conv.BytesToString(processed.Size)})");
                     // reset the value for the amount of bytes transferred for the current file:
                     _status.TransferredBytesCurrentFile = 0;
