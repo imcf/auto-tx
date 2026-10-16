@@ -178,6 +178,11 @@ namespace ATxService
                     _txCurFileSize = processed.Size;
                     Log.Trace("++++ new file transfer started: size [{0}], already transferred [{1}] ++++",
                         _txCurFileSize, _status.TransferredBytesCompleted);
+                    _txCurFileName = processed.Name;
+                    if (processed.Size >= LogFileMinSize) {
+                        Log.Info("Transferring file [{0}] ({1})",
+                            processed.Name, Conv.BytesToString(processed.Size));
+                    }
                 }
             }
             catch (Exception ex) {
