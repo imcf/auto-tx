@@ -112,6 +112,8 @@ namespace ATxService
 
                 Log.Info("Transfer started, total size: {0}",
                     Conv.BytesToString(_status.CurrentTransferSize));
+                Log.Info("Only files of at least {0} will be logged during the transfer",
+                    Conv.BytesToString(LogFileMinSize));
                 Log.Trace("RoboCopy command options: {0}", _roboCommand.CommandOptions);
             }
             catch (ManagementException ex) {
