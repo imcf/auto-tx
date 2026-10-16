@@ -222,6 +222,11 @@ namespace ATxCommon.Serializables
         public bool SendTransferNotification { get; set; } = true;
 
         /// <summary>
+        /// Send an email to the user when a transfer gets interrupted. Default: false.
+        /// </summary>
+        public bool SendInterruptedNotification { get; set; } = false;
+
+        /// <summary>
         /// Send email notifications to the admin on selected events. Default: true.
         /// </summary>
         public bool SendAdminNotification { get; set; } = true;
@@ -579,6 +584,7 @@ namespace ATxCommon.Serializables
                     $"AdminDebugEmailAddress: {AdminDebugEmailAddress}\n" +
                     $"HealthReportEmailAddress: {HealthReportEmailAddress}\n" +
                     $"SendTransferNotification: {SendTransferNotification}\n" +
+                    $"SendInterruptedNotification: {SendInterruptedNotification}\n" +
                     $"SendAdminNotification: {SendAdminNotification}\n" +
                     $"AdminNotificationDelta: {AdminNotificationDelta} min (" +
                     TimeUtils.MinutesToHuman(AdminNotificationDelta, false) + ")\n" +
