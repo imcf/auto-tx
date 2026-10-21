@@ -50,6 +50,12 @@ issues.
   - Version tags follow semantic versioning format (e.g., `v3.1.0`).
   - Version information is embedded in builds.
 
+### 🔧 Changed
+
+- `ATxService\Email.cs`: interrupted transfer notification to the user is
+  now disabled by default and can be enabled with the new configuration option
+  `SendInterruptedNotification`.
+
 ## [3.0] - 2018-03-14
 
 ### Added

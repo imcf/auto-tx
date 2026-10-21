@@ -193,6 +193,9 @@ namespace ATxService
             if (_config.SendTransferNotification == false)
                 return;
 
+            if (_config.SendInterruptedNotification == false)
+                return;
+
             var userDir = new DirectoryInfo(_status.CurrentTransferSrc).Name;
 
             var substitutions = new List<Tuple<string, string>> {
