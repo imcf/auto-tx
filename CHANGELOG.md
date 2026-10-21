@@ -22,7 +22,7 @@ The project adheres to [Semantic Versioning][3] (starting with version 4.0).
 
 - `AtxService\RoboCommand.cs`: interrupted transfers due to a system shutdown
 are resumed correctly again. Removed the RoboSharp option `.ExcludeOlder`
-(RoboCopy `\XO`), as it would skip a partially transferred file, as the
+(RoboCopy flag `/XO`), as it would skip a partially transferred file, as the
 timestamp on the target share would be newer than on the source.
 
 - `AtxTray\AtxTray.cs`: tray app retries initialization multiple times, and does
