@@ -64,7 +64,7 @@ namespace ATxService
         /// <summary>
         /// Minimum size of a file to be logged when its transfer starts.
         /// </summary>
-        private const long LogFileMinSize = 100 * Conv.MegaBytes;
+        private const long _logFileMinSize = 100 * Conv.MegaBytes;
 
         /// <summary>
         /// Progress (in percent) of the file currently being transferred. Zero if no transfer.
