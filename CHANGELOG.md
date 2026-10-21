@@ -49,6 +49,8 @@ issues.
 - Semantic versioning for releases.
   - Version tags follow semantic versioning format (e.g., `v3.1.0`).
   - Version information is embedded in builds.
+- `ATxService\RoboCommand.cs`: logs the filename being currently transferred (>100 MB),
+   and also logs the file that was interrupted in case of system shutdown.
 
 ### 🔧 Changed
 

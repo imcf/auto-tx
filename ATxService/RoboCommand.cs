@@ -112,6 +112,8 @@ namespace ATxService
 
                 Log.Info("Transfer started, total size: {0}",
                     Conv.BytesToString(_status.CurrentTransferSize));
+                Log.Info("Only files of at least {0} will be logged during the transfer",
+                    Conv.BytesToString(_logFileMinSize));
                 Log.Trace("RoboCopy command options: {0}", _roboCommand.CommandOptions);
             }
             catch (ManagementException ex) {
@@ -178,6 +180,11 @@ namespace ATxService
                     _txCurFileSize = processed.Size;
                     Log.Trace("++++ new file transfer started: size [{0}], already transferred [{1}] ++++",
                         _txCurFileSize, _status.TransferredBytesCompleted);
+                    _txCurFileName = processed.Name;
+                    if (processed.Size >= _logFileMinSize) {
+                        Log.Info("Transferring file [{0}] ({1})",
+                            processed.Name, Conv.BytesToString(processed.Size));
+                    }
                 }
             }
             catch (Exception ex) {

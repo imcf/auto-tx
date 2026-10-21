@@ -57,6 +57,16 @@ namespace ATxService
         private long _txCurFileSize;
 
         /// <summary>
+        /// Name of the file currently being transferred.
+        /// </summary>
+        private string _txCurFileName = "";
+
+        /// <summary>
+        /// Minimum size of a file to be logged when its transfer starts.
+        /// </summary>
+        private const long _logFileMinSize = 100 * Conv.MegaBytes;
+
+        /// <summary>
         /// Progress (in percent) of the file currently being transferred. Zero if no transfer.
         /// </summary>
         private int _txCurFileProgress;
@@ -486,6 +496,7 @@ namespace ATxService
                 }
                 _status.TransferInProgress = true;
                 Log.Info("Not all files were transferred - will resume upon next start");
+                Log.Info("Interrupted while transferring [{0}]", _txCurFileName);
                 Log.Debug("CurrentTransferSrc: " + _status.CurrentTransferSrc);
                 // should we delete an incompletely transferred file on the target?
                 SendTransferInterruptedMail();
