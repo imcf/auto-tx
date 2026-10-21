@@ -20,16 +20,17 @@ The project adheres to [Semantic Versioning][3] (starting with version 4.0).
 
 ### 🐛 Fixed
 
-  - `AtxService\RoboCommand.cs`: interrupted transfers due to a system shutdown
-  are resumed correctly again. Removed the RoboSharp option `.ExcludeOlder` (RoboCopy `\XO`),
-  as it would skip a partially transferred file, as the timestamp on the target share 
-  would be newer than on the source.
+- `AtxService\RoboCommand.cs`: interrupted transfers due to a system shutdown
+are resumed correctly again. Removed the RoboSharp option `.ExcludeOlder`
+(RoboCopy `\XO`), as it would skip a partially transferred file, as the
+timestamp on the target share would be newer than on the source.
 
-  - `AtxTray\AtxTray.cs`: tray app retries initialization multiple times, and does not quit
-  upon first failure.
+- `AtxTray\AtxTray.cs`: tray app retries initialization multiple times, and does
+not quit upon first failure.
 
-  - `AtxTray\AtxTray.cs`: tray app now writes its log file to the `%LocalAppData%` folder,
-  as writing to the AutoTx base folder would run into write permission issues.
+- `AtxTray\AtxTray.cs`: tray app now writes its log file to the `%LocalAppData%`
+folder, as writing to the AutoTx base folder would run into write permission
+issues.
 
 ### ✨ Added
 
