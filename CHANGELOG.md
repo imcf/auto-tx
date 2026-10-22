@@ -20,21 +20,22 @@ The project adheres to [Semantic Versioning][3] (starting with version 4.0).
 
 ### 🐛 Fixed
 
-  - `AtxService\RoboCommand.cs`: interrupted transfers due to a system shutdown
-  are resumed correctly again. Removed the RoboSharp option `.ExcludeOlder` (RoboCopy `\XO`),
-  as it would skip a partially transferred file, as the timestamp on the target share 
-  would be newer than on the source.
+- `AtxService\RoboCommand.cs`: interrupted transfers due to a system shutdown
+are resumed correctly again. Removed the RoboSharp option `.ExcludeOlder`
+(RoboCopy flag `/XO`), as it would skip a partially transferred file, as the
+timestamp on the target share would be newer than on the source.
 
-  - `AtxService\RoboCommand.cs`: resumed transfers are no longer moved to the `ERROR`
-  folder when the interrupted file was the last one left to copy. RoboCopy reports
-  that file as `older` instead of `new file`, so it was never added to the list of
-  transferred files.
+- `AtxService\RoboCommand.cs`: resumed transfers are no longer moved to the
+`ERROR` folder when the interrupted file was the last one left to copy. RoboCopy
+reports that file as `older` instead of `new file`, so it was never added to the
+list of transferred files.
 
-  - `AtxTray\AtxTray.cs`: tray app retries initialization multiple times, and does not quit
-  upon first failure.
+- `AtxTray\AtxTray.cs`: tray app retries initialization multiple times, and does
+not quit upon first failure.
 
-  - `AtxTray\AtxTray.cs`: tray app now writes its log file to the `%LocalAppData%` folder,
-  as writing to the AutoTx base folder would run into write permission issues.
+- `AtxTray\AtxTray.cs`: tray app now writes its log file to the `%LocalAppData%`
+folder, as writing to the AutoTx base folder would run into write permission
+issues.
 
 ### ✨ Added
 
@@ -53,6 +54,14 @@ The project adheres to [Semantic Versioning][3] (starting with version 4.0).
 - Semantic versioning for releases.
   - Version tags follow semantic versioning format (e.g., `v3.1.0`).
   - Version information is embedded in builds.
+- `ATxService\RoboCommand.cs`: logs the filename being currently transferred (>100 MB),
+   and also logs the file that was interrupted in case of system shutdown.
+
+### 🔧 Changed
+
+- `ATxService\Email.cs`: interrupted transfer notification to the user is
+  now disabled by default and can be enabled with the new configuration option
+  `SendInterruptedNotification`.
 
 ## [3.0] - 2018-03-14
 
