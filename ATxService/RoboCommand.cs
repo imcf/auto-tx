@@ -166,8 +166,8 @@ namespace ATxService
 
                 // WARNING: RoboSharp doesn't seem to offer a culture invariant representation
                 // of the FileClass, so this might fail in non-english environments:
-                // "older", "newer" and "changed" happen when resuming an interrupted transfer
-                // RoboCopy still copies those files so they have to be counted as transferred as well and logged:
+                // A resumed file will show "older" as its FileClass             
+                // RoboCopy still copies those files again so they have to be counted as transferred as well:
                 if (processed.FileClass.ToLower().Equals("new file") ||
                     processed.FileClass.ToLower().Equals("older")) {
                     _transferredFiles.Add($"{processed.Name} ({Conv.BytesToString(processed.Size)})");
