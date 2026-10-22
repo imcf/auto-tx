@@ -25,6 +25,11 @@ are resumed correctly again. Removed the RoboSharp option `.ExcludeOlder`
 (RoboCopy flag `/XO`), as it would skip a partially transferred file, as the
 timestamp on the target share would be newer than on the source.
 
+- `AtxService\RoboCommand.cs`: resumed transfers are no longer moved to the
+`ERROR` folder when the interrupted file was the last one left to copy. RoboCopy
+reports that file as `older` instead of `new file`, so it was never added to the
+list of transferred files.
+
 - `AtxTray\AtxTray.cs`: tray app retries initialization multiple times, and does
 not quit upon first failure.
 

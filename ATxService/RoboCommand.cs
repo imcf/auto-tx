@@ -168,7 +168,11 @@ namespace ATxService
 
                 // WARNING: RoboSharp doesn't seem to offer a culture invariant representation
                 // of the FileClass, so this might fail in non-english environments:
-                if (processed.FileClass.ToLower().Equals("new file")) {
+                // A resumed file will show "older" as its FileClass
+                // RoboCopy still copies those files again so they have to be counted as transferred as well.
+                // See https://ss64.com/nt/robocopy.html for a description of all file classes
+                if (processed.FileClass.ToLower().Equals("new file") ||
+                    processed.FileClass.ToLower().Equals("older")) {
                     _transferredFiles.Add($"{processed.Name} ({Conv.BytesToString(processed.Size)})");
                     // reset the value for the amount of bytes transferred for the current file:
                     _status.TransferredBytesCurrentFile = 0;
