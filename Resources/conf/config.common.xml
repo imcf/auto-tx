@@ -108,7 +108,7 @@
     <SendTransferNotification>true</SendTransferNotification>
 
     <!-- SendInterruptedNotification: send email to user when a transfer gets interrupted -->
-    <SendInterruptedNotification>true</SendInterruptedNotification>
+    <SendInterruptedNotification>false</SendInterruptedNotification>
 
     <!-- SendAdminNotification: notify admins via email of certain events -->
     <SendAdminNotification>true</SendAdminNotification>
