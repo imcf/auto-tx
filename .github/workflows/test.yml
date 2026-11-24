@@ -8,7 +8,7 @@ on:
 jobs:
 
   runner-info:
-    name: 🖥️ Look at the Windows runner
+    name: 🖥️ Set up the Windows runner
     runs-on: windows-2022
 
     steps:
@@ -18,4 +18,8 @@ jobs:
 
       - name: 🖥️ Show runner information
         run: .\Tests\Show-RunnerInfo.ps1
+        shell: pwsh
+
+      - name: 📁 Create test folders
+        run: .\Tests\New-TestFolders.ps1
         shell: pwsh
