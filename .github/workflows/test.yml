@@ -86,3 +86,7 @@ jobs:
       - name: 🔧 Install AutoTx
         run: .\Tests\Install-AutoTx.ps1
         shell: pwsh
+
+      - name: ▶️ Start AutoTx
+        run: .\Tests\Start-AutoTx.ps1
+        shell: pwsh
