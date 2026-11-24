@@ -7,7 +7,7 @@ $Destination = "D:\AutoTxTest\DESTINATION\testuser\copytest"
 $Staging = "D:\AutoTxTest\staging\copytest"
 
 $FileNames = "01_small.dat", "02_medium.dat", "subfolder\03_large.dat"
-$FileSizesMB = 1, 20, 100
+$FileSizesMB = 5, 50, 250
 
 
 # Write a file of the given size with random content:
