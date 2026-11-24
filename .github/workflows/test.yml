@@ -101,3 +101,9 @@ jobs:
       - name: 📄 Copy a folder
         run: .\Tests\Test-CopyFolder.ps1
         shell: pwsh
+
+      # always show the log, it explains what happened when a test fails:
+      - name: 📜 Show the AutoTx log
+        if: always()
+        run: Get-Content "C:\Tools\AutoTx\var\$env:COMPUTERNAME.AutoTx.log"
+        shell: pwsh
