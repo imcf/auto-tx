@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  runner-info:
-    name: 🖥️ Set up the Windows runner
+  autotx-test:
+    name: 🧪 Build and test AutoTx
     runs-on: windows-2022
 
     steps:
