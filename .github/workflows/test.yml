@@ -1,0 +1,21 @@
+name: 🧪 Tests
+
+on:
+  push:
+    branches:
+      - testing-framework
+
+jobs:
+
+  runner-info:
+    name: 🖥️ Look at the Windows runner
+    runs-on: windows-2022
+
+    steps:
+
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v7
+
+      - name: 🖥️ Show runner information
+        run: .\Tests\Show-RunnerInfo.ps1
+        shell: pwsh
