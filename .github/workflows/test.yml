@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  autotx-test:
-    name: 🧪 Build and test AutoTx
+  build:
+    name: 🏗️ Build AutoTx
     runs-on: windows-2022
 
     steps:
@@ -20,14 +20,6 @@ jobs:
         with:
           fetch-depth: 0
           lfs: "true"
-
-      - name: 🖥️ Show runner information
-        run: .\Tests\Show-RunnerInfo.ps1
-        shell: pwsh
-
-      - name: 📁 Create test folders
-        run: .\Tests\New-TestFolders.ps1
-        shell: pwsh
 
       - name: 👷 Setup MSBuild
         uses: microsoft/setup-msbuild@v3
@@ -54,6 +46,39 @@ jobs:
         run: .\Scripts\Make-Package.ps1
         shell: pwsh
 
+      # hand the package folder over to the test job, which runs on another machine:
+      - name: 📤 Upload the package
+        uses: actions/upload-artifact@v7
+        with:
+          name: autotx-package
+          path: Scripts/build/AutoTx-*_x64
+
+
+  autotx-test:
+    name: 🧪 Install and test AutoTx
+    runs-on: windows-2022
+    needs: build
+
+    steps:
+
+      # only needed for our test scripts, the build comes from the package:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v7
+
+      - name: 📥 Download the package
+        uses: actions/download-artifact@v8
+        with:
+          name: autotx-package
+          path: package
+
       - name: 🔍 Show the package content
-        run: Get-ChildItem -Recurse Scripts\build
+        run: Get-ChildItem -Recurse package
+        shell: pwsh
+
+      - name: 🖥️ Show runner information
+        run: .\Tests\Show-RunnerInfo.ps1
+        shell: pwsh
+
+      - name: 📁 Create test folders
+        run: .\Tests\New-TestFolders.ps1
         shell: pwsh
