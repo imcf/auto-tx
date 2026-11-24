@@ -97,3 +97,7 @@ jobs:
       - name: ▶️ Start AutoTx
         run: .\Tests\Start-AutoTx.ps1
         shell: pwsh
+
+      - name: 📄 Copy a folder
+        run: .\Tests\Test-CopyFolder.ps1
+        shell: pwsh
