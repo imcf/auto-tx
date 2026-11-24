@@ -10,7 +10,7 @@ $FileNames = "01_small.dat", "02_medium.dat", "subfolder\03_large.dat"
 $FileSizesMB = 1, 20, 100
 
 
-# Write a file of the given size with random content (random data can't be compressed, like real images):
+# Write a file of the given size with random content:
 function New-RandomFile($Path, $SizeMB) {
     $Bytes = New-Object byte[] ($SizeMB * 1MB)
     (New-Object System.Random).NextBytes($Bytes)
@@ -18,7 +18,7 @@ function New-RandomFile($Path, $SizeMB) {
 }
 
 
-# 1. Create the test files outside of INCOMING, AutoTx would pick up a half-written folder:
+# 1. Create the test files outside of INCOMING:
 New-Item -ItemType Directory -Force -Path "$Staging\subfolder"
 for ($i = 0; $i -lt $FileNames.Count; $i++) {
     New-RandomFile "$Staging\$($FileNames[$i])" $FileSizesMB[$i]
@@ -26,12 +26,12 @@ for ($i = 0; $i -lt $FileNames.Count; $i++) {
 }
 
 
-# 2. Submit the folder. Moving within the same drive is instant, so AutoTx sees it complete:
+# 2. Submit the folder. Moving within the same drive is instant:
 Move-Item $Staging "$Incoming\copytest"
 Write-Host "Submitted the folder, waiting for AutoTx..."
 
 
-# 3. Wait until AutoTx has moved the source to DONE, its last step. Check every 5 seconds, 120 times (10 minutes):
+# 3. Wait until AutoTx has moved the source to DONE, its last step. Check every 5 seconds (max 10mins):
 $Finished = $false
 foreach ($Try in 1..120) {
     if (Test-Path "$DoneDir\*\copytest") {
@@ -56,7 +56,7 @@ Write-Host "Transfer finished"
 $Source = Resolve-Path "$DoneDir\*\copytest"
 $Failures = 0
 
-foreach ($Name in $FileNames) {
+foreach ($Name in $FileNames) { 
     $SourceFile = "$Source\$Name"
     $TargetFile = "$Destination\$Name"
 
@@ -66,12 +66,13 @@ foreach ($Name in $FileNames) {
         continue
     }
 
+    # Compare checksums of original vs delivered file
     $SourceHash = (Get-FileHash $SourceFile).Hash
     $TargetHash = (Get-FileHash $TargetFile).Hash
     if ($SourceHash -eq $TargetHash) {
-        Write-Host "OK:        $Name"
+        Write-Host "Checksum OK:        $Name"
     } else {
-        Write-Host "DIFFERENT: $Name"
+        Write-Host "Checksum DIFFERENT: $Name"
         $Failures = $Failures + 1
     }
 }
