@@ -46,12 +46,15 @@ jobs:
         run: .\Scripts\Make-Package.ps1
         shell: pwsh
 
-      # hand the package folder over to the test job, which runs on another machine:
+      # hand the package over to the test job, which runs on another machine. Like in
+      # release-build.yml, upload the zip (it keeps the empty "conf" and "var" folders),
+      # without compressing it again:
       - name: 📤 Upload the package
         uses: actions/upload-artifact@v7
         with:
           name: autotx-package
-          path: Scripts/build/AutoTx-*_x64
+          path: Scripts/build/AutoTx-*_x64.zip
+          compression-level: 0
 
 
   autotx-test:
@@ -70,6 +73,10 @@ jobs:
         with:
           name: autotx-package
           path: package
+
+      - name: 📂 Unpack the package
+        run: Expand-Archive -Path (Get-ChildItem package\*.zip)[0] -DestinationPath package
+        shell: pwsh
 
       - name: 🔍 Show the package content
         run: Get-ChildItem -Recurse package

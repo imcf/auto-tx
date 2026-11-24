@@ -21,11 +21,6 @@ $Settings = @"
 "@
 Set-Content -Path "$PackageDir\ScriptsConfig.ps1" -Value $Settings
 
-# The empty "conf" and "var" folders of the package get lost in the GitHub upload, but
-# Install-Service.ps1 needs them (it writes the first log line into "var"):
-New-Item -ItemType Directory -Force -Path "$PackageDir\AutoTx\conf"
-New-Item -ItemType Directory -Force -Path "$PackageDir\AutoTx\var"
-
 # Install-Service.ps1 uses paths relative to the package folder, so run it from there:
 Set-Location $PackageDir
 powershell.exe -ExecutionPolicy Bypass -File .\Install-Service.ps1
