@@ -3,65 +3,76 @@
 $Incoming = "D:\ProgramData\AUTOTRANSFER\INCOMING\testuser"
 $DoneDir = "D:\ProgramData\AUTOTRANSFER\DONE\testuser"
 $ErrorDir = "D:\ProgramData\AUTOTRANSFER\ERROR"
-$Destination = "D:\AutoTxTest\DESTINATION\testuser"
+$Destination = "D:\AutoTxTest\DESTINATION\testuser\copytest"
 $Staging = "D:\AutoTxTest\staging\copytest"
 
-# 1. Create the test files outside of INCOMING first, AutoTx would pick up a half-written folder.
-#    Random content, so it can't be compressed (like real image data). Sizes in MB:
-New-Item -ItemType Directory -Force -Path "$Staging\subfolder"
-$Files = @{
-    "01_small.dat" = 1
-    "02_medium.dat" = 20
-    "subfolder\03_large.dat" = 100
-}
-foreach ($Name in $Files.Keys) {
-    $Bytes = New-Object byte[] ($Files[$Name] * 1MB)
+$FileNames = "01_small.dat", "02_medium.dat", "subfolder\03_large.dat"
+$FileSizesMB = 1, 20, 100
+
+
+# Write a file of the given size with random content (random data can't be compressed, like real images):
+function New-RandomFile($Path, $SizeMB) {
+    $Bytes = New-Object byte[] ($SizeMB * 1MB)
     (New-Object System.Random).NextBytes($Bytes)
-    [System.IO.File]::WriteAllBytes("$Staging\$Name", $Bytes)
+    [System.IO.File]::WriteAllBytes($Path, $Bytes)
 }
 
-# 2. Remember the checksum of every file:
-$SourceHashes = @{}
-foreach ($File in Get-ChildItem -Recurse -File $Staging) {
-    $RelativePath = $File.FullName.Substring($Staging.Length + 1)
-    $SourceHashes[$RelativePath] = (Get-FileHash $File.FullName).Hash
-    Write-Host "Created $RelativePath ($($File.Length) bytes)"
+
+# 1. Create the test files outside of INCOMING, AutoTx would pick up a half-written folder:
+New-Item -ItemType Directory -Force -Path "$Staging\subfolder"
+for ($i = 0; $i -lt $FileNames.Count; $i++) {
+    New-RandomFile "$Staging\$($FileNames[$i])" $FileSizesMB[$i]
+    Write-Host "Created $($FileNames[$i]) ($($FileSizesMB[$i]) MB)"
 }
 
-# 3. Submit the folder. Moving within the same drive is instant, so AutoTx sees it complete:
+
+# 2. Submit the folder. Moving within the same drive is instant, so AutoTx sees it complete:
 Move-Item $Staging "$Incoming\copytest"
 Write-Host "Submitted the folder, waiting for AutoTx..."
 
-# 4. Wait until AutoTx has moved the source to DONE, which is its last step (max 10 minutes):
-$Seconds = 0
-while (-not (Test-Path "$DoneDir\*\copytest") -and $Seconds -lt 600) {
+
+# 3. Wait until AutoTx has moved the source to DONE, its last step. Check every 5 seconds, 120 times (10 minutes):
+$Finished = $false
+foreach ($Try in 1..120) {
+    if (Test-Path "$DoneDir\*\copytest") {
+        $Finished = $true
+        break
+    }
     if (Test-Path "$ErrorDir\*") {
         Write-Host "FAIL: the transfer ended up in ERROR"
         exit 1
     }
     Start-Sleep -Seconds 5
-    $Seconds += 5
 }
-if (-not (Test-Path "$DoneDir\*\copytest")) {
+
+if (-not $Finished) {
     Write-Host "FAIL: the transfer did not finish within 10 minutes"
     exit 1
 }
-Write-Host "Transfer finished after about $Seconds seconds"
+Write-Host "Transfer finished"
 
-# 5. Compare the checksums of the delivered files with the ones from before:
+
+# 4. Compare each delivered file with the source (now in DONE) using a checksum:
+$Source = Resolve-Path "$DoneDir\*\copytest"
 $Failures = 0
-foreach ($RelativePath in $SourceHashes.Keys) {
-    $Target = "$Destination\copytest\$RelativePath"
-    if (-not (Test-Path $Target)) {
-        Write-Host "MISSING:   $RelativePath"
-        $Failures++
+
+foreach ($Name in $FileNames) {
+    $SourceFile = "$Source\$Name"
+    $TargetFile = "$Destination\$Name"
+
+    if (-not (Test-Path $TargetFile)) {
+        Write-Host "MISSING:   $Name"
+        $Failures = $Failures + 1
+        continue
     }
-    elseif ((Get-FileHash $Target).Hash -ne $SourceHashes[$RelativePath]) {
-        Write-Host "DIFFERENT: $RelativePath"
-        $Failures++
-    }
-    else {
-        Write-Host "OK:        $RelativePath"
+
+    $SourceHash = (Get-FileHash $SourceFile).Hash
+    $TargetHash = (Get-FileHash $TargetFile).Hash
+    if ($SourceHash -eq $TargetHash) {
+        Write-Host "OK:        $Name"
+    } else {
+        Write-Host "DIFFERENT: $Name"
+        $Failures = $Failures + 1
     }
 }
 
