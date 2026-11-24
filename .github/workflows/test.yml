@@ -82,3 +82,7 @@ jobs:
       - name: 📁 Create test folders
         run: .\Tests\New-TestFolders.ps1
         shell: pwsh
+
+      - name: 🔧 Install AutoTx
+        run: .\Tests\Install-AutoTx.ps1
+        shell: pwsh
