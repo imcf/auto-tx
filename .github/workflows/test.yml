@@ -13,8 +13,13 @@ jobs:
 
     steps:
 
+      # the full history (fetch-depth 0) is needed for the version number of the build,
+      # lfs gets the real RoboSharp.dll instead of the placeholder file:
       - name: 📥 Checkout repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          lfs: "true"
 
       - name: 🖥️ Show runner information
         run: .\Tests\Show-RunnerInfo.ps1
@@ -22,4 +27,33 @@ jobs:
 
       - name: 📁 Create test folders
         run: .\Tests\New-TestFolders.ps1
+        shell: pwsh
+
+      - name: 👷 Setup MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: 🥇 Setup NuGet
+        uses: NuGet/setup-nuget@v4.0
+
+      # Cache the downloaded NuGet packages (NLog etc.) between runs, they only change
+      # when one of the packages.config files changes:
+      # Copied from release-build.yml, simplified
+      - name: 💾 Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: packages
+          key: nuget-${{ hashFiles('**/packages.config') }}
+
+      - name: 🧬 Restore NuGet packages
+        run: nuget restore AutoTx.sln
+
+      - name: 🏗️ Build AutoTx
+        run: .\Scripts\msbuild\build\release.cmd
+
+      - name: 📦 Make the installation package
+        run: .\Scripts\Make-Package.ps1
+        shell: pwsh
+
+      - name: 🔍 Show the package content
+        run: Get-ChildItem -Recurse Scripts\build
         shell: pwsh
