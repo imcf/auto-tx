@@ -1,6 +1,7 @@
 # Install AutoTx from the downloaded package, the same way as on our production machines.
 
-$PackageDir = "$PSScriptRoot\..\package"
+# the downloaded package contains one folder, named after the build (e.g. AutoTx-v4.0.0.a9-12-g3ab8f7a_x64):
+$PackageDir = (Get-ChildItem "$PSScriptRoot\..\package" -Directory)[0].FullName
 $ServiceDir = "C:\Tools\AutoTx"
 
 # AutoTx runs as a normal user account. The runner is thrown away after the run,
