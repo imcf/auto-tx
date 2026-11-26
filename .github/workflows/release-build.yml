@@ -10,6 +10,8 @@ on:
       - master
       - devel
   workflow_dispatch:
+  # lets other workflows (e.g. test.yml) run this build and use its package:
+  workflow_call:
 
 
 jobs:
