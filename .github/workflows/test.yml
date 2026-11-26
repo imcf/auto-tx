@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - testing-framework
+  pull_request:
+    branches:
+      - devel
+      - master
+  workflow_dispatch:
+
+# if new commits are pushed while a run is still going, stop the old run:
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
