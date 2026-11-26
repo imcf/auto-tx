@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog][0] and the file is parsed with the
 
 The project adheres to [Semantic Versioning][3] (starting with version 4.0).
 
+## [4.1.0]
+
+### ✨ Added
+
+- Automated tests (`.github/workflows/test.yml`, `Tests/`): every pull request
+  to `devel` and `master` builds AutoTx, installs it on a GitHub Windows runner
+  and checks that a test folder is transferred completely (checksums).
+
 ## [4.0.0]
 
 ### 💥 Breaking
