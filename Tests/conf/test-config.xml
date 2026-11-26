@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AutoTx configuration for the tests on the GitHub runner.
+     Install-AutoTx.ps1 copies it to conf\<COMPUTERNAME>.xml, as the computer name changes with every run. -->
+<ServiceConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <HostAlias>GitHub Runner</HostAlias>
+
+    <!-- local folders, the same as on our production machines (see New-TestFolders.ps1) -->
+    <SourceDrive>D:\</SourceDrive>
+    <IncomingDirectory>ProgramData\AUTOTRANSFER\INCOMING</IncomingDirectory>
+    <ManagedDirectory>ProgramData\AUTOTRANSFER</ManagedDirectory>
+
+    <!-- a local folder plays the role of the file server share -->
+    <DestinationAlias>Test Destination</DestinationAlias>
+    <DestinationDirectory>D:\AutoTxTest\DESTINATION</DestinationDirectory>
+    <TmpTransferDir>AUTOTRANSFER-TMP</TmpTransferDir>
+
+    <!-- high limits, so the busy runner doesn't pause the transfers -->
+    <MaxCpuUsage>100</MaxCpuUsage>
+    <MaxDiskQueue>100000</MaxDiskQueue>
+    <MinAvailableMemory>256</MinAvailableMemory>
+
+    <LogLevel>Debug</LogLevel>
+    <MarkerFile>_DO_NOT_ACQUIRE_HERE_.txt</MarkerFile>
+
+    <!-- AutoTx expects these lists, even if empty -->
+    <BlacklistedProcesses />
+    <SpaceMonitoring>
+        <DriveToCheck>
+            <DriveName>D:</DriveName>
+            <SpaceThreshold>1</SpaceThreshold>
+        </DriveToCheck>
+    </SpaceMonitoring>
+
+    <!-- no SmtpHost: AutoTx only writes the mails to its log -->
+
+</ServiceConfig>

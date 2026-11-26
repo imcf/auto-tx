@@ -1,0 +1,75 @@
+name: 🧪👷✅ Tests
+
+on:
+  push:
+    branches:
+      - testing-framework
+  pull_request:
+    branches:
+      - devel
+      - master
+  workflow_dispatch:
+
+# if new commits are pushed while a run is still going, stop the old run:
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # the same build as for a release, including the package as artifact "release-package"
+  # (the "publish" job in there only runs for tags, so nothing gets released here):
+  build:
+    uses: ./.github/workflows/release-build.yml
+
+
+  autotx-test:
+    name: 🧪 Install and test AutoTx
+    runs-on: windows-2022
+    needs: build
+
+    steps:
+
+      # only needed for our test scripts, the build comes from the package:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v7
+
+      - name: 📥 Download the package
+        uses: actions/download-artifact@v8
+        with:
+          name: release-package
+          path: package
+
+      - name: 📂 Unpack the package
+        run: Expand-Archive -Path (Get-ChildItem package\*.zip)[0] -DestinationPath package
+        shell: pwsh
+
+      - name: 🔍 Show the package content
+        run: Get-ChildItem -Recurse package
+        shell: pwsh
+
+      - name: 🖥️ Show runner information
+        run: .\Tests\Show-RunnerInfo.ps1
+        shell: pwsh
+
+      - name: 📁 Create test folders
+        run: .\Tests\New-TestFolders.ps1
+        shell: pwsh
+
+      - name: 🔧 Install AutoTx
+        run: .\Tests\Install-AutoTx.ps1
+        shell: pwsh
+
+      - name: ▶️ Start AutoTx
+        run: .\Tests\Start-AutoTx.ps1
+        shell: pwsh
+
+      - name: 📄 Copy a folder
+        run: .\Tests\Test-CopyFolder.ps1
+        shell: pwsh
+
+      # always show the log, it explains what happened when a test fails:
+      - name: 📜 Show the AutoTx log
+        if: always()
+        run: Get-Content "C:\Tools\AutoTx\var\$env:COMPUTERNAME.AutoTx.log"
+        shell: pwsh
