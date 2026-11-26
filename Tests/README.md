@@ -17,8 +17,8 @@ tests, and nobody can merge it before you mark it "Ready for review".
 
 The workflow has two jobs, each on its own fresh Windows machine (`windows-2022`):
 
-1. **build**: builds AutoTx and makes the installation package (`Scripts/Make-Package.ps1`), the same
-   way as `release-build.yml`. The package zip is handed to the next job.
+1. **build**: runs the release build (`release-build.yml`), so the tests use exactly the package a
+   release would have. Its "publish" job only runs for tags, so nothing gets released.
 2. **autotx-test**: unpacks the package and runs the scripts in this folder, in this order:
 
 | script | what it does |
